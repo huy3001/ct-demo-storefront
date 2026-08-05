@@ -1,0 +1,9 @@
+{
+	"servers": {
+		"my-mcp-server-ff48fb4e": {
+			"url": "https://docs.commercetools.com/apis/mcp",
+			"type": "http"
+		}
+	},
+	"inputs": []
+}

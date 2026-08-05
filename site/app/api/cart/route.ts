@@ -1,0 +1,34 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getSessionApiRoot, persistSession } from '@/lib/ct/session';
+import { getOrCreateCart, addLineItem } from '@/lib/ct/cart';
+import { apiError, localeFromRequest } from '../_utils';
+
+export async function GET(req: NextRequest) {
+  try {
+    const { apiRoot, session } = await getSessionApiRoot();
+    const { cart, session: updatedSession } = await getOrCreateCart(apiRoot, session, localeFromRequest(req));
+    await persistSession(updatedSession);
+    return NextResponse.json(cart);
+  } catch (err) {
+    return apiError(err);
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const { productId, variantId, quantity, locale } = (await req.json()) as {
+      productId: string;
+      variantId: number;
+      quantity?: number;
+      locale?: string;
+    };
+
+    const { apiRoot, session } = await getSessionApiRoot();
+    const { cart, session: updatedSession } = await getOrCreateCart(apiRoot, session, locale ?? localeFromRequest(req));
+    await persistSession(updatedSession);
+    const updated = await addLineItem(apiRoot, cart, productId, variantId, quantity ?? 1);
+    return NextResponse.json(updated);
+  } catch (err) {
+    return apiError(err);
+  }
+}

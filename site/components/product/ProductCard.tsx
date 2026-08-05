@@ -1,0 +1,45 @@
+import Image from 'next/image';
+import { Link } from '@/i18n/routing';
+import type { Product } from '@/lib/types';
+import { formatMoney } from '@/lib/utils';
+
+export default function ProductCard({ product, locale }: { product: Product; locale: string }) {
+  const variant = product.variants[0];
+  const image = variant?.images[0];
+  const price = variant?.price;
+
+  return (
+    <Link href={`/product/${product.slug}`} locale={locale} className="group block">
+      <div className="aspect-square bg-cream-dark rounded-sm overflow-hidden relative">
+        {image ? (
+          <Image
+            src={image}
+            alt={product.name}
+            fill
+            sizes="(max-width: 768px) 50vw, 25vw"
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-charcoal-light text-sm">
+            No image
+          </div>
+        )}
+      </div>
+      <div className="mt-3">
+        <h3 className="text-sm font-medium text-charcoal group-hover:text-terra">{product.name}</h3>
+        {price && (
+          <p className="text-sm text-charcoal-light mt-1">
+            {price.discounted ? (
+              <>
+                <span className="line-through mr-2">{formatMoney(price.centAmount, price.currencyCode, locale)}</span>
+                <span className="text-terra">{formatMoney(price.discounted.centAmount, price.discounted.currencyCode, locale)}</span>
+              </>
+            ) : (
+              formatMoney(price.centAmount, price.currencyCode, locale)
+            )}
+          </p>
+        )}
+      </div>
+    </Link>
+  );
+}
