@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { Link } from '@/i18n/routing';
 import { useAccount } from '@/hooks/useAccount';
 
 export default function LoginPage() {
   const { locale } = useParams<{ locale: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAccount();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -20,7 +21,9 @@ export default function LoginPage() {
     setError(null);
     try {
       await login(email, password);
-      router.push(`/${locale}/account`);
+      const redirectPath = searchParams.get('redirect');
+      const safeRedirect = redirectPath && redirectPath.startsWith('/') ? redirectPath : `/${locale}/account`;
+      router.push(safeRedirect);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {

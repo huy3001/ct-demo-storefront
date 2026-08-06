@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 import { Link } from '@/i18n/routing';
 import { useCart } from '@/hooks/useCart';
 import { useAccount } from '@/hooks/useAccount';
+import { useWishlist } from '@/hooks/useWishlist';
 import { COUNTRY_CONFIG } from '@/lib/utils';
 
 export default function Header({ locale }: { locale: string }) {
   const { itemCount } = useCart();
   const { isSignedIn } = useAccount();
+  const { totalItems: wishlistCount } = useWishlist();
   const router = useRouter();
   const [query, setQuery] = useState('');
 
@@ -65,6 +67,20 @@ export default function Header({ locale }: { locale: string }) {
 
           <Link href={isSignedIn ? '/account' : '/login'} locale={locale} className="hover:text-terra">
             {isSignedIn ? 'Account' : 'Sign in'}
+          </Link>
+
+          <Link
+            href={isSignedIn ? '/wishlists' : `/login?redirect=${encodeURIComponent(`/${locale}/wishlists`)}`}
+            locale={locale}
+            className="relative hover:text-terra"
+            aria-label="Wishlist"
+          >
+            <span aria-hidden>{isSignedIn ? '♥' : '♡'}</span>
+            {isSignedIn && wishlistCount > 0 && (
+              <span className="ml-1 inline-flex items-center justify-center rounded-full bg-terra text-white text-xs w-5 h-5">
+                {wishlistCount}
+              </span>
+            )}
           </Link>
 
           <Link href="/cart" locale={locale} className="relative hover:text-terra">

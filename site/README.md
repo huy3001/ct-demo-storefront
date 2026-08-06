@@ -10,6 +10,7 @@ A Next.js (App Router) B2C storefront connected to commercetools, covering:
 - Customer authentication (register/login/logout) and an account area
   (profile, addresses, order history)
 - Search page
+- Wishlist pages and heart-save actions (PLP/PDP)
 
 ## Getting started
 
