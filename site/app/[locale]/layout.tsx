@@ -5,6 +5,7 @@ import { getMessages } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import { getCategoryTree } from '@/lib/ct/category';
 import '../globals.css';
 
 export const metadata: Metadata = {
@@ -24,13 +25,16 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const messages = await getMessages();
+  const [messages, categoryTree] = await Promise.all([
+    getMessages(),
+    getCategoryTree(locale),
+  ]);
 
   return (
     <html lang={locale} className="h-full">
       <body className="min-h-full flex flex-col bg-cream text-charcoal">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <Header locale={locale} />
+          <Header locale={locale} categoryTree={categoryTree} />
           <main className="flex-1">{children}</main>
           <Footer />
         </NextIntlClientProvider>
