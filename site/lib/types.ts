@@ -51,3 +51,21 @@ export interface SearchResult {
   limit: number;
   facets: Facet[];
 }
+
+export interface WishlistItem {
+  lineItemId: string;
+  productId: string;
+  variantId: number;
+  quantity: number;
+  name: string;
+  image?: string;
+  price?: Price;
+  slug?: string;
+}
+
+export interface Wishlist {
+  id: string;
+  version: number;
+  name: string;
+  lineItems: WishlistItem[];
+}

@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { getProductBySlug } from '@/lib/ct/product';
 import AddToCartForm from '@/components/product/AddToCartForm';
+import WishlistToggleButton from '@/components/product/WishlistToggleButton';
 
 export default async function ProductDetailPage({
   params,
@@ -13,6 +14,7 @@ export default async function ProductDetailPage({
   if (!product) notFound();
 
   const images = product.variants[0]?.images ?? [];
+  const defaultVariant = product.variants[0];
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 grid md:grid-cols-2 gap-12">
@@ -33,6 +35,14 @@ export default async function ProductDetailPage({
       <div>
         <h1 className="text-2xl font-semibold text-charcoal">{product.name}</h1>
         {product.description && <p className="mt-4 text-charcoal-light">{product.description}</p>}
+        {defaultVariant && (
+          <WishlistToggleButton
+            productId={product.id}
+            variantId={defaultVariant.id}
+            locale={locale}
+            className="mt-6"
+          />
+        )}
         <div className="mt-8">
           <AddToCartForm product={product} locale={locale} />
         </div>
