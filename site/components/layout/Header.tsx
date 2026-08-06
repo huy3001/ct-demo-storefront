@@ -28,7 +28,7 @@ export default function Header({ locale }: { locale: string }) {
 
   return (
     <header className="border-b border-border bg-cream sticky top-0 z-40">
-      <div className="mx-auto max-w-7xl px-4 py-3 flex items-center gap-6">
+      <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between gap-6">
         <Link href="/" locale={locale} className="text-xl font-semibold tracking-tight text-charcoal shrink-0">
           Storefront
         </Link>
