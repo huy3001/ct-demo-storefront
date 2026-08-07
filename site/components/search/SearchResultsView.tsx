@@ -3,6 +3,7 @@ import ProductGrid from '@/components/product/ProductGrid';
 import FacetSidebar from './FacetSidebar';
 import SortSelect from './SortSelect';
 import Pagination from './Pagination';
+import ActiveFilters from './ActiveFilters';
 
 export default function SearchResultsView({
   result,
@@ -33,6 +34,8 @@ export default function SearchResultsView({
         <h1 className="text-2xl font-semibold">{title}</h1>
         <SortSelect />
       </div>
+
+      <ActiveFilters facets={facets} />
 
       <div className="flex flex-col md:flex-row gap-10">
         <FacetSidebar facets={facets} />
