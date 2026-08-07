@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import type { Product } from '@/lib/types';
 import { useCart } from '@/hooks/useCart';
 import { formatMoney } from '@/lib/utils';
@@ -17,7 +16,6 @@ export default function AddToCartForm({
   attributeLabels: Record<string, string>;
 }) {
   const { addItem } = useCart();
-  const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
 
@@ -62,7 +60,6 @@ export default function AddToCartForm({
     try {
       await addItem(product.id, matchingVariant.id, quantity);
       setStatus('idle');
-      router.push(`/${locale}/cart`);
     } catch {
       setStatus('error');
     }

@@ -3,14 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Link } from '@/i18n/routing';
-import { useCart } from '@/hooks/useCart';
 import { useAccount } from '@/hooks/useAccount';
 import { useWishlist } from '@/hooks/useWishlist';
 import CategoryNavigation from '@/components/layout/CategoryNavigation';
 import type { Category } from '@/lib/types';
+import MiniCart from '@/components/cart/MiniCart';
 
 export default function Header({ locale, categoryTree }: { locale: string; categoryTree: Category[] }) {
-  const { itemCount } = useCart();
   const { isSignedIn } = useAccount();
   const { totalItems: wishlistCount } = useWishlist();
   const router = useRouter();
@@ -155,40 +154,7 @@ export default function Header({ locale, categoryTree }: { locale: string; categ
               )}
             </Link>
 
-            <Link
-              href="/cart"
-              locale={locale}
-              className="relative hover:text-terra"
-              aria-label="Cart"
-            >
-              <span aria-hidden="true">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-shopping-basket-icon lucide-shopping-basket"
-                >
-                  <path d="m15 11-1 9" />
-                  <path d="m19 11-4-7" />
-                  <path d="M2 11h20" />
-                  <path d="m3.5 11 1.6 7.4a2 2 0 0 0 2 1.6h9.8a2 2 0 0 0 2-1.6l1.7-7.4" />
-                  <path d="M4.5 15.5h15" />
-                  <path d="m5 11 4-7" />
-                  <path d="m9 11 1 9" />
-                </svg>
-              </span>
-              {itemCount > 0 && (
-                <span className="absolute -top-1/2 left-1/2 inline-flex items-center justify-center rounded-full bg-terra text-white text-xs w-5 h-5">
-                  {itemCount}
-                </span>
-              )}
-            </Link>
+            <MiniCart locale={locale} />
           </div>
         </div>
 

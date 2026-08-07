@@ -4,7 +4,15 @@ import useSWR from 'swr';
 import type { Cart } from '@commercetools/platform-sdk';
 import { useLocale } from 'next-intl';
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+async function readJson<T>(response: Response): Promise<T> {
+  const body = await response.json();
+  if (!response.ok) {
+    throw new Error((body as { error?: string; message?: string }).error ?? (body as { message?: string }).message ?? 'Cart request failed');
+  }
+  return body as T;
+}
+
+const fetcher = (url: string) => fetch(url).then((response) => readJson<Cart>(response));
 
 export function useCart() {
   const locale = useLocale();
@@ -13,41 +21,45 @@ export function useCart() {
   });
 
   async function addItem(productId: string, variantId: number, quantity = 1) {
-    const updated = await fetch('/api/cart', {
+    const response = await fetch('/api/cart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productId, variantId, quantity, locale }),
-    }).then((res) => res.json());
+    });
+    const updated = await readJson<Cart>(response);
     await mutate(updated, { revalidate: false });
     return updated as Cart;
   }
 
   async function changeQuantity(lineItemId: string, quantity: number) {
-    const updated = await fetch(`/api/cart/items/${lineItemId}`, {
+    const response = await fetch(`/api/cart/items/${lineItemId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ quantity, locale }),
-    }).then((res) => res.json());
+    });
+    const updated = await readJson<Cart>(response);
     await mutate(updated, { revalidate: false });
     return updated as Cart;
   }
 
   async function removeItem(lineItemId: string) {
-    const updated = await fetch(`/api/cart/items/${lineItemId}`, {
+    const response = await fetch(`/api/cart/items/${lineItemId}`, {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ locale }),
-    }).then((res) => res.json());
+    });
+    const updated = await readJson<Cart>(response);
     await mutate(updated, { revalidate: false });
     return updated as Cart;
   }
 
   async function applyDiscountCode(code: string) {
-    const updated = await fetch('/api/cart/discount-code', {
+    const response = await fetch('/api/cart/discount-code', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code, locale }),
-    }).then((res) => res.json());
+    });
+    const updated = await readJson<Cart>(response);
     await mutate(updated, { revalidate: false });
     return updated as Cart;
   }
