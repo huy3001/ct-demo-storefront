@@ -8,7 +8,6 @@ import { useAccount } from '@/hooks/useAccount';
 import { useWishlist } from '@/hooks/useWishlist';
 import CategoryNavigation from '@/components/layout/CategoryNavigation';
 import type { Category } from '@/lib/types';
-import { COUNTRY_CONFIG } from '@/lib/utils';
 
 export default function Header({ locale, categoryTree }: { locale: string; categoryTree: Category[] }) {
   const { itemCount } = useCart();
@@ -21,13 +20,6 @@ export default function Header({ locale, categoryTree }: { locale: string; categ
     e.preventDefault();
     if (!query.trim()) return;
     router.push(`/${locale}/search?q=${encodeURIComponent(query.trim())}`);
-  }
-
-  function onLocaleChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const next = e.target.value;
-    document.cookie = `your-shop-country-locale=${next}; path=/; max-age=${60 * 60 * 24 * 365}`;
-    const rest = window.location.pathname.split('/').slice(2).join('/');
-    window.location.href = `/${next}/${rest}`;
   }
 
   return (
@@ -51,19 +43,6 @@ export default function Header({ locale, categoryTree }: { locale: string; categ
           </form>
 
           <div className="ml-auto flex items-center gap-2 md:gap-4 shrink-0 text-sm">
-            <select
-              defaultValue={locale}
-              onChange={onLocaleChange}
-              className="border border-border rounded-sm bg-white px-2 py-1 text-sm"
-              aria-label="Select locale"
-            >
-              {Object.keys(COUNTRY_CONFIG).map((l) => (
-                <option key={l} value={l}>
-                  {COUNTRY_CONFIG[l].label}
-                </option>
-              ))}
-            </select>
-
             <Link href={isSignedIn ? '/account' : '/login'} locale={locale} className="hover:text-terra hidden sm:inline">
               {isSignedIn ? 'Account' : 'Sign in'}
             </Link>

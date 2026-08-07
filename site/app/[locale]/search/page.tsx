@@ -30,7 +30,8 @@ export default async function SearchPage({
   const { locale } = await params;
   const sp = await searchParams;
 
-  const query = (sp.q as string | undefined) ?? '';
+  const queryValue = Array.isArray(sp.q) ? sp.q[0] : sp.q;
+  const query = queryValue?.trim() ?? '';
   const page = Math.max(1, Number.parseInt(String(sp.page ?? '1'), 10) || 1);
   const requestedSort = Array.isArray(sp.sort) ? sp.sort[0] : sp.sort;
   const sort = SORTS.find((value) => value === requestedSort);

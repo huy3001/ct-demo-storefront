@@ -33,7 +33,7 @@ export interface ProductSearchParams {
 }
 
 function localeLanguage(locale: string) {
-  return (COUNTRY_CONFIG[locale]?.locale ?? 'en-US').split('-')[0];
+  return COUNTRY_CONFIG[locale]?.locale ?? 'en-US';
 }
 
 function buildQuery(params: ProductSearchParams) {
@@ -41,7 +41,12 @@ function buildQuery(params: ProductSearchParams) {
 
   if (params.text) {
     clauses.push({
-      fullText: { field: 'name', language: localeLanguage(params.locale), value: params.text },
+      fullText: {
+        field: 'name',
+        language: localeLanguage(params.locale),
+        value: params.text,
+        caseInsensitive: true,
+      },
     });
   }
 
@@ -84,16 +89,16 @@ function buildPostFilter(params: ProductSearchParams) {
   return clauses.length === 1 ? clauses[0] : { and: clauses };
 }
 
-function buildSort(sort: ProductSearchParams['sort']) {
+function buildSort(sort: ProductSearchParams['sort'], locale: string) {
   switch (sort) {
     case 'price-asc':
       return [{ field: 'variants.prices.centAmount', order: 'asc' as const }];
     case 'price-desc':
       return [{ field: 'variants.prices.centAmount', order: 'desc' as const }];
     case 'name-asc':
-      return [{ field: 'name', order: 'asc' as const }];
+      return [{ field: 'name', language: localeLanguage(locale), order: 'asc' as const }];
     case 'name-desc':
-      return [{ field: 'name', order: 'desc' as const }];
+      return [{ field: 'name', language: localeLanguage(locale), order: 'desc' as const }];
     default:
       return undefined; // relevance / default score ordering
   }
@@ -134,7 +139,7 @@ export async function searchProducts(
   const baseBody = {
     query: buildQuery(params),
     postFilter: buildPostFilter(params),
-    sort: buildSort(params.sort),
+    sort: buildSort(params.sort, params.locale),
     limit: pageSize,
     offset: (page - 1) * pageSize,
     markMatchingVariants: true,
