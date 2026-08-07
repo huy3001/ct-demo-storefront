@@ -5,11 +5,19 @@ import { useRouter } from 'next/navigation';
 import type { Product } from '@/lib/types';
 import { useCart } from '@/hooks/useCart';
 import { formatMoney } from '@/lib/utils';
+import { attributeValueKey, formatAttributeValue, humanizeAttributeName } from '@/lib/product-attributes';
 
-export default function AddToCartForm({ product, locale }: { product: Product; locale: string }) {
+export default function AddToCartForm({
+  product,
+  locale,
+  attributeLabels,
+}: {
+  product: Product;
+  locale: string;
+  attributeLabels: Record<string, string>;
+}) {
   const { addItem } = useCart();
   const router = useRouter();
-  const [selected, setSelected] = useState<Record<string, string>>({});
   const [quantity, setQuantity] = useState(1);
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
 
@@ -17,28 +25,39 @@ export default function AddToCartForm({ product, locale }: { product: Product; l
     const options = new Map<string, Set<string>>();
     for (const variant of product.variants) {
       for (const attr of variant.attributes) {
-        const value = typeof attr.value === 'object' && attr.value !== null ? (attr.value as { key?: string }).key ?? String(attr.value) : String(attr.value);
+        const value = attributeValueKey(attr.value, locale);
         if (!options.has(attr.name)) options.set(attr.name, new Set());
         options.get(attr.name)!.add(value);
       }
     }
-    return options;
-  }, [product.variants]);
+    return new Map([...options].filter(([, values]) => values.size > 1));
+  }, [locale, product.variants]);
+
+  const [selected, setSelected] = useState<Record<string, string>>(() =>
+    Object.fromEntries(
+      [...attributeOptions.keys()].map((name) => {
+        const attribute = product.variants[0]?.attributes.find((item) => item.name === name);
+        return [name, attributeValueKey(attribute?.value, locale)];
+      })
+    )
+  );
 
   const matchingVariant = useMemo(() => {
     return (
       product.variants.find((variant) =>
-        variant.attributes.every((attr) => {
-          const value = typeof attr.value === 'object' && attr.value !== null ? (attr.value as { key?: string }).key ?? String(attr.value) : String(attr.value);
-          return !selected[attr.name] || selected[attr.name] === value;
+        Object.entries(selected).every(([name, selectedValue]) => {
+          const attribute = variant.attributes.find((item) => item.name === name);
+          return attributeValueKey(attribute?.value, locale) === selectedValue;
         })
       ) ?? product.variants[0]
     );
-  }, [product.variants, selected]);
+  }, [locale, product.variants, selected]);
+
+  const isUnavailable = matchingVariant?.availability?.isOnStock === false || !matchingVariant?.price;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!matchingVariant) return;
+    if (!matchingVariant || isUnavailable) return;
     setStatus('loading');
     try {
       await addItem(product.id, matchingVariant.id, quantity);
@@ -51,52 +70,76 @@ export default function AddToCartForm({ product, locale }: { product: Product; l
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
+      {matchingVariant?.price && (
+        <div>
+          {matchingVariant.price.discounted ? (
+            <div className="flex items-baseline gap-3">
+              <p className="text-2xl font-semibold text-terra">
+                {formatMoney(matchingVariant.price.discounted.centAmount, matchingVariant.price.discounted.currencyCode, locale)}
+              </p>
+              <p className="text-sm text-charcoal-light line-through">
+                {formatMoney(matchingVariant.price.centAmount, matchingVariant.price.currencyCode, locale)}
+              </p>
+            </div>
+          ) : (
+            <p className="text-2xl font-semibold text-charcoal">
+              {formatMoney(matchingVariant.price.centAmount, matchingVariant.price.currencyCode, locale)}
+            </p>
+          )}
+          <p className={`mt-2 text-sm ${isUnavailable ? 'text-red-600' : 'text-sage'}`}>
+            {isUnavailable ? 'Currently unavailable' : 'In stock and ready to ship'}
+          </p>
+        </div>
+      )}
+
       {[...attributeOptions.entries()].map(([name, values]) => (
         <div key={name}>
-          <label className="text-sm font-medium text-charcoal capitalize block mb-2">{name}</label>
+          <label className="mb-2 block text-sm font-medium text-charcoal">
+            {attributeLabels[name] ?? humanizeAttributeName(name)}
+          </label>
           <div className="flex gap-2 flex-wrap">
             {[...values].map((value) => (
               <button
                 type="button"
                 key={value}
                 onClick={() => setSelected((prev) => ({ ...prev, [name]: value }))}
-                className={`px-3 py-1.5 text-sm border rounded-sm ${
-                  selected[name] === value ? 'border-charcoal bg-charcoal text-white' : 'border-border'
+                aria-pressed={selected[name] === value}
+                className={`rounded-sm border px-4 py-2 text-sm ${
+                  selected[name] === value ? 'border-charcoal bg-charcoal text-white' : 'border-border bg-white hover:border-charcoal'
                 }`}
               >
-                {value}
+                {formatAttributeValue(value, locale)}
               </button>
             ))}
           </div>
         </div>
       ))}
 
-      <div className="flex items-center gap-3">
-        <label className="text-sm font-medium" htmlFor="quantity">
-          Qty
-        </label>
-        <input
-          id="quantity"
-          type="number"
-          min={1}
-          value={quantity}
-          onChange={(e) => setQuantity(Math.max(1, Number(e.target.value)))}
-          className="w-16 border border-border rounded-sm px-2 py-1.5 text-sm"
-        />
+      <div>
+        <label className="mb-2 block text-sm font-medium" htmlFor="quantity">Quantity</label>
+        <div className="inline-flex h-11 items-center rounded-sm border border-border bg-white">
+          <button type="button" onClick={() => setQuantity((value) => Math.max(1, value - 1))} disabled={quantity <= 1} className="h-full w-11 text-lg disabled:opacity-30" aria-label="Decrease quantity">−</button>
+          <input
+            id="quantity"
+            type="number"
+            min={1}
+            value={quantity}
+            onChange={(e) => {
+              const nextQuantity = Number.parseInt(e.target.value, 10);
+              setQuantity(Number.isFinite(nextQuantity) ? Math.max(1, nextQuantity) : 1);
+            }}
+            className="h-full w-12 border-x border-border bg-transparent text-center text-sm outline-none"
+          />
+          <button type="button" onClick={() => setQuantity((value) => value + 1)} className="h-full w-11 text-lg" aria-label="Increase quantity">+</button>
+        </div>
       </div>
-
-      {matchingVariant?.price && (
-        <p className="text-lg font-semibold">
-          {formatMoney(matchingVariant.price.centAmount, matchingVariant.price.currencyCode, locale)}
-        </p>
-      )}
 
       <button
         type="submit"
-        disabled={status === 'loading' || !matchingVariant}
-        className="w-full bg-charcoal text-white py-3 rounded-sm text-sm hover:bg-charcoal-light disabled:opacity-50"
+        disabled={status === 'loading' || !matchingVariant || isUnavailable}
+        className="w-full rounded-sm bg-charcoal py-3.5 text-sm font-medium text-white hover:bg-terra disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {status === 'loading' ? 'Adding…' : 'Add to cart'}
+        {status === 'loading' ? 'Adding…' : isUnavailable ? 'Unavailable' : 'Add to cart'}
       </button>
       {status === 'error' && <p className="text-sm text-red-600">Something went wrong. Please try again.</p>}
     </form>
