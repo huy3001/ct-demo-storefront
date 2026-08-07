@@ -1,6 +1,24 @@
 import { runProductSearch } from '@/lib/ct/search-page';
 import SearchResultsView from '@/components/search/SearchResultsView';
-import { FACETABLE_ATTRIBUTES } from '@/lib/ct/product-search';
+import { getFilterableFacets } from '@/lib/ct/product-facets';
+import { getCategoryTree } from '@/lib/ct/category';
+import type { Category } from '@/lib/types';
+
+const SORTS = ['price-asc', 'price-desc', 'name-asc', 'name-desc', 'relevance'] as const;
+
+function categoryLabels(categories: Category[]): Record<string, string> {
+  return Object.fromEntries(categories.flatMap((category) => [
+    [category.id, category.name],
+    ...Object.entries(categoryLabels(category.children ?? [])),
+  ]));
+}
+
+function priceInCents(value: string | string[] | undefined) {
+  const rawValue = Array.isArray(value) ? value[0] : value;
+  if (!rawValue?.trim()) return undefined;
+  const amount = Number(rawValue);
+  return Number.isFinite(amount) && amount >= 0 ? Math.round(amount * 100) : undefined;
+}
 
 export default async function SearchPage({
   params,
@@ -13,23 +31,25 @@ export default async function SearchPage({
   const sp = await searchParams;
 
   const query = (sp.q as string | undefined) ?? '';
-  const page = Number(sp.page ?? 1) || 1;
-  const sort = (sp.sort as string | undefined) as
-    | 'price-asc'
-    | 'price-desc'
-    | 'name-asc'
-    | 'name-desc'
-    | 'relevance'
-    | undefined;
+  const page = Math.max(1, Number.parseInt(String(sp.page ?? '1'), 10) || 1);
+  const requestedSort = Array.isArray(sp.sort) ? sp.sort[0] : sp.sort;
+  const sort = SORTS.find((value) => value === requestedSort);
 
-  const facets = FACETABLE_ATTRIBUTES.map((attr) => ({
+  const facetDefinitions = await getFilterableFacets(locale);
+  const facets = facetDefinitions.map((attr) => ({
     field: attr.field,
-    values: ([] as string[]).concat(sp[attr.key] ?? []),
+    fieldType: attr.fieldType,
+    values: ([] as string[]).concat(sp[`f_${attr.key}`] ?? []),
   })).filter((f) => f.values.length);
 
-  const result = query
-    ? await runProductSearch({ locale, text: query, sort, page, pageSize: 24, facets })
-    : { products: [], total: 0, offset: 0, limit: 24, facets: [] };
+  const priceRange = { min: priceInCents(sp.minPrice), max: priceInCents(sp.maxPrice) };
+
+  const [result, categories] = await Promise.all([
+    query
+      ? runProductSearch({ locale, text: query, sort, page, pageSize: 24, facets, priceRange, facetDefinitions })
+      : Promise.resolve({ products: [], total: 0, offset: 0, limit: 24, facets: [] }),
+    getCategoryTree(locale),
+  ]);
 
   return (
     <SearchResultsView
@@ -37,6 +57,7 @@ export default async function SearchPage({
       page={page}
       locale={locale}
       title={query ? `Results for "${query}"` : 'Search'}
+      categoryLabels={categoryLabels(categories)}
     />
   );
 }

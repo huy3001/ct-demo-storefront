@@ -1,9 +1,17 @@
-import type { ByProjectKeyRequestBuilder, ProductPagedSearchResponse, ProductSearchRequest } from '@commercetools/platform-sdk';
+import type {
+  ByProjectKeyRequestBuilder,
+  ProductPagedSearchResponse,
+  ProductSearchFacetExpression,
+  ProductSearchRequest,
+  SearchFieldType,
+} from '@commercetools/platform-sdk';
 import { COUNTRY_CONFIG } from '@/lib/utils';
+import type { FilterableFacetDefinition } from './product-facets';
 
 export interface SearchFacetSelection {
-  /** attribute path, e.g. "variants.attributes.color.key" or "categories.id" */
+  /** attribute path, e.g. "variants.attributes.color.key" or "categories" */
   field: string;
+  fieldType?: SearchFieldType;
   values: string[];
 }
 
@@ -17,17 +25,12 @@ export interface ProductSearchParams {
   text?: string;
   categoryId?: string;
   facets?: SearchFacetSelection[];
+  facetDefinitions: FilterableFacetDefinition[];
   priceRange?: PriceRangeSelection;
   sort?: 'price-asc' | 'price-desc' | 'name-asc' | 'name-desc' | 'relevance';
   page?: number; // 1-based
   pageSize?: number;
 }
-
-export const FACETABLE_ATTRIBUTES: Array<{ key: string; label: string; field: string }> = [
-  { key: 'color', label: 'Color', field: 'variants.attributes.color.key' },
-  { key: 'size', label: 'Size', field: 'variants.attributes.size.key' },
-  { key: 'brand', label: 'Brand', field: 'variants.attributes.brand' },
-];
 
 function localeLanguage(locale: string) {
   return (COUNTRY_CONFIG[locale]?.locale ?? 'en-US').split('-')[0];
@@ -42,14 +45,20 @@ function buildQuery(params: ProductSearchParams) {
     });
   }
 
-  if (params.categoryId) {
-    clauses.push({ exact: { field: 'categories.id', value: params.categoryId } });
-  }
+  if (params.categoryId) clauses.push({ exact: { field: 'categoriesSubTree', value: params.categoryId } });
+
+  if (clauses.length === 0) return undefined;
+  return clauses.length === 1 ? clauses[0] : { and: clauses };
+}
+
+function buildPostFilter(params: ProductSearchParams) {
+  const clauses: Record<string, unknown>[] = [];
 
   if (params.priceRange?.min !== undefined || params.priceRange?.max !== undefined) {
     clauses.push({
       range: {
         field: 'variants.prices.centAmount',
+        fieldType: 'number',
         gte: params.priceRange?.min,
         lte: params.priceRange?.max,
       },
@@ -58,7 +67,17 @@ function buildQuery(params: ProductSearchParams) {
 
   for (const facet of params.facets ?? []) {
     if (!facet.values.length) continue;
-    clauses.push({ exact: { field: facet.field, values: facet.values } });
+    const values = facet.fieldType?.includes('boolean')
+      ? facet.values.map((value) => value === 'true')
+      : facet.values;
+    clauses.push({
+      exact: {
+        field: facet.field,
+        ...(facet.fieldType ? { fieldType: facet.fieldType } : {}),
+        language: params.locale,
+        values,
+      },
+    });
   }
 
   if (clauses.length === 0) return undefined;
@@ -80,25 +99,21 @@ function buildSort(sort: ProductSearchParams['sort']) {
   }
 }
 
-// `categories.id` is always a valid searchable/facetable field regardless of the project's
-// product type schema, so it's always requested. The attribute-based facets in
-// FACETABLE_ATTRIBUTES depend on the project's actual product type having matching attributes
-// (e.g. "color", "size", "brand") — if the project's schema differs (or has no product types
-// at all), the Search API rejects the whole request with a 400 "Unknown field" error. To stay
-// resilient across arbitrary catalogs, we optimistically request all facets first and fall back
-// to progressively fewer facets if the API rejects the field set.
-const CATEGORY_FACET = { distinct: { name: 'categories', field: 'categories.id', fieldType: 'text' as const } };
-
-function buildFacetExpressions(includeAttributeFacets: boolean) {
-  const facets = [CATEGORY_FACET];
-  if (includeAttributeFacets) {
-    facets.push(
-      ...FACETABLE_ATTRIBUTES.map((attr) => ({
-        distinct: { name: attr.key, field: attr.field, fieldType: 'text' as const },
-      }))
-    );
-  }
-  return facets;
+// Category is always available. Attribute facets come from searchable ProductType definitions;
+// retain a category-only fallback for catalogs whose search index trails a schema update.
+function buildFacetExpressions(
+  definitions: FilterableFacetDefinition[],
+  locale: string
+): ProductSearchFacetExpression[] {
+  return definitions.map((facet) => ({
+    distinct: {
+      name: facet.key,
+      field: facet.field,
+      ...(facet.fieldType ? { fieldType: facet.fieldType } : {}),
+      language: locale,
+      limit: 50,
+    },
+  }));
 }
 
 function isUnknownFieldError(error: unknown): boolean {
@@ -118,6 +133,7 @@ export async function searchProducts(
 
   const baseBody = {
     query: buildQuery(params),
+    postFilter: buildPostFilter(params),
     sort: buildSort(params.sort),
     limit: pageSize,
     offset: (page - 1) * pageSize,
@@ -129,7 +145,12 @@ export async function searchProducts(
     },
   };
 
-  const attempts = [buildFacetExpressions(true), buildFacetExpressions(false), []];
+  const categoryFacet = params.facetDefinitions.filter((facet) => facet.key === 'category');
+  const attempts = [
+    buildFacetExpressions(params.facetDefinitions, params.locale),
+    buildFacetExpressions(categoryFacet, params.locale),
+    [],
+  ];
   let lastError: unknown;
   for (const facets of attempts) {
     const body: ProductSearchRequest = { ...baseBody, facets };

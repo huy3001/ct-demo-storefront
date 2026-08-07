@@ -30,11 +30,13 @@ export default function WishlistDetailPage({ locale, wishlistId }: { locale: str
     );
   }
 
+  const resolvedWishlistId = wishlist.id;
+
   async function onRemove(lineItemId: string) {
     setBusyItemId(lineItemId);
     setError(null);
     try {
-      await removeFromWishlist(wishlist.id, lineItemId, locale);
+      await removeFromWishlist(resolvedWishlistId, lineItemId, locale);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to remove item');
     } finally {
@@ -93,11 +95,11 @@ export default function WishlistDetailPage({ locale, wishlistId }: { locale: str
               <div className="mt-3 flex gap-2 md:mt-0">
                 <button
                   type="button"
-                  onClick={() => onAddToCart(item.productId, item.variantId)}
-                  disabled={busyItemId === `${item.productId}-${item.variantId}`}
+                  onClick={() => item.variantId !== undefined && onAddToCart(item.productId, item.variantId)}
+                  disabled={item.variantId === undefined || busyItemId === `${item.productId}-${item.variantId}`}
                   className="rounded-sm border border-charcoal px-3 py-2 text-sm text-charcoal hover:bg-charcoal hover:text-white disabled:opacity-60"
                 >
-                  Add to cart
+                  {item.variantId === undefined ? 'Unavailable' : 'Add to cart'}
                 </button>
                 <button
                   type="button"

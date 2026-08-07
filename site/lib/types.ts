@@ -55,7 +55,7 @@ export interface SearchResult {
 export interface WishlistItem {
   lineItemId: string;
   productId: string;
-  variantId: number;
+  variantId?: number;
   quantity: number;
   name: string;
   image?: string;

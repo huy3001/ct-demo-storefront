@@ -7,7 +7,7 @@ export async function getCategoryTree(locale: string): Promise<Category[]> {
   const apiRoot: ByProjectKeyRequestBuilder = getCatalogApiRoot();
   const { body } = await apiRoot
     .categories()
-    .get({ queryArgs: { limit: 200, sort: 'orderHint asc' } })
+    .get({ queryArgs: { limit: 500, sort: 'orderHint asc' } })
     .execute();
 
   const byId = new Map<string, Category>();
