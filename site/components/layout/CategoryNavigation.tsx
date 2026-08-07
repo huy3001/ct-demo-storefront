@@ -62,28 +62,79 @@ export default function CategoryNavigation({
     <>
       <button
         type="button"
-        className="md:hidden inline-flex h-9 w-9 items-center justify-center rounded-sm border border-border bg-white text-charcoal"
+        className="md:hidden inline-flex h-9 w-9 items-center justify-center text-charcoal order-0"
         onClick={() => setMobileOpen(true)}
         aria-label="Open menu"
       >
-        ☰
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="lucide lucide-square-menu-icon lucide-square-menu"
+        >
+          <rect
+            width="18"
+            height="18"
+            x="3"
+            y="3"
+            rx="2"
+          />
+          <path d="M7 8h10" />
+          <path d="M7 12h10" />
+          <path d="M7 16h10" />
+        </svg>
       </button>
 
-      <div ref={containerRef} className="hidden md:flex items-center gap-5 text-sm text-charcoal-light shrink-0 relative">
-        <Link href="/category/all" locale={locale} className={`hover:text-charcoal ${pathname.includes('/category/all') ? 'text-charcoal' : ''}`}>
+      <div
+        ref={containerRef}
+        className="hidden md:flex items-center gap-5 text-sm text-charcoal-light shrink-0 relative"
+      >
+        <Link
+          href="/category/all"
+          locale={locale}
+          className={`hover:text-charcoal ${pathname.includes('/category/all') ? 'text-charcoal' : ''}`}
+        >
           Shop
         </Link>
 
         {validCategories.map((category) => {
-          const children = (category.children ?? []).filter((child) => Boolean(child.slug));
+          const children = (category.children ?? []).filter((child) =>
+            Boolean(child.slug),
+          );
           const active = hasActiveCategory(pathname, category);
 
+          if (children.length === 0) {
+            return (
+              <Link
+                key={category.id}
+                href={`/category/${category.slug}`}
+                locale={locale}
+                className={`hover:text-charcoal ${active ? 'text-charcoal' : ''}`}
+              >
+                {category.name}
+              </Link>
+            );
+          }
+
           return (
-            <div key={category.id} className="relative">
+            <div
+              key={category.id}
+              className="relative"
+            >
               <button
                 type="button"
-                onClick={() => setOpenRootId((prev) => (prev === category.id ? null : category.id))}
-                className={`hover:text-charcoal ${active ? 'text-charcoal' : ''}`}
+                onClick={() =>
+                  setOpenRootId((prev) =>
+                    prev === category.id ? null : category.id,
+                  )
+                }
+                className={`cursor-pointer hover:text-charcoal ${active ? 'text-charcoal' : ''}`}
                 aria-expanded={openRootId === category.id}
                 aria-haspopup={children.length > 0}
               >
@@ -98,7 +149,7 @@ export default function CategoryNavigation({
                     className="block text-sm font-medium text-charcoal hover:text-terra"
                     onClick={() => setOpenRootId(null)}
                   >
-                    View all {category.name}
+                    All {category.name}
                   </Link>
                   <div className="mt-3 space-y-2">
                     {children.map((child) => (
@@ -153,10 +204,15 @@ export default function CategoryNavigation({
               </Link>
 
               {validCategories.map((category) => {
-                const children = (category.children ?? []).filter((child) => Boolean(child.slug));
+                const children = (category.children ?? []).filter((child) =>
+                  Boolean(child.slug),
+                );
                 const expanded = expandedRootId === category.id;
                 return (
-                  <div key={category.id} className="rounded-sm border border-border">
+                  <div
+                    key={category.id}
+                    className="rounded-sm border border-border"
+                  >
                     <div className="flex items-center justify-between gap-2 px-2 py-2">
                       <Link
                         href={`/category/${category.slug}`}
@@ -171,7 +227,11 @@ export default function CategoryNavigation({
                           type="button"
                           className="px-1 text-charcoal-light"
                           aria-label={`Toggle ${category.name}`}
-                          onClick={() => setExpandedRootId((prev) => (prev === category.id ? null : category.id))}
+                          onClick={() =>
+                            setExpandedRootId((prev) =>
+                              prev === category.id ? null : category.id,
+                            )
+                          }
                         >
                           {expanded ? '−' : '+'}
                         </button>
