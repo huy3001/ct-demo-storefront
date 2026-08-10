@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import { getProductBySlug } from '@/lib/ct/product';
 import AddToCartForm from '@/components/product/AddToCartForm';
+import ProductImageGallery from '@/components/product/ProductImageGallery';
 import WishlistToggleButton from '@/components/product/WishlistToggleButton';
 import ProductSpecifications from '@/components/product/ProductSpecifications';
 import { getProductAttributeLabels } from '@/lib/ct/product-attributes';
@@ -31,26 +31,7 @@ export default async function ProductDetailPage({
       </nav>
 
       <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(360px,0.8fr)] lg:gap-16">
-        <section aria-label="Product images" className="grid grid-cols-2 gap-3">
-          {images.length > 0 ? (
-            images.map((src, i) => (
-              <div key={src} className={`relative overflow-hidden rounded-sm bg-white ${i === 0 ? 'col-span-2 aspect-square' : 'aspect-square'}`}>
-                <Image
-                  src={src}
-                  alt={`${product.name}${images.length > 1 ? ` – view ${i + 1}` : ''}`}
-                  fill
-                  priority={i === 0}
-                  sizes={i === 0 ? '(max-width: 1024px) 100vw, 58vw' : '(max-width: 1024px) 50vw, 29vw'}
-                  className="object-contain p-4 md:p-8"
-                />
-              </div>
-            ))
-          ) : (
-            <div className="col-span-2 flex aspect-square items-center justify-center rounded-sm bg-cream-dark text-charcoal-light">
-              No image available
-            </div>
-          )}
-        </section>
+        <ProductImageGallery images={images} productName={product.name} />
 
         <section className="lg:sticky lg:top-24">
           <div className="flex items-start justify-between gap-4">
