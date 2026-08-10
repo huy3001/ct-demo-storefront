@@ -43,3 +43,28 @@ export async function getFeaturedProducts(locale: string, limit = 8): Promise<Pr
 
   return body.results.map((p) => mapProductProjection(p, locale));
 }
+
+export async function getRelatedProducts(
+  categoryId: string,
+  currentProductId: string,
+  locale: string,
+  limit = 8,
+): Promise<Product[]> {
+  const apiRoot: ByProjectKeyRequestBuilder = getCatalogApiRoot();
+  const { currency, country } = COUNTRY_CONFIG[locale] ?? COUNTRY_CONFIG['en-US'];
+
+  const { body } = await apiRoot
+    .productProjections()
+    .get({
+      queryArgs: {
+        where: `categories(id="${categoryId}") and id != "${currentProductId}"`,
+        priceCurrency: currency,
+        priceCountry: country,
+        limit,
+        sort: 'createdAt desc',
+      },
+    })
+    .execute();
+
+  return body.results.map((product) => mapProductProjection(product, locale));
+}

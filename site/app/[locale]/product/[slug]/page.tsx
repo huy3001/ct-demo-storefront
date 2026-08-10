@@ -1,7 +1,8 @@
 import { notFound } from 'next/navigation';
-import { getProductBySlug } from '@/lib/ct/product';
+import { getProductBySlug, getRelatedProducts } from '@/lib/ct/product';
 import AddToCartForm from '@/components/product/AddToCartForm';
 import ProductImageGallery from '@/components/product/ProductImageGallery';
+import RelatedProductsSlider from '@/components/product/RelatedProductsSlider';
 import WishlistToggleButton from '@/components/product/WishlistToggleButton';
 import ProductSpecifications from '@/components/product/ProductSpecifications';
 import { getProductAttributeLabels } from '@/lib/ct/product-attributes';
@@ -18,6 +19,11 @@ export default async function ProductDetailPage({
     getProductAttributeLabels(locale),
   ]);
   if (!product) notFound();
+
+  const categoryId = product.categories[0]?.id;
+  const relatedProducts = categoryId
+    ? await getRelatedProducts(categoryId, product.id, locale, 8)
+    : [];
 
   const images = product.variants[0]?.images ?? [];
   const defaultVariant = product.variants[0];
@@ -57,6 +63,10 @@ export default async function ProductDetailPage({
           )}
         </section>
       </div>
+
+      {relatedProducts.length > 0 && (
+        <RelatedProductsSlider products={relatedProducts} locale={locale} />
+      )}
     </div>
   );
 }
