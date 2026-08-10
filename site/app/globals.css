@@ -41,3 +41,33 @@ input[type=number] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
+
+.commercetools-checkout-embedded {
+  [data-testid="checkout"] {
+    background: none;
+
+    > div {
+      > div {
+        background: none;
+      }
+    }
+  }
+
+  form {
+    > fieldset {
+      > div {
+        &:not(:has(input[value=""])) {
+          label {
+            background: var(--background) !important;
+          }
+        }
+      }
+    }
+
+    [aria-label^="free from"] {
+      background: none;
+      margin-left: 2rem;
+      padding-left: 0;
+    }
+  }
+}
