@@ -25,6 +25,9 @@ export default function AccountLayout({ children }: { children: ReactNode }) {
     <div className="mx-auto max-w-5xl px-4 py-12 grid md:grid-cols-[180px_1fr] gap-10">
       <nav className="space-y-2 text-sm">
         <Link href="/account" locale={locale} className="block hover:text-terra">
+          Overview
+        </Link>
+        <Link href="/account/profile" locale={locale} className="block hover:text-terra">
           Profile
         </Link>
         <Link href="/account/orders" locale={locale} className="block hover:text-terra">
@@ -32,6 +35,9 @@ export default function AccountLayout({ children }: { children: ReactNode }) {
         </Link>
         <Link href="/account/addresses" locale={locale} className="block hover:text-terra">
           Addresses
+        </Link>
+        <Link href="/account/wishlists" locale={locale} className="block hover:text-terra">
+          Wishlists
         </Link>
         <button onClick={() => logout().then(() => router.push(`/${locale}`))} className="block text-charcoal-light hover:text-red-600">
           Sign out

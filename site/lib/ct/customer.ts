@@ -119,6 +119,20 @@ export async function removeCustomerAddress(
   return body;
 }
 
+export async function updateCustomerAddress(
+  apiRoot: ByProjectKeyRequestBuilder,
+  customer: Customer,
+  addressId: string,
+  address: NonNullable<Customer['addresses']>[number]
+): Promise<Customer> {
+  const { body } = await apiRoot
+    .customers()
+    .withId({ ID: customer.id })
+    .post({ body: { version: customer.version, actions: [{ action: 'changeAddress', addressId, address }] } })
+    .execute();
+  return body;
+}
+
 export async function getCustomerOrders(apiRoot: ByProjectKeyRequestBuilder, customerId: string) {
   const { body } = await apiRoot
     .orders()

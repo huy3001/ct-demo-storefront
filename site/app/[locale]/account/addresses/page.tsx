@@ -2,49 +2,39 @@
 
 import { useState } from 'react';
 import useSWR from 'swr';
+import { useParams } from 'next/navigation';
+import { Link } from '@/i18n/routing';
 import type { Customer } from '@commercetools/platform-sdk';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function AddressesPage() {
   const { data: customer, mutate } = useSWR<Customer>('/api/account', fetcher);
-  const [form, setForm] = useState({ country: 'US', city: '', streetName: '', postalCode: '' });
-  const [status, setStatus] = useState<'idle' | 'saving' | 'error'>('idle');
+  const { locale } = useParams<{ locale: string }>();
+  const [status, setStatus] = useState<'idle' | 'error'>('idle');
 
-  async function onAdd(e: React.FormEvent) {
-    e.preventDefault();
-    setStatus('saving');
+  async function onRemove(addressId: string) {
+    setStatus('idle');
     try {
       const res = await fetch('/api/account/addresses', {
-        method: 'POST',
+        method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ addressId }),
       });
       if (!res.ok) throw new Error();
       const updated = await res.json();
       await mutate(updated, { revalidate: false });
-      setForm({ country: 'US', city: '', streetName: '', postalCode: '' });
-      setStatus('idle');
     } catch {
       setStatus('error');
     }
   }
 
-  async function onRemove(addressId: string) {
-    const res = await fetch('/api/account/addresses', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ addressId }),
-    });
-    if (res.ok) {
-      const updated = await res.json();
-      await mutate(updated, { revalidate: false });
-    }
-  }
-
   return (
     <div>
-      <h1 className="text-xl font-semibold mb-6">Addresses</h1>
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <h1 className="text-xl font-semibold">Addresses</h1>
+        <Link href="/account/addresses/new" locale={locale} className="rounded-sm bg-charcoal px-4 py-2 text-sm text-white hover:bg-charcoal-light">Add new address</Link>
+      </div>
 
       <ul className="space-y-3 mb-8">
         {customer?.addresses?.map((address) => (
@@ -55,9 +45,10 @@ export default function AddressesPage() {
                 {address.city}, {address.postalCode}, {address.country}
               </p>
             </div>
-            <button onClick={() => address.id && onRemove(address.id)} className="text-charcoal-light hover:text-red-600">
-              Remove
-            </button>
+            <div className="flex items-center gap-3">
+              {address.id && <Link href={`/account/addresses/${address.id}/edit`} locale={locale} className="text-terra hover:underline">Edit</Link>}
+              <button onClick={() => address.id && onRemove(address.id)} className="text-charcoal-light hover:text-red-600">Remove</button>
+            </div>
           </li>
         ))}
         {(customer?.addresses?.length ?? 0) === 0 && (
@@ -65,38 +56,7 @@ export default function AddressesPage() {
         )}
       </ul>
 
-      <form onSubmit={onAdd} className="space-y-4 max-w-sm">
-        <input
-          placeholder="Street"
-          value={form.streetName}
-          onChange={(e) => setForm((f) => ({ ...f, streetName: e.target.value }))}
-          className="w-full border border-border rounded-sm px-3 py-2 text-sm"
-        />
-        <div className="flex gap-3">
-          <input
-            placeholder="City"
-            value={form.city}
-            onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
-            className="w-1/2 border border-border rounded-sm px-3 py-2 text-sm"
-          />
-          <input
-            placeholder="Postal code"
-            value={form.postalCode}
-            onChange={(e) => setForm((f) => ({ ...f, postalCode: e.target.value }))}
-            className="w-1/2 border border-border rounded-sm px-3 py-2 text-sm"
-          />
-        </div>
-        <input
-          placeholder="Country (ISO code, e.g. US)"
-          value={form.country}
-          onChange={(e) => setForm((f) => ({ ...f, country: e.target.value.toUpperCase() }))}
-          className="w-full border border-border rounded-sm px-3 py-2 text-sm"
-        />
-        <button type="submit" className="bg-charcoal text-white px-5 py-2 rounded-sm text-sm hover:bg-charcoal-light">
-          Add address
-        </button>
-        {status === 'error' && <p className="text-sm text-red-600">Something went wrong.</p>}
-      </form>
+      {status === 'error' && <p className="text-sm text-red-600">Could not remove the address.</p>}
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { BaseAddress } from '@commercetools/platform-sdk';
 import { getSessionApiRoot } from '@/lib/ct/session';
-import { getCustomerById, addCustomerAddress, removeCustomerAddress } from '@/lib/ct/customer';
+import { getCustomerById, addCustomerAddress, removeCustomerAddress, updateCustomerAddress } from '@/lib/ct/customer';
 import { apiError } from '../../_utils';
 
 export async function POST(req: NextRequest) {
@@ -24,6 +24,19 @@ export async function DELETE(req: NextRequest) {
     if (!session.customerId) return NextResponse.json({ message: 'Not signed in' }, { status: 401 });
     const customer = await getCustomerById(apiRoot, session.customerId);
     const updated = await removeCustomerAddress(apiRoot, customer, addressId);
+    return NextResponse.json(updated);
+  } catch (err) {
+    return apiError(err);
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const { addressId, address } = (await req.json()) as { addressId: string; address: BaseAddress };
+    const { apiRoot, session } = await getSessionApiRoot();
+    if (!session.customerId) return NextResponse.json({ message: 'Not signed in' }, { status: 401 });
+    const customer = await getCustomerById(apiRoot, session.customerId);
+    const updated = await updateCustomerAddress(apiRoot, customer, addressId, address);
     return NextResponse.json(updated);
   } catch (err) {
     return apiError(err);

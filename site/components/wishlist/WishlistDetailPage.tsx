@@ -16,14 +16,14 @@ export default function WishlistDetailPage({ locale, wishlistId }: { locale: str
   const wishlist = useMemo(() => wishlists.find((item) => item.id === wishlistId), [wishlists, wishlistId]);
 
   if (isLoading) {
-    return <div className="mx-auto max-w-6xl px-4 py-12 text-charcoal-light">Loading wishlist…</div>;
+    return <div className="text-charcoal-light">Loading wishlist…</div>;
   }
 
   if (!wishlist) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-12">
+      <div>
         <h1 className="text-2xl font-semibold text-charcoal">Wishlist not found</h1>
-        <Link href="/wishlists" locale={locale} className="mt-4 inline-block text-terra hover:underline">
+        <Link href="/account/wishlists" locale={locale} className="mt-4 inline-block text-terra hover:underline">
           Back to wishlists
         </Link>
       </div>
@@ -57,13 +57,13 @@ export default function WishlistDetailPage({ locale, wishlistId }: { locale: str
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12">
+    <div>
       <div className="mb-8 flex items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-charcoal">{wishlist.name}</h1>
           <p className="text-sm text-charcoal-light">{wishlist.lineItems.length} saved items</p>
         </div>
-        <Link href="/wishlists" locale={locale} className="text-sm text-terra hover:underline">
+        <Link href="/account/wishlists" locale={locale} className="text-sm text-terra hover:underline">
           Back to wishlists
         </Link>
       </div>

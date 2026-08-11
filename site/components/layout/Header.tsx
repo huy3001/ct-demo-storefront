@@ -107,8 +107,8 @@ export default function Header({ locale, categoryTree }: { locale: string; categ
             <Link
               href={
                 isSignedIn
-                  ? '/wishlists'
-                  : `/login?redirect=${encodeURIComponent(`/${locale}/wishlists`)}`
+                  ? '/account/wishlists'
+                  : `/login?redirect=${encodeURIComponent(`/${locale}/account/wishlists`)}`
               }
               locale={locale}
               className="relative hover:text-terra"

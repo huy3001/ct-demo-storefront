@@ -8,12 +8,12 @@ export default function WishlistListPage({ locale }: { locale: string }) {
   const { wishlists, isLoading } = useWishlist();
 
   if (isLoading) {
-    return <div className="mx-auto max-w-6xl px-4 py-12 text-charcoal-light">Loading wishlists…</div>;
+    return <div className="text-charcoal-light">Loading wishlists…</div>;
   }
 
   if (wishlists.length === 0) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-12">
+      <div>
         <h1 className="text-2xl font-semibold text-charcoal">Wishlists</h1>
         <p className="mt-4 text-charcoal-light">You have no saved items yet.</p>
       </div>
@@ -21,13 +21,13 @@ export default function WishlistListPage({ locale }: { locale: string }) {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12">
+    <div>
       <h1 className="text-2xl font-semibold text-charcoal mb-8">Wishlists</h1>
       <div className="grid gap-6 md:grid-cols-2">
         {wishlists.map((wishlist) => {
           const preview = wishlist.lineItems.slice(0, 3);
           return (
-            <Link key={wishlist.id} href={`/wishlists/${wishlist.id}`} locale={locale} className="block rounded-sm border border-border bg-white p-5 hover:border-terra">
+            <Link key={wishlist.id} href={`/account/wishlists/${wishlist.id}`} locale={locale} className="block rounded-sm border border-border bg-white p-5 hover:border-terra">
               <div className="flex items-center justify-between gap-3">
                 <h2 className="text-lg font-medium text-charcoal">{wishlist.name}</h2>
                 <span className="text-sm text-charcoal-light">{wishlist.lineItems.length} items</span>
