@@ -53,6 +53,17 @@ export function useCart() {
     return updated as Cart;
   }
 
+  async function clearCart() {
+    const response = await fetch('/api/cart', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ locale }),
+    });
+    const updated = await readJson<Cart>(response);
+    await mutate(updated, { revalidate: false });
+    return updated;
+  }
+
   async function applyDiscountCode(code: string) {
     const response = await fetch('/api/cart/discount-code', {
       method: 'POST',
@@ -74,6 +85,7 @@ export function useCart() {
     addItem,
     changeQuantity,
     removeItem,
+    clearCart,
     applyDiscountCode,
     refresh: () => mutate(),
   };

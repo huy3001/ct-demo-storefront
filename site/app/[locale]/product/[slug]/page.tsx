@@ -5,6 +5,7 @@ import ProductImageGallery from '@/components/product/ProductImageGallery';
 import RelatedProductsSlider from '@/components/product/RelatedProductsSlider';
 import WishlistToggleButton from '@/components/product/WishlistToggleButton';
 import ProductSpecifications from '@/components/product/ProductSpecifications';
+import RecentlyViewedTracker from '@/components/product/RecentlyViewedTracker';
 import { getProductAttributeLabels } from '@/lib/ct/product-attributes';
 import { Link } from '@/i18n/routing';
 
@@ -30,6 +31,7 @@ export default async function ProductDetailPage({
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
+      <RecentlyViewedTracker product={product} locale={locale} />
       <nav
         aria-label="Breadcrumb"
         className="mb-7 flex items-center gap-2 text-sm text-charcoal-light"

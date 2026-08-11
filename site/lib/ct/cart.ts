@@ -121,6 +121,22 @@ export async function removeLineItem(apiRoot: ByProjectKeyRequestBuilder, cart: 
   return body;
 }
 
+export async function clearCart(apiRoot: ByProjectKeyRequestBuilder, cart: Cart): Promise<Cart> {
+  if (cart.lineItems.length === 0) return cart;
+
+  const { body } = await apiRoot
+    .carts()
+    .withId({ ID: cart.id })
+    .post({
+      body: {
+        version: cart.version,
+        actions: cart.lineItems.map((lineItem) => ({ action: 'removeLineItem' as const, lineItemId: lineItem.id })),
+      },
+    })
+    .execute();
+  return body;
+}
+
 export async function applyDiscountCode(apiRoot: ByProjectKeyRequestBuilder, cart: Cart, code: string): Promise<Cart> {
   const { body } = await apiRoot
     .carts()

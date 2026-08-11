@@ -31,9 +31,13 @@ function ArrowIcon({ direction }: { direction: 'previous' | 'next' }) {
 export default function RelatedProductsSlider({
   products,
   locale,
+  title = 'Related products',
+  headingId = 'related-products-heading',
 }: {
   products: Product[];
   locale: string;
+  title?: string;
+  headingId?: string;
 }) {
   const [swiper, setSwiper] = useState<SwiperInstance | null>(null);
   const [isBeginning, setIsBeginning] = useState(true);
@@ -45,10 +49,10 @@ export default function RelatedProductsSlider({
   };
 
   return (
-    <section aria-labelledby="related-products-heading" className="mt-20 border-t border-border pt-14">
+    <section aria-labelledby={headingId} className="mt-20 border-t border-border pt-14">
       <div className="mb-8 flex items-center justify-between gap-4">
-        <h2 id="related-products-heading" className="text-xl font-semibold text-charcoal">
-          Related products
+        <h2 id={headingId} className="text-xl font-semibold text-charcoal">
+          {title}
         </h2>
         {products.length > 1 && (
           <div className="flex gap-2">
@@ -56,8 +60,8 @@ export default function RelatedProductsSlider({
               type="button"
               onClick={() => swiper?.slidePrev()}
               disabled={isBeginning}
-              aria-label="Previous related products"
-              className="flex size-10 items-center justify-center rounded-sm border border-border bg-white text-charcoal transition-colors hover:bg-cream-dark disabled:cursor-not-allowed disabled:opacity-30"
+              aria-label={`Previous ${title.toLowerCase()}`}
+              className="flex size-10 items-center justify-center rounded-sm border border-border bg-white text-charcoal transition-colors hover:bg-cream-dark disabled:cursor-not-allowed disabled:opacity-30 disabled:pointer-events-none"
             >
               <ArrowIcon direction="previous" />
             </button>
@@ -65,8 +69,8 @@ export default function RelatedProductsSlider({
               type="button"
               onClick={() => swiper?.slideNext()}
               disabled={isEnd}
-              aria-label="Next related products"
-              className="flex size-10 items-center justify-center rounded-sm border border-border bg-white text-charcoal transition-colors hover:bg-cream-dark disabled:cursor-not-allowed disabled:opacity-30"
+              aria-label={`Next ${title.toLowerCase()}`}
+              className="flex size-10 items-center justify-center rounded-sm border border-border bg-white text-charcoal transition-colors hover:bg-cream-dark disabled:cursor-not-allowed disabled:opacity-30 disabled:pointer-events-none"
             >
               <ArrowIcon direction="next" />
             </button>
