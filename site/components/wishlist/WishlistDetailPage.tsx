@@ -76,7 +76,7 @@ export default function WishlistDetailPage({ locale, wishlistId }: { locale: str
         <div className="space-y-4">
           {wishlist.lineItems.map((item) => (
             <div key={item.lineItemId} className="grid grid-cols-[88px_1fr] gap-4 rounded-sm border border-border bg-white p-4 md:grid-cols-[88px_1fr_auto] md:items-center">
-              <div className="relative h-[88px] w-[88px] overflow-hidden rounded-sm bg-cream-dark">
+              <div className="relative h-22 w-22 overflow-hidden rounded-sm bg-cream-dark">
                 {item.image ? (
                   <Image src={item.image} alt={item.name} fill sizes="88px" className="object-cover" />
                 ) : null}

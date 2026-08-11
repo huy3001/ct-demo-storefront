@@ -28,6 +28,7 @@ export interface Category {
   id: string;
   name: string;
   slug: string;
+  image?: string;
   parent?: { id: string };
   children?: Category[];
 }

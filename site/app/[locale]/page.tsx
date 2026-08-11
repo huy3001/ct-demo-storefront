@@ -1,6 +1,7 @@
 import { getFeaturedProducts } from '@/lib/ct/product';
 import { getCategoryTree } from '@/lib/ct/category';
 import ProductGrid from '@/components/product/ProductGrid';
+import ShopByCategory from '@/components/category/ShopByCategory';
 import { Link } from '@/i18n/routing';
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
@@ -40,30 +41,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         />
       </section>
 
-      {categories.length > 0 && (
-        <section className="bg-cream-dark">
-          <div className="mx-auto max-w-7xl px-4 py-16">
-            <h2 className="text-xl font-semibold mb-8">Shop by category</h2>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {categories.map((category) => (
-                <Link
-                  key={category.id}
-                  href={`/category/${category.slug}`}
-                  locale={locale}
-                  className="group flex flex-col gap-4 min-h-36 items-center justify-center rounded-sm border border-charcoal/10 bg-white p-6 transition-colors hover:border-charcoal/30"
-                >
-                  <span className="text-xl font-semibold text-charcoal group-hover:text-terra">
-                    {category.name}
-                  </span>
-                  <span className="inline-block bg-charcoal text-white px-6 py-3 rounded-sm text-sm hover:bg-charcoal-light">
-                    Shop now
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      <ShopByCategory categories={categories} locale={locale} />
     </div>
   );
 }

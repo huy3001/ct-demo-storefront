@@ -142,7 +142,7 @@ export default function CategoryNavigation({
               </button>
 
               {openRootId === category.id && children.length > 0 && (
-                <div className="absolute left-0 top-full mt-3 min-w-[240px] rounded-sm border border-border bg-white p-4 shadow-sm z-50">
+                <div className="absolute left-0 top-full mt-3 min-w-60 rounded-sm border border-border bg-white p-4 shadow-sm z-50">
                   <Link
                     href={`/category/${category.slug}`}
                     locale={locale}

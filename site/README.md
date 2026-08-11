@@ -110,3 +110,6 @@ session. You'll need to:
 - `npm run dev` — start the dev server.
 - `npm run build` — production build.
 - `npm run lint` — ESLint.
+- `npm run setup:category-image-type` — idempotently create the commercetools
+  `category-image` Custom Type and its optional `imageUrl` String field. The API
+  Client must have the `manage_types` scope.

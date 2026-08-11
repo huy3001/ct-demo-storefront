@@ -3,6 +3,11 @@ import type { Category } from '@/lib/types';
 import { getLocalizedString } from '@/lib/utils';
 import { getCatalogApiRoot } from './client';
 
+function getCategoryImage(category: { custom?: { fields: Record<string, unknown> } }): string | undefined {
+  const imageUrl = category.custom?.fields.imageUrl;
+  return typeof imageUrl === 'string' && imageUrl.trim() ? imageUrl : undefined;
+}
+
 export async function getCategoryTree(locale: string): Promise<Category[]> {
   const apiRoot: ByProjectKeyRequestBuilder = getCatalogApiRoot();
   const { body } = await apiRoot
@@ -16,6 +21,7 @@ export async function getCategoryTree(locale: string): Promise<Category[]> {
       id: c.id,
       name: getLocalizedString(c.name, locale),
       slug: getLocalizedString(c.slug, locale),
+      image: getCategoryImage(c),
       parent: c.parent ? { id: c.parent.id } : undefined,
       children: [],
     });
@@ -44,6 +50,7 @@ export async function getCategoryBySlug(slug: string, locale: string): Promise<C
     id: category.id,
     name: getLocalizedString(category.name, locale),
     slug: getLocalizedString(category.slug, locale),
+    image: getCategoryImage(category),
     parent: category.parent ? { id: category.parent.id } : undefined,
   };
 }
