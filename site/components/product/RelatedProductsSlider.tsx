@@ -5,6 +5,7 @@ import type { Swiper as SwiperInstance } from 'swiper';
 import { A11y, Keyboard } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Product } from '@/lib/types';
+import { Link } from '@/i18n/routing';
 import ProductCard from './ProductCard';
 
 import 'swiper/css';
@@ -33,11 +34,17 @@ export default function RelatedProductsSlider({
   locale,
   title = 'Related products',
   headingId = 'related-products-heading',
+  showBorder = true,
+  viewAllHref,
+  viewAllLabel = 'Shop all',
 }: {
   products: Product[];
   locale: string;
   title?: string;
   headingId?: string;
+  showBorder?: boolean;
+  viewAllHref?: string;
+  viewAllLabel?: string;
 }) {
   const [swiper, setSwiper] = useState<SwiperInstance | null>(null);
   const [isBeginning, setIsBeginning] = useState(true);
@@ -49,11 +56,58 @@ export default function RelatedProductsSlider({
   };
 
   return (
-    <section aria-labelledby={headingId} className="mt-20 border-t border-border pt-14">
+    <section
+      aria-labelledby={headingId}
+      className={`mt-16 ${showBorder ? 'border-t border-border pt-14' : 'mb-16'}`}
+    >
       <div className="mb-8 flex items-center justify-between gap-4">
-        <h2 id={headingId} className="text-xl font-semibold text-charcoal">
+        <h2
+          id={headingId}
+          className="text-xl font-semibold text-charcoal"
+        >
           {title}
         </h2>
+        {viewAllHref && (
+          <Link
+            href={viewAllHref}
+            locale={locale}
+            className="flex items-center gap-2 text-sm font-medium text-charcoal underline-offset-4 hover:underline"
+          >
+            {viewAllLabel}
+          </Link>
+        )}
+      </div>
+
+      <div className="relative">
+        <Swiper
+          modules={[A11y, Keyboard]}
+          onSwiper={(instance) => {
+            setSwiper(instance);
+            updateNavigation(instance);
+          }}
+          onSlideChange={updateNavigation}
+          onResize={updateNavigation}
+          keyboard={{ enabled: true }}
+          spaceBetween={16}
+          slidesPerView={1.4}
+          breakpoints={{
+            480: { slidesPerView: 2 },
+            768: { slidesPerView: 3 },
+            1024: { slidesPerView: 4, spaceBetween: 24 },
+          }}
+        >
+          {products.map((product) => (
+            <SwiperSlide
+              key={product.id}
+              className="h-auto"
+            >
+              <ProductCard
+                product={product}
+                locale={locale}
+              />
+            </SwiperSlide>
+          ))}
+        </Swiper>
         {products.length > 1 && (
           <div className="flex gap-2">
             <button
@@ -61,7 +115,7 @@ export default function RelatedProductsSlider({
               onClick={() => swiper?.slidePrev()}
               disabled={isBeginning}
               aria-label={`Previous ${title.toLowerCase()}`}
-              className="flex size-10 items-center justify-center rounded-sm border border-border bg-white text-charcoal transition-colors hover:bg-cream-dark disabled:cursor-not-allowed disabled:opacity-30 disabled:pointer-events-none"
+              className="absolute top-2/5 -translate-y-1/2 z-10 left-2 flex size-10 items-center justify-center rounded-full shadow-sm bg-white text-charcoal transition-colors hover:bg-cream-dark disabled:cursor-not-allowed disabled:opacity-30 disabled:pointer-events-none"
             >
               <ArrowIcon direction="previous" />
             </button>
@@ -70,37 +124,13 @@ export default function RelatedProductsSlider({
               onClick={() => swiper?.slideNext()}
               disabled={isEnd}
               aria-label={`Next ${title.toLowerCase()}`}
-              className="flex size-10 items-center justify-center rounded-sm border border-border bg-white text-charcoal transition-colors hover:bg-cream-dark disabled:cursor-not-allowed disabled:opacity-30 disabled:pointer-events-none"
+              className="absolute top-2/5 -translate-y-1/2 z-10 right-2 flex size-10 items-center justify-center rounded-full shadow-sm bg-white text-charcoal transition-colors hover:bg-cream-dark disabled:cursor-not-allowed disabled:opacity-30 disabled:pointer-events-none"
             >
               <ArrowIcon direction="next" />
             </button>
           </div>
         )}
       </div>
-
-      <Swiper
-        modules={[A11y, Keyboard]}
-        onSwiper={(instance) => {
-          setSwiper(instance);
-          updateNavigation(instance);
-        }}
-        onSlideChange={updateNavigation}
-        onResize={updateNavigation}
-        keyboard={{ enabled: true }}
-        spaceBetween={16}
-        slidesPerView={1.4}
-        breakpoints={{
-          480: { slidesPerView: 2 },
-          768: { slidesPerView: 3 },
-          1024: { slidesPerView: 4, spaceBetween: 24 },
-        }}
-      >
-        {products.map((product) => (
-          <SwiperSlide key={product.id} className="h-auto">
-            <ProductCard product={product} locale={locale} />
-          </SwiperSlide>
-        ))}
-      </Swiper>
     </section>
   );
 }

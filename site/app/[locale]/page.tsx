@@ -1,12 +1,14 @@
-import { getFeaturedProducts } from '@/lib/ct/product';
+import { getFeaturedProducts, getProductsByCategorySlug } from '@/lib/ct/product';
 import { getCategoryTree } from '@/lib/ct/category';
 import ProductGrid from '@/components/product/ProductGrid';
+import RelatedProductsSlider from '@/components/product/RelatedProductsSlider';
 import ShopByCategory from '@/components/category/ShopByCategory';
 import { Link } from '@/i18n/routing';
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const [featured, categoryTree] = await Promise.all([
+  const [newArrivals, featured, categoryTree] = await Promise.all([
+    getProductsByCategorySlug('new-arrivals', locale, 8),
     getFeaturedProducts(locale, 8),
     getCategoryTree(locale),
   ]);
@@ -33,6 +35,47 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       </section>
 
+      {newArrivals.length > 0 && (
+        <div className="mx-auto max-w-7xl px-4">
+          <RelatedProductsSlider
+            products={newArrivals}
+            locale={locale}
+            title="New arrivals"
+            headingId="new-arrivals-heading"
+            viewAllHref="/category/new-arrivals"
+            showBorder={false}
+          />
+        </div>
+      )}
+
+      <section className="mx-auto max-w-7xl px-4 pb-16">
+        <div className="flex flex-col items-start justify-between gap-8 rounded-sm bg-charcoal px-8 py-12 text-white sm:flex-row sm:items-center md:px-12">
+          <div>
+            <p className="mb-2 text-sm font-medium uppercase tracking-widest text-white/70">
+              Limited-time offers
+            </p>
+            <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">
+              The sale is on
+            </h2>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-white/75">
+              Discover considered pieces at exceptional prices while they last.
+            </p>
+          </div>
+          <Link
+            href="/category/sale"
+            locale={locale}
+            className="shrink-0 rounded-sm bg-white px-6 py-3 text-sm font-medium text-charcoal transition-colors hover:bg-cream-dark"
+          >
+            Shop sale
+          </Link>
+        </div>
+      </section>
+
+      <ShopByCategory
+        categories={categories}
+        locale={locale}
+      />
+
       <section className="mx-auto max-w-7xl px-4 py-16">
         <h2 className="text-xl font-semibold mb-8">Featured products</h2>
         <ProductGrid
@@ -40,8 +83,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           locale={locale}
         />
       </section>
-
-      <ShopByCategory categories={categories} locale={locale} />
     </div>
   );
 }

@@ -55,7 +55,7 @@ export default function Header({ locale, categoryTree }: { locale: string; categ
             <Link
               href={isSignedIn ? '/account' : '/login'}
               locale={locale}
-              className="hover:text-terra hidden sm:inline"
+              className="hover:text-terra"
               aria-label={isSignedIn ? 'Account' : 'Sign in'}
             >
               <span aria-hidden="true">

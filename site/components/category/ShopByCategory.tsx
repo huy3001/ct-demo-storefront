@@ -10,7 +10,7 @@ export default function ShopByCategory({ categories, locale }: { categories: Cat
       <div className="mx-auto max-w-7xl px-4 py-16">
         <h2 className="mb-8 text-xl font-semibold">Shop by category</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {categories.map((category) => (
+          {categories.slice(0, 4).map((category) => (
             <Link
               key={category.id}
               href={`/category/${category.slug}`}

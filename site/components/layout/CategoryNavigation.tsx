@@ -98,7 +98,7 @@ export default function CategoryNavigation({
         <Link
           href="/category/all"
           locale={locale}
-          className={`hover:text-charcoal ${pathname.includes('/category/all') ? 'text-charcoal' : ''}`}
+          className={`hover:text-terra ${pathname.includes('/category/all') ? 'text-terra' : ''}`}
         >
           Shop
         </Link>
@@ -115,7 +115,7 @@ export default function CategoryNavigation({
                 key={category.id}
                 href={`/category/${category.slug}`}
                 locale={locale}
-                className={`hover:text-charcoal ${active ? 'text-charcoal' : ''}`}
+                className={`hover:text-terra ${active ? 'text-terra' : ''}`}
               >
                 {category.name}
               </Link>
@@ -134,7 +134,7 @@ export default function CategoryNavigation({
                     prev === category.id ? null : category.id,
                   )
                 }
-                className={`cursor-pointer hover:text-charcoal ${active ? 'text-charcoal' : ''}`}
+                className={`cursor-pointer hover:text-terra ${active ? 'text-terra' : ''}`}
                 aria-expanded={openRootId === category.id}
                 aria-haspopup={children.length > 0}
               >
@@ -157,7 +157,7 @@ export default function CategoryNavigation({
                         key={child.id}
                         href={`/category/${child.slug}`}
                         locale={locale}
-                        className="block text-sm text-charcoal-light hover:text-charcoal"
+                        className="block text-sm text-charcoal-light hover:text-terra"
                         onClick={() => setOpenRootId(null)}
                       >
                         {child.name}
@@ -245,7 +245,7 @@ export default function CategoryNavigation({
                             key={child.id}
                             href={`/category/${child.slug}`}
                             locale={locale}
-                            className="block rounded-sm px-2 py-1.5 text-sm text-charcoal-light hover:bg-white hover:text-charcoal"
+                            className="block rounded-sm px-2 py-1.5 text-sm text-charcoal-light hover:bg-white hover:text-terra"
                             onClick={() => setMobileOpen(false)}
                           >
                             {child.name}
