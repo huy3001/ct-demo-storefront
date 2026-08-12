@@ -1,26 +1,16 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { Link } from '@/i18n/routing';
 import { useAccount } from '@/hooks/useAccount';
 import { useWishlist } from '@/hooks/useWishlist';
 import CategoryNavigation from '@/components/layout/CategoryNavigation';
 import type { Category } from '@/lib/types';
 import MiniCart from '@/components/cart/MiniCart';
+import SearchForm from '@/components/search/SearchForm';
 
 export default function Header({ locale, categoryTree }: { locale: string; categoryTree: Category[] }) {
   const { isSignedIn } = useAccount();
   const { totalItems: wishlistCount } = useWishlist();
-  const router = useRouter();
-  const [query, setQuery] = useState('');
-
-  function onSearchSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!query.trim()) return;
-    router.push(`/${locale}/search?q=${encodeURIComponent(query.trim())}`);
-  }
-
   return (
     <header className="border-b border-border bg-cream sticky top-0 z-40">
       <div className="mx-auto max-w-7xl px-4 py-3">
@@ -38,18 +28,7 @@ export default function Header({ locale, categoryTree }: { locale: string; categ
             categoryTree={categoryTree}
           />
 
-          <form
-            onSubmit={onSearchSubmit}
-            className="hidden md:block flex-1 max-w-md"
-          >
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              type="search"
-              placeholder="Search products…"
-              className="w-full rounded-sm border border-border bg-white px-3 py-1.5 text-sm outline-none focus:border-terra"
-            />
-          </form>
+          <SearchForm locale={locale} className="hidden max-w-md flex-1 md:block" />
 
           <div className="ml-auto flex items-center gap-4 shrink-0 text-sm order-2">
             <Link
@@ -158,18 +137,7 @@ export default function Header({ locale, categoryTree }: { locale: string; categ
           </div>
         </div>
 
-        <form
-          onSubmit={onSearchSubmit}
-          className="mt-3 md:hidden"
-        >
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            type="search"
-            placeholder="Search products…"
-            className="w-full rounded-sm border border-border bg-white px-3 py-2 text-sm outline-none focus:border-terra"
-          />
-        </form>
+        <SearchForm locale={locale} className="mt-3 md:hidden" />
       </div>
     </header>
   );
