@@ -4,14 +4,16 @@ import { runProductSearch } from '@/lib/ct/search-page';
 import SearchResultsView from '@/components/search/SearchResultsView';
 import { getFilterableFacets } from '@/lib/ct/product-facets';
 import type { Category } from '@/lib/types';
+import { categoryIdsByName, categoryLabels, isColorCodeFacet } from '@/lib/search-filters';
 
 const SORTS = ['price-asc', 'price-desc', 'name-asc', 'name-desc', 'relevance'] as const;
 
-function categoryLabels(categories: Category[]): Record<string, string> {
-  return Object.fromEntries(categories.flatMap((category) => [
-    [category.id, category.name],
-    ...Object.entries(categoryLabels(category.children ?? [])),
-  ]));
+function findCategory(categories: Category[], id: string): Category | undefined {
+  for (const category of categories) {
+    if (category.id === id) return category;
+    const child = findCategory(category.children ?? [], id);
+    if (child) return child;
+  }
 }
 
 function priceInCents(value: string | string[] | undefined) {
@@ -41,11 +43,14 @@ export default async function CategoryPage({
   const requestedSort = Array.isArray(sp.sort) ? sp.sort[0] : sp.sort;
   const sort = SORTS.find((value) => value === requestedSort);
 
-  const facetDefinitions = await getFilterableFacets(locale);
+  const facetDefinitions = (await getFilterableFacets(locale)).filter((facet) => !isColorCodeFacet(facet.key));
+  const idsByCategoryName = categoryIdsByName(categories);
   const facets = facetDefinitions.map((attr) => ({
     field: attr.field,
     fieldType: attr.fieldType,
-    values: ([] as string[]).concat(sp[`f_${attr.key}`] ?? []),
+    values: ([] as string[])
+      .concat(sp[`f_${attr.key}`] ?? [])
+      .map((value) => attr.key === 'category' ? idsByCategoryName[value] ?? value : value),
   })).filter((f) => f.values.length);
 
   const result = await runProductSearch({
@@ -58,6 +63,7 @@ export default async function CategoryPage({
     facetDefinitions,
     priceRange: { min: priceInCents(sp.minPrice), max: priceInCents(sp.maxPrice) },
   });
+  const categoryWithChildren = category ? findCategory(categories, category.id) : undefined;
 
   return (
     <SearchResultsView
@@ -65,7 +71,10 @@ export default async function CategoryPage({
       page={page}
       locale={locale}
       title={category?.name ?? 'All products'}
+      description={category?.description}
+      subcategories={category ? categoryWithChildren?.children : categories}
       categoryLabels={categoryLabels(categories)}
+      useCategoryNamesInFilters
     />
   );
 }

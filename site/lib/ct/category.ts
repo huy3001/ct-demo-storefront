@@ -21,6 +21,7 @@ export async function getCategoryTree(locale: string): Promise<Category[]> {
       id: c.id,
       name: getLocalizedString(c.name, locale),
       slug: getLocalizedString(c.slug, locale),
+      description: c.description ? getLocalizedString(c.description, locale) : undefined,
       image: getCategoryImage(c),
       parent: c.parent ? { id: c.parent.id } : undefined,
       children: [],
@@ -50,6 +51,7 @@ export async function getCategoryBySlug(slug: string, locale: string): Promise<C
     id: category.id,
     name: getLocalizedString(category.name, locale),
     slug: getLocalizedString(category.slug, locale),
+    description: category.description ? getLocalizedString(category.description, locale) : undefined,
     image: getCategoryImage(category),
     parent: category.parent ? { id: category.parent.id } : undefined,
   };

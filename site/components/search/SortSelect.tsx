@@ -26,7 +26,7 @@ export default function SortSelect() {
     <select
       defaultValue={searchParams.get('sort') ?? 'relevance'}
       onChange={onChange}
-      className="border border-border rounded-sm bg-white px-3 py-1.5 text-sm"
+      className="border border-border rounded-sm bg-white px-3 py-2 text-sm"
       aria-label="Sort products"
     >
       {OPTIONS.map((opt) => (

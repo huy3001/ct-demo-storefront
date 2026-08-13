@@ -62,37 +62,50 @@ export default function ActiveFilters({ facets }: { facets: Facet[] }) {
   return (
     <section
       aria-label="Active filters"
-      className="-mt-4 mb-8 flex flex-col gap-3 rounded-sm border border-border bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+      className="mb-6 border-y border-border py-3 md:rounded-sm md:border md:bg-white md:px-4"
     >
-      <div className="flex min-w-0 flex-wrap items-center gap-2">
-        <span className="mr-1 text-sm font-medium text-charcoal">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <span className="text-sm font-medium text-charcoal">
           Applied filters ({activeFilters.length})
         </span>
+        <button
+          type="button"
+          onClick={resetFilters}
+          className="shrink-0 text-sm font-medium text-terra underline-offset-4 hover:underline md:order-3"
+        >
+          Reset all
+        </button>
+      </div>
+      <div className="-mx-4 flex min-w-0 gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:flex-1 md:flex-wrap md:overflow-visible md:px-0 md:pb-0">
         {activeFilters.map((filter) => (
           <button
             type="button"
             key={`${filter.param}-${filter.value}`}
             onClick={() => removeFilter(filter)}
-            className="cursor-pointer inline-flex max-w-full items-center gap-1.5 rounded-full bg-cream-dark px-3 py-1.5 text-xs text-charcoal hover:bg-border"
+            className="inline-flex max-w-full shrink-0 items-center gap-1.5 rounded-full bg-cream-dark px-3 py-1.5 text-xs text-charcoal hover:bg-border"
             aria-label={`Remove ${filter.label} filter`}
           >
             <span className="truncate">{filter.label}</span>
-            <span
-              aria-hidden
-              className="text-base leading-none"
-            >
-              ×
+            <span aria-hidden>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-x-icon lucide-x"
+              >
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+              </svg>
             </span>
           </button>
         ))}
       </div>
-      <button
-        type="button"
-        onClick={resetFilters}
-        className="cursor-pointer shrink-0 self-start text-sm font-medium text-terra underline-offset-4 hover:underline sm:self-auto"
-      >
-        Reset all
-      </button>
     </section>
   );
 }

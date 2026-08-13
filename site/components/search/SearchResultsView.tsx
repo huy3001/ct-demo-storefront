@@ -4,45 +4,101 @@ import FacetSidebar from './FacetSidebar';
 import SortSelect from './SortSelect';
 import Pagination from './Pagination';
 import ActiveFilters from './ActiveFilters';
+import Link from 'next/link';
+import type { Category } from '@/lib/types';
 
 export default function SearchResultsView({
   result,
   page,
   locale,
   title,
+  description,
+  subcategories = [],
   categoryLabels = {},
+  useCategoryNamesInFilters = false,
 }: {
   result: SearchResult;
   page: number;
   locale: string;
   title: string;
+  description?: string;
+  subcategories?: Category[];
   categoryLabels?: Record<string, string>;
+  useCategoryNamesInFilters?: boolean;
 }) {
   const totalPages = Math.max(1, Math.ceil(result.total / result.limit));
   const facets = result.facets.map((facet) =>
     facet.key === 'category'
       ? {
           ...facet,
-          terms: facet.terms.map((term) => ({ ...term, label: categoryLabels[term.term] ?? term.label })),
+          terms: facet.terms.map((term) => ({
+            ...term,
+            term: useCategoryNamesInFilters ? categoryLabels[term.term] ?? term.term : term.term,
+            label: categoryLabels[term.term] ?? term.label,
+          })),
         }
-      : facet
+      : facet,
   );
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
-      <div className="flex items-center justify-between mb-8">
+      <div className="mb-6">
         <h1 className="text-2xl font-semibold">{title}</h1>
+        {description && (
+          <p className="mt-3 max-w-3xl whitespace-pre-line text-sm leading-6 text-charcoal-light">
+            {description}
+          </p>
+        )}
+        {subcategories.length > 0 && (
+          <nav
+            aria-label="Subcategories"
+            className="mt-5 flex flex-wrap gap-2"
+          >
+            {subcategories.map((subcategory) => (
+              <Link
+                key={subcategory.id}
+                href={`/${locale}/category/${subcategory.slug}`}
+                className="rounded-full border border-border bg-white px-4 py-2 text-sm text-charcoal hover:border-terra hover:text-terra"
+              >
+                {subcategory.name}
+              </Link>
+            ))}
+          </nav>
+        )}
+      </div>
+
+      <div className="mb-6 flex items-center justify-between gap-4 md:hidden">
+        <FacetSidebar
+          facets={facets}
+          mobileOnly
+        />
         <SortSelect />
       </div>
 
       <ActiveFilters facets={facets} />
 
-      <div className="flex flex-col md:flex-row gap-10">
-        <FacetSidebar facets={facets} />
+      <div className="flex gap-10">
+        <FacetSidebar
+          facets={facets}
+          desktopOnly
+        />
         <div className="flex-1">
-          <p className="text-sm text-charcoal-light mb-6">{result.total} results</p>
-          <ProductGrid products={result.products} locale={locale} />
-          <Pagination page={page} totalPages={totalPages} />
+          <div className="mb-6 flex items-center justify-between gap-4">
+            <p className="text-sm text-charcoal-light">
+              {result.total} products
+            </p>
+            <div className="hidden md:block">
+              <SortSelect />
+            </div>
+          </div>
+          <ProductGrid
+            products={result.products}
+            locale={locale}
+          />
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+          />
         </div>
       </div>
     </div>

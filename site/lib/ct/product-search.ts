@@ -52,13 +52,6 @@ function buildQuery(params: ProductSearchParams) {
 
   if (params.categoryId) clauses.push({ exact: { field: 'categoriesSubTree', value: params.categoryId } });
 
-  if (clauses.length === 0) return undefined;
-  return clauses.length === 1 ? clauses[0] : { and: clauses };
-}
-
-function buildPostFilter(params: ProductSearchParams) {
-  const clauses: Record<string, unknown>[] = [];
-
   if (params.priceRange?.min !== undefined || params.priceRange?.max !== undefined) {
     clauses.push({
       range: {
@@ -138,7 +131,6 @@ export async function searchProducts(
 
   const baseBody = {
     query: buildQuery(params),
-    postFilter: buildPostFilter(params),
     sort: buildSort(params.sort, params.locale),
     limit: pageSize,
     offset: (page - 1) * pageSize,
