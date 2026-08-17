@@ -4,6 +4,7 @@ import FacetSidebar from './FacetSidebar';
 import SortSelect from './SortSelect';
 import Pagination from './Pagination';
 import ActiveFilters from './ActiveFilters';
+import ProductsPerPageSelect from './ProductsPerPageSelect';
 import Link from 'next/link';
 import type { Category } from '@/lib/types';
 
@@ -84,9 +85,14 @@ export default function SearchResultsView({
         />
         <div className="flex-1">
           <div className="mb-6 flex items-center justify-between gap-4">
-            <p className="text-sm text-charcoal-light">
-              {result.total} products
-            </p>
+            <div className="flex flex-wrap items-center gap-2">
+              <ProductsPerPageSelect value={result.limit} />
+              <p className="text-sm text-charcoal-light">
+                {result.limit <= result.total
+                  ? `of ${result.total} products`
+                  : 'products'}
+              </p>
+            </div>
             <div className="hidden md:block">
               <SortSelect />
             </div>

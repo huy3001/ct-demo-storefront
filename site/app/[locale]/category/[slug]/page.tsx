@@ -5,8 +5,7 @@ import SearchResultsView from '@/components/search/SearchResultsView';
 import { getFilterableFacets } from '@/lib/ct/product-facets';
 import type { Category } from '@/lib/types';
 import { categoryIdsByName, categoryLabels, isColorCodeFacet } from '@/lib/search-filters';
-
-const SORTS = ['price-asc', 'price-desc', 'name-asc', 'name-desc', 'relevance'] as const;
+import { parseProductListingParams } from '@/lib/search-params';
 
 function findCategory(categories: Category[], id: string): Category | undefined {
   for (const category of categories) {
@@ -39,9 +38,7 @@ export default async function CategoryPage({
   ]);
   if (slug !== 'all' && !category) notFound();
 
-  const page = Math.max(1, Number.parseInt(String(sp.page ?? '1'), 10) || 1);
-  const requestedSort = Array.isArray(sp.sort) ? sp.sort[0] : sp.sort;
-  const sort = SORTS.find((value) => value === requestedSort);
+  const { page, pageSize, sort } = parseProductListingParams(sp);
 
   const facetDefinitions = (await getFilterableFacets(locale)).filter((facet) => !isColorCodeFacet(facet.key));
   const idsByCategoryName = categoryIdsByName(categories);
@@ -58,7 +55,7 @@ export default async function CategoryPage({
     categoryId: category?.id,
     sort,
     page,
-    pageSize: 24,
+    pageSize,
     facets,
     facetDefinitions,
     priceRange: { min: priceInCents(sp.minPrice), max: priceInCents(sp.maxPrice) },

@@ -3,8 +3,7 @@ import SearchResultsView from '@/components/search/SearchResultsView';
 import { getFilterableFacets } from '@/lib/ct/product-facets';
 import { getCategoryTree } from '@/lib/ct/category';
 import { categoryIdsByName, categoryLabels, isColorCodeFacet } from '@/lib/search-filters';
-
-const SORTS = ['price-asc', 'price-desc', 'name-asc', 'name-desc', 'relevance'] as const;
+import { parseProductListingParams } from '@/lib/search-params';
 
 function priceInCents(value: string | string[] | undefined) {
   const rawValue = Array.isArray(value) ? value[0] : value;
@@ -25,9 +24,7 @@ export default async function SearchPage({
 
   const queryValue = Array.isArray(sp.q) ? sp.q[0] : sp.q;
   const query = queryValue?.trim() ?? '';
-  const page = Math.max(1, Number.parseInt(String(sp.page ?? '1'), 10) || 1);
-  const requestedSort = Array.isArray(sp.sort) ? sp.sort[0] : sp.sort;
-  const sort = SORTS.find((value) => value === requestedSort);
+  const { page, pageSize, sort } = parseProductListingParams(sp);
 
   const [allFacetDefinitions, categories] = await Promise.all([
     getFilterableFacets(locale),
@@ -46,8 +43,17 @@ export default async function SearchPage({
   const priceRange = { min: priceInCents(sp.minPrice), max: priceInCents(sp.maxPrice) };
 
   const result = query
-    ? await runProductSearch({ locale, text: query, sort, page, pageSize: 24, facets, priceRange, facetDefinitions })
-    : { products: [], total: 0, offset: 0, limit: 24, facets: [] };
+    ? await runProductSearch({
+        locale,
+        text: query,
+        sort,
+        page,
+        pageSize,
+        facets,
+        priceRange,
+        facetDefinitions,
+      })
+    : { products: [], total: 0, offset: 0, limit: pageSize, facets: [] };
 
   return (
     <SearchResultsView

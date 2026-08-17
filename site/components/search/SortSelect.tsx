@@ -23,17 +23,23 @@ export default function SortSelect() {
   }
 
   return (
-    <select
-      defaultValue={searchParams.get('sort') ?? 'relevance'}
-      onChange={onChange}
-      className="border border-border rounded-sm bg-white px-3 py-2 text-sm"
-      aria-label="Sort products"
-    >
-      {OPTIONS.map((opt) => (
-        <option key={opt.value} value={opt.value}>
-          {opt.label}
-        </option>
-      ))}
-    </select>
+    <label className="flex items-center gap-2 text-sm text-charcoal-light">
+      <span className="hidden md:inline">Sort by</span>
+      <select
+        defaultValue={searchParams.get('sort') ?? 'relevance'}
+        onChange={onChange}
+        className="border border-border rounded-sm bg-white px-3 py-2 text-sm"
+        aria-label="Sort products"
+      >
+        {OPTIONS.map((opt) => (
+          <option
+            key={opt.value}
+            value={opt.value}
+          >
+            {opt.label}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
