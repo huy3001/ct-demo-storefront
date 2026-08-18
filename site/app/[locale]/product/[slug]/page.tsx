@@ -167,7 +167,6 @@ export default async function ProductDetailPage({
             {defaultVariant && (
               <div className={product.description ? '' : 'mt-8'}>
                 <ProductSpecifications
-                  variant={defaultVariant}
                   locale={locale}
                   labels={attributeLabels}
                 />
