@@ -5,6 +5,7 @@ import { useState } from 'react';
 import type { Swiper as SwiperInstance } from 'swiper';
 import { A11y, FreeMode, Keyboard, Thumbs, Zoom } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
+import { useProductVariant } from '@/components/product/ProductVariantProvider';
 
 import 'swiper/css';
 import 'swiper/css/free-mode';
@@ -34,12 +35,22 @@ function ArrowIcon({ direction }: { direction: 'previous' | 'next' }) {
 }
 
 export default function ProductImageGallery({
-  images,
   productName,
 }: {
-  images: string[];
   productName: string;
 }) {
+  const { matchingVariant } = useProductVariant();
+
+  return (
+    <Gallery
+      key={matchingVariant?.id ?? 'no-variant'}
+      images={matchingVariant?.images ?? []}
+      productName={productName}
+    />
+  );
+}
+
+function Gallery({ images, productName }: { images: string[]; productName: string }) {
   const [mainSwiper, setMainSwiper] = useState<SwiperInstance | null>(null);
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperInstance | null>(null);
   const [zoomScale, setZoomScale] = useState(MIN_ZOOM);

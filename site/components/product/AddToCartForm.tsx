@@ -1,10 +1,11 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import type { Product } from '@/lib/types';
 import { useCart } from '@/hooks/useCart';
 import { formatMoney } from '@/lib/utils';
-import { attributeValueKey, formatAttributeValue, humanizeAttributeName } from '@/lib/product-attributes';
+import { formatAttributeValue, humanizeAttributeName } from '@/lib/product-attributes';
+import { useProductVariant } from '@/components/product/ProductVariantProvider';
 
 export default function AddToCartForm({
   product,
@@ -16,40 +17,9 @@ export default function AddToCartForm({
   attributeLabels: Record<string, string>;
 }) {
   const { addItem } = useCart();
+  const { attributeOptions, matchingVariant, selected, selectAttribute } = useProductVariant();
   const [quantity, setQuantity] = useState(1);
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
-
-  const attributeOptions = useMemo(() => {
-    const options = new Map<string, Set<string>>();
-    for (const variant of product.variants) {
-      for (const attr of variant.attributes) {
-        const value = attributeValueKey(attr.value, locale);
-        if (!options.has(attr.name)) options.set(attr.name, new Set());
-        options.get(attr.name)!.add(value);
-      }
-    }
-    return new Map([...options].filter(([, values]) => values.size > 1));
-  }, [locale, product.variants]);
-
-  const [selected, setSelected] = useState<Record<string, string>>(() =>
-    Object.fromEntries(
-      [...attributeOptions.keys()].map((name) => {
-        const attribute = product.variants[0]?.attributes.find((item) => item.name === name);
-        return [name, attributeValueKey(attribute?.value, locale)];
-      })
-    )
-  );
-
-  const matchingVariant = useMemo(() => {
-    return (
-      product.variants.find((variant) =>
-        Object.entries(selected).every(([name, selectedValue]) => {
-          const attribute = variant.attributes.find((item) => item.name === name);
-          return attributeValueKey(attribute?.value, locale) === selectedValue;
-        })
-      ) ?? product.variants[0]
-    );
-  }, [locale, product.variants, selected]);
 
   const isUnavailable = matchingVariant?.availability?.isOnStock === false || !matchingVariant?.price;
 
@@ -99,7 +69,7 @@ export default function AddToCartForm({
               <button
                 type="button"
                 key={value}
-                onClick={() => setSelected((prev) => ({ ...prev, [name]: value }))}
+                onClick={() => selectAttribute(name, value)}
                 aria-pressed={selected[name] === value}
                 className={`rounded-sm border px-4 py-2 text-sm ${
                   selected[name] === value ? 'border-charcoal bg-charcoal text-white' : 'border-border bg-white hover:border-charcoal'
