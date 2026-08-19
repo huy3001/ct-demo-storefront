@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "setup:category-image-type": "node --env-file=.env.local scripts/setup-category-image-type.mjs"
+    "setup:category-image-type": "node --env-file=.env.local scripts/setup-category-image-type.mjs",
+    "setup:product-brand-attributes": "node --env-file=.env.local scripts/setup-product-brand-attributes.mjs"
   },
   "dependencies": {
     "@commercetools/checkout-browser-sdk": "^1.7.4",

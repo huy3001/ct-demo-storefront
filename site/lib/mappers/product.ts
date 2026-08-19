@@ -25,14 +25,51 @@ function mapVariant(variant: ProductVariant): Variant {
   };
 }
 
+function getAttributeValue(variant: ProductVariant, name: string): unknown {
+  return variant.attributes?.find((attribute) => attribute.name === name)?.value;
+}
+
+function getTextAttribute(variant: ProductVariant, name: string, locale: string): string | undefined {
+  const value = getAttributeValue(variant, name);
+  if (typeof value === 'string') return value.trim() || undefined;
+  if (value && typeof value === 'object' && !Array.isArray(value)) {
+    return getLocalizedString(value as Record<string, string>, locale) || undefined;
+  }
+  return undefined;
+}
+
+function getAssetUrl(value: unknown): string | undefined {
+  if (typeof value === 'string') return value.trim() || undefined;
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const url = getAssetUrl(item);
+      if (url) return url;
+    }
+    return undefined;
+  }
+  if (!value || typeof value !== 'object') return undefined;
+
+  const record = value as Record<string, unknown>;
+  if (typeof record.url === 'string') return record.url;
+  if (record.sources) return getAssetUrl(record.sources);
+  return undefined;
+}
+
 export function mapProductProjection(product: ProductProjection, locale: string): Product {
   const variants = [product.masterVariant, ...(product.variants ?? [])].map(mapVariant);
+  const brandLogoAsset = product.masterVariant.assets?.find(
+    (asset) => asset.key === 'brand-logo' || asset.tags?.includes('brand-logo'),
+  );
   return {
     type: 'Product',
     id: product.id,
     name: getLocalizedString(product.name, locale),
     slug: getLocalizedString(product.slug, locale),
     description: getLocalizedString(product.description, locale),
+    brand: getTextAttribute(product.masterVariant, 'productBrand', locale),
+    brandLogo:
+      getAssetUrl(getAttributeValue(product.masterVariant, 'brandLogo')) ??
+      getAssetUrl(brandLogoAsset?.sources),
     categories: (product.categories ?? []).map((c) => ({ id: c.id })),
     variants,
   };

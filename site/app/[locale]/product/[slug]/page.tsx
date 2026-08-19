@@ -55,13 +55,17 @@ export default async function ProductDetailPage({
         locale={locale}
       >
         <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(360px,0.8fr)] lg:gap-16">
-          <ProductImageGallery productName={product.name} />
+          <ProductImageGallery
+            productName={product.name}
+            brand={product.brand}
+            brandLogo={product.brandLogo}
+          />
 
           <section className="lg:sticky lg:top-24">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-terra">
-                  Deco Store collection
+                  {product.brand || 'Deco Store collection'}
                 </p>
                 <h1 className="text-3xl font-semibold leading-tight tracking-tight text-charcoal md:text-4xl">
                   {product.name}

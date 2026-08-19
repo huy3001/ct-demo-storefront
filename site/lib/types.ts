@@ -20,6 +20,8 @@ export interface Product {
   name: string;
   slug: string;
   description?: string;
+  brand?: string;
+  brandLogo?: string;
   categories: Array<{ id: string }>;
   variants: Variant[];
 }

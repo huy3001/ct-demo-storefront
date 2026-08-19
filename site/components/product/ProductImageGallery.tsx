@@ -36,8 +36,12 @@ function ArrowIcon({ direction }: { direction: 'previous' | 'next' }) {
 
 export default function ProductImageGallery({
   productName,
+  brand,
+  brandLogo,
 }: {
   productName: string;
+  brand?: string;
+  brandLogo?: string;
 }) {
   const { matchingVariant } = useProductVariant();
 
@@ -46,11 +50,23 @@ export default function ProductImageGallery({
       key={matchingVariant?.id ?? 'no-variant'}
       images={matchingVariant?.images ?? []}
       productName={productName}
+      brand={brand}
+      brandLogo={brandLogo}
     />
   );
 }
 
-function Gallery({ images, productName }: { images: string[]; productName: string }) {
+function Gallery({
+  images,
+  productName,
+  brand,
+  brandLogo,
+}: {
+  images: string[];
+  productName: string;
+  brand?: string;
+  brandLogo?: string;
+}) {
   const [mainSwiper, setMainSwiper] = useState<SwiperInstance | null>(null);
   const [thumbsSwiper, setThumbsSwiper] = useState<SwiperInstance | null>(null);
   const [zoomScale, setZoomScale] = useState(MIN_ZOOM);
@@ -72,6 +88,17 @@ function Gallery({ images, productName }: { images: string[]; productName: strin
       className="min-w-0"
     >
       <div className="relative overflow-hidden rounded-sm bg-white">
+        {brandLogo && (
+          <div className="absolute left-4 top-4 z-20 flex h-12.5 w-25 items-center justify-center rounded-sm bg-white/95">
+            <Image
+              src={brandLogo}
+              alt={brand ? `${brand} logo` : 'Product brand logo'}
+              fill
+              sizes="100px"
+              className="object-contain"
+            />
+          </div>
+        )}
         <Swiper
           modules={[A11y, Keyboard, Thumbs, Zoom]}
           onSwiper={setMainSwiper}

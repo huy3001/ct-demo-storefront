@@ -68,45 +68,53 @@ export default function SearchResultsView({
         )}
       </div>
 
-      <div className="mb-6 flex items-center justify-between gap-4 md:hidden">
-        <FacetSidebar
-          facets={facets}
-          mobileOnly
-        />
-        <SortSelect />
-      </div>
+      {result.products.length === 0 ? (
+        <p className="text-charcoal-light py-16 text-center">
+          No products found.
+        </p>
+      ) : (
+        <>
+          <div className="mb-6 flex items-center justify-between gap-4 md:hidden">
+            <FacetSidebar
+              facets={facets}
+              mobileOnly
+            />
+            <SortSelect />
+          </div>
 
-      <ActiveFilters facets={facets} />
+          <ActiveFilters facets={facets} />
 
-      <div className="flex gap-10">
-        <FacetSidebar
-          facets={facets}
-          desktopOnly
-        />
-        <div className="flex-1">
-          <div className="mb-6 flex items-center justify-between gap-4">
-            <div className="flex flex-wrap items-center gap-2">
-              <ProductsPerPageSelect value={result.limit} />
-              <p className="text-sm text-charcoal-light">
-                {result.limit <= result.total
-                  ? `of ${result.total} products`
-                  : 'products'}
-              </p>
-            </div>
-            <div className="hidden md:block">
-              <SortSelect />
+          <div className="flex gap-10">
+            <FacetSidebar
+              facets={facets}
+              desktopOnly
+            />
+            <div className="flex-1">
+              <div className="mb-6 flex items-center justify-between gap-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <ProductsPerPageSelect value={result.limit} />
+                  <p className="text-sm text-charcoal-light">
+                    {result.limit <= result.total
+                      ? `of ${result.total} products`
+                      : 'products'}
+                  </p>
+                </div>
+                <div className="hidden md:block">
+                  <SortSelect />
+                </div>
+              </div>
+              <ProductGrid
+                products={result.products}
+                locale={locale}
+              />
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+              />
             </div>
           </div>
-          <ProductGrid
-            products={result.products}
-            locale={locale}
-          />
-          <Pagination
-            page={page}
-            totalPages={totalPages}
-          />
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 }
