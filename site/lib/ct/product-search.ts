@@ -41,12 +41,22 @@ function buildQuery(params: ProductSearchParams) {
 
   if (params.text) {
     clauses.push({
-      fullText: {
-        field: 'name',
-        language: localeLanguage(params.locale),
-        value: params.text,
-        caseInsensitive: true,
-      },
+      or: [
+        {
+          fullText: {
+            field: 'name',
+            language: localeLanguage(params.locale),
+            value: params.text,
+          },
+        },
+        {
+          fullText: {
+            field: 'variants.attributes.productBrand',
+            fieldType: 'text',
+            value: params.text,
+          },
+        },
+      ],
     });
   }
 

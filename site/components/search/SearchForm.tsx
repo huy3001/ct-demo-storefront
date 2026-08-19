@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Link } from '@/i18n/routing';
 import type { SearchSuggestions } from '@/lib/ct/search-suggestions';
 
-const EMPTY_SUGGESTIONS: SearchSuggestions = { categories: [], products: [] };
+const EMPTY_SUGGESTIONS: SearchSuggestions = { categories: [], brands: [], products: [] };
 
 export default function SearchForm({ locale, className = '' }: { locale: string; className?: string }) {
   const router = useRouter();
@@ -71,7 +71,10 @@ export default function SearchForm({ locale, className = '' }: { locale: string;
     goToSearchResults();
   }
 
-  const hasSuggestions = suggestions.categories.length > 0 || suggestions.products.length > 0;
+  const hasSuggestions =
+    suggestions.categories.length > 0 ||
+    suggestions.brands.length > 0 ||
+    suggestions.products.length > 0;
   const showDropdown = isOpen && query.trim().length >= 3;
 
   return (
@@ -136,7 +139,7 @@ export default function SearchForm({ locale, className = '' }: { locale: string;
         <div
           id={suggestionsId}
           role="listbox"
-          className="absolute left-0 right-0 top-full z-50 mt-2 max-h-[min(70vh,32rem)] overflow-y-auto rounded-sm border border-border bg-white shadow-lg md:min-w-[26rem]"
+          className="absolute left-0 right-0 top-full z-50 mt-2 max-h-[min(70vh,32rem)] overflow-y-auto rounded-sm border border-border bg-white shadow-lg md:min-w-104"
         >
           {isLoading && !hasSuggestions ? (
             <p className="px-4 py-5 text-sm text-charcoal-light">Searching…</p>
@@ -162,10 +165,34 @@ export default function SearchForm({ locale, className = '' }: { locale: string;
                   ))}
                 </div>
               )}
+              {suggestions.brands.length > 0 && (
+                <div className={suggestions.categories.length ? 'mt-2 border-t border-border pt-2' : ''}>
+                  <p className="px-2 py-2 text-xs font-semibold uppercase tracking-wider text-charcoal-light">
+                    Brands
+                  </p>
+                  {suggestions.brands.map((brand) => (
+                    <button
+                      key={brand}
+                      type="button"
+                      role="option"
+                      aria-selected="false"
+                      onClick={() => {
+                        setQuery(brand);
+                        setIsOpen(false);
+                        router.push(`/${locale}/search?q=${encodeURIComponent(brand)}`);
+                      }}
+                      className="flex w-full items-center gap-2 rounded-sm px-2 py-2 text-left text-sm text-charcoal hover:bg-cream-dark hover:text-terra"
+                    >
+                      <span aria-hidden="true">↗</span>
+                      {brand}
+                    </button>
+                  ))}
+                </div>
+              )}
               {suggestions.products.length > 0 && (
                 <div
                   className={
-                    suggestions.categories.length
+                    suggestions.categories.length || suggestions.brands.length
                       ? 'mt-2 border-t border-border pt-2'
                       : ''
                   }
@@ -193,8 +220,15 @@ export default function SearchForm({ locale, className = '' }: { locale: string;
                           />
                         )}
                       </div>
-                      <span className="line-clamp-2 text-sm font-medium text-charcoal">
-                        {product.name}
+                      <span className="min-w-0">
+                        {product.brand && (
+                          <span className="block truncate text-xs uppercase tracking-wide text-terra">
+                            {product.brand}
+                          </span>
+                        )}
+                        <span className="line-clamp-2 text-sm font-medium text-charcoal">
+                          {product.name}
+                        </span>
                       </span>
                     </Link>
                   ))}

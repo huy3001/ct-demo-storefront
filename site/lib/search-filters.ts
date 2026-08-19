@@ -15,7 +15,11 @@ export function categoryIdsByName(categories: Category[]): Record<string, string
 }
 
 export function isColorCodeFacet(key: string): boolean {
-  return ['colorcode', 'finishcode', 'finishlabel', 'searchfinish'].includes(
-    key.replace(/[\s_-]/g, '').toLowerCase(),
-  );
+  return [
+    'colorcode',
+    'finishcode',
+    'finishlabel',
+    'searchfinish',
+    'brandlogo',
+  ].includes(key.replace(/[\s_-]/g, '').toLowerCase());
 }
