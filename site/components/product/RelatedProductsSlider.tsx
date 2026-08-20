@@ -93,7 +93,7 @@ export default function RelatedProductsSlider({
           breakpoints={{
             480: { slidesPerView: 2 },
             768: { slidesPerView: 3 },
-            1024: { slidesPerView: 4, spaceBetween: 24 },
+            1024: { slidesPerView: 4 },
           }}
         >
           {products.map((product) => (

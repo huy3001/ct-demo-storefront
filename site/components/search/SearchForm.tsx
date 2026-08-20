@@ -153,7 +153,7 @@ export default function SearchForm({ locale, className = '' }: { locale: string;
                   {suggestions.categories.map((category) => (
                     <Link
                       key={category.id}
-                      href={`/category/${category.slug}`}
+                      href={`/category/${category.slug}?${new URLSearchParams({ f_category: category.name })}`}
                       locale={locale}
                       role="option"
                       onClick={() => setIsOpen(false)}
@@ -171,21 +171,20 @@ export default function SearchForm({ locale, className = '' }: { locale: string;
                     Brands
                   </p>
                   {suggestions.brands.map((brand) => (
-                    <button
+                    <Link
                       key={brand}
-                      type="button"
+                      href={`/search?${new URLSearchParams({ q: brand, f_productBrand: brand })}`}
+                      locale={locale}
                       role="option"
-                      aria-selected="false"
                       onClick={() => {
                         setQuery(brand);
                         setIsOpen(false);
-                        router.push(`/${locale}/search?q=${encodeURIComponent(brand)}`);
                       }}
                       className="flex w-full items-center gap-2 rounded-sm px-2 py-2 text-left text-sm text-charcoal hover:bg-cream-dark hover:text-terra"
                     >
                       <span aria-hidden="true">↗</span>
                       {brand}
-                    </button>
+                    </Link>
                   ))}
                 </div>
               )}

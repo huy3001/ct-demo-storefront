@@ -1,16 +1,18 @@
-import { getFeaturedProducts, getProductsByCategorySlug } from '@/lib/ct/product';
+import { getFeaturedProducts, getProductBrands, getProductsByCategorySlug } from '@/lib/ct/product';
 import { getCategoryTree } from '@/lib/ct/category';
 import ProductGrid from '@/components/product/ProductGrid';
 import RelatedProductsSlider from '@/components/product/RelatedProductsSlider';
 import ShopByCategory from '@/components/category/ShopByCategory';
+import ShopByBrand from '@/components/brand/ShopByBrand';
 import { Link } from '@/i18n/routing';
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const [newArrivals, featured, categoryTree] = await Promise.all([
+  const [newArrivals, featured, categoryTree, brands] = await Promise.all([
     getProductsByCategorySlug('new-arrivals', locale, 8),
     getFeaturedProducts(locale, 8),
     getCategoryTree(locale),
+    getProductBrands(locale),
   ]);
   const categories = categoryTree.filter((category) => category.slug);
 
@@ -48,7 +50,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       )}
 
-      <section className="mx-auto max-w-7xl px-4 pb-16">
+      <ShopByBrand brands={brands} locale={locale} />
+
+      <section className="mx-auto max-w-7xl px-4 py-16">
         <div className="flex flex-col items-start justify-between gap-8 rounded-sm bg-charcoal px-8 py-12 text-white sm:flex-row sm:items-center md:px-12">
           <div>
             <p className="mb-2 text-sm font-medium uppercase tracking-widest text-white/70">

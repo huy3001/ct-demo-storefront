@@ -26,6 +26,11 @@ export interface Product {
   variants: Variant[];
 }
 
+export interface ProductBrand {
+  name: string;
+  logo?: string;
+}
+
 export interface Category {
   id: string;
   name: string;
