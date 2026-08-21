@@ -8,6 +8,11 @@ function getCategoryImage(category: { custom?: { fields: Record<string, unknown>
   return typeof imageUrl === 'string' && imageUrl.trim() ? imageUrl : undefined;
 }
 
+function getShowInNavigation(category: { custom?: { fields: Record<string, unknown> } }): boolean {
+  const value = category.custom?.fields.showInNavigation;
+  return typeof value === 'boolean' ? value : true;
+}
+
 export async function getCategoryTree(locale: string): Promise<Category[]> {
   const apiRoot: ByProjectKeyRequestBuilder = getCatalogApiRoot();
   const { body } = await apiRoot
@@ -23,6 +28,7 @@ export async function getCategoryTree(locale: string): Promise<Category[]> {
       slug: getLocalizedString(c.slug, locale),
       description: c.description ? getLocalizedString(c.description, locale) : undefined,
       image: getCategoryImage(c),
+      showInNavigation: getShowInNavigation(c),
       parent: c.parent ? { id: c.parent.id } : undefined,
       children: [],
     });
@@ -53,6 +59,7 @@ export async function getCategoryBySlug(slug: string, locale: string): Promise<C
     slug: getLocalizedString(category.slug, locale),
     description: category.description ? getLocalizedString(category.description, locale) : undefined,
     image: getCategoryImage(category),
+    showInNavigation: getShowInNavigation(category),
     parent: category.parent ? { id: category.parent.id } : undefined,
   };
 }

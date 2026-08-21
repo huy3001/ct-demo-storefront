@@ -20,7 +20,9 @@ export default function CategoryNavigation({
   categoryTree: Category[];
 }) {
   const pathname = usePathname();
-  const validCategories = categoryTree.filter((category) => Boolean(category.slug));
+  const validCategories = categoryTree.filter(
+    (category) => Boolean(category.slug) && category.showInNavigation,
+  );
   const containerRef = useRef<HTMLDivElement>(null);
   const [openRootId, setOpenRootId] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -104,8 +106,8 @@ export default function CategoryNavigation({
         </Link>
 
         {validCategories.map((category) => {
-          const children = (category.children ?? []).filter((child) =>
-            Boolean(child.slug),
+          const children = (category.children ?? []).filter(
+            (child) => Boolean(child.slug) && child.showInNavigation,
           );
           const active = hasActiveCategory(pathname, category);
 
@@ -204,8 +206,8 @@ export default function CategoryNavigation({
               </Link>
 
               {validCategories.map((category) => {
-                const children = (category.children ?? []).filter((child) =>
-                  Boolean(child.slug),
+                const children = (category.children ?? []).filter(
+                  (child) => Boolean(child.slug) && child.showInNavigation,
                 );
                 const expanded = expandedRootId === category.id;
                 return (

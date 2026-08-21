@@ -37,6 +37,7 @@ export interface Category {
   slug: string;
   description?: string;
   image?: string;
+  showInNavigation: boolean;
   parent?: { id: string };
   children?: Category[];
 }
