@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "setup:category-image-type": "node --env-file=.env.local scripts/setup-category-image-type.mjs",
+    "setup:category-fields": "node --env-file=.env.local scripts/setup-category-fields.mjs",
     "setup:product-brand-attributes": "node --env-file=.env.local scripts/setup-product-brand-attributes.mjs"
   },
   "dependencies": {

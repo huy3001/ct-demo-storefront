@@ -52,7 +52,8 @@ export default async function CategoryPage({
 
   const result = await runProductSearch({
     locale,
-    categoryId: category?.id,
+    categoryId: slug === 'sale' ? undefined : category?.id,
+    discountedOnly: slug === 'sale',
     sort,
     page,
     pageSize,

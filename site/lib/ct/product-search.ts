@@ -24,6 +24,7 @@ export interface ProductSearchParams {
   locale: string;
   text?: string;
   categoryId?: string;
+  discountedOnly?: boolean;
   facets?: SearchFacetSelection[];
   facetDefinitions: FilterableFacetDefinition[];
   priceRange?: PriceRangeSelection;
@@ -61,6 +62,14 @@ function buildQuery(params: ProductSearchParams) {
   }
 
   if (params.categoryId) clauses.push({ exact: { field: 'categoriesSubTree', value: params.categoryId } });
+
+  if (params.discountedOnly) {
+    const { currency } = COUNTRY_CONFIG[params.locale] ?? COUNTRY_CONFIG['en-US'];
+    clauses.push(
+      { exact: { field: 'variants.prices.discounted', value: true } },
+      { exact: { field: 'variants.prices.currencyCode', value: currency } },
+    );
+  }
 
   if (params.priceRange?.min !== undefined || params.priceRange?.max !== undefined) {
     clauses.push({

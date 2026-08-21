@@ -33,6 +33,7 @@ See `.env.example` for the full list. Key ones:
 | --- | --- |
 | `CTP_PROJECT_KEY`, `CTP_CLIENT_ID`, `CTP_CLIENT_SECRET`, `CTP_AUTH_URL`, `CTP_API_URL` | commercetools project credentials, server-side only. |
 | `CTP_SCOPES` | OAuth scopes requested for the shared client-credentials token (see [Architecture](#architecture--session-model) below for why these are admin-level scopes). |
+| `CRON_SECRET` | Secret used to authorize the scheduled Sale-category synchronization endpoint. |
 | `CTP_CHECKOUT_APP_KEY` | Key of the Checkout Application configured in Merchant Center under *Settings > Checkout > Applications*. Must be updated to your real application key before the checkout flow will work. |
 | `SESSION_SECRET` | Symmetric key used to encrypt the session cookie (`jose`). Generate with `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`. |
 | `DEFAULT_CURRENCY` | Fallback currency when a locale isn't in `COUNTRY_CONFIG`. |
@@ -110,6 +111,7 @@ session. You'll need to:
 - `npm run dev` — start the dev server.
 - `npm run build` — production build.
 - `npm run lint` — ESLint.
-- `npm run setup:category-image-type` — idempotently create the commercetools
-  `category-image` Custom Type and its optional `imageUrl` String field. The API
-  Client must have the `manage_types` scope.
+- `npm run setup:category-fields` — idempotently create the commercetools
+  `category-storefront-fields` Custom Type and its optional `imageUrl` and
+  `showInNavigation` storefront fields. The API Client must have the
+  `manage_types` scope.
