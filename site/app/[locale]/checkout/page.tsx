@@ -2,7 +2,31 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import type { Message } from '@commercetools/checkout-browser-sdk';
 import { useCart } from '@/hooks/useCart';
+
+function errorDetail(value: unknown): string | null {
+  if (typeof value === 'string' && value.trim()) return value;
+  if (!value || typeof value !== 'object') return null;
+
+  const record = value as Record<string, unknown>;
+  for (const key of ['message', 'error', 'data']) {
+    const detail = errorDetail(record[key]);
+    if (detail) return detail;
+  }
+
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return null;
+  }
+}
+
+function checkoutErrorMessage(message: Message): string {
+  const detail = errorDetail(message.payload);
+  const error = detail ? `${message.code}: ${detail}` : message.code || 'Payment error';
+  return message.correlationId ? `${error} (correlation ID: ${message.correlationId})` : error;
+}
 
 export default function CheckoutPage() {
   const { locale } = useParams<{ locale: string }>();
@@ -38,13 +62,13 @@ export default function CheckoutPage() {
           logInfo: process.env.NODE_ENV !== 'production',
           logWarn: true,
           logError: true,
-          onInfo: (message: { code: string }) => {
+          onInfo: (message: Message) => {
             if (message.code === 'checkout_completed') {
               router.push(`/${locale}/checkout/confirmation`);
             }
           },
-          onError: (err: { payload?: unknown; code?: string }) => {
-            setError(String(err.payload ?? err.code ?? 'Payment error'));
+          onError: (message: Message) => {
+            setError(checkoutErrorMessage(message));
           },
           styles: {
             '--font-family': 'var(--font-sans)',
