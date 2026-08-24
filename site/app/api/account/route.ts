@@ -18,7 +18,7 @@ export async function GET() {
 
 export async function PATCH(req: NextRequest) {
   try {
-    const fields = (await req.json()) as { firstName?: string; lastName?: string; email?: string };
+    const fields = (await req.json()) as { firstName?: string; lastName?: string; email?: string; phone?: string };
     const { apiRoot, session } = await getSessionApiRoot();
     if (!session.customerId) {
       return NextResponse.json({ message: 'Not signed in' }, { status: 401 });

@@ -52,7 +52,12 @@ export default function CheckoutPage() {
           const body = await res.json().catch(() => ({}));
           throw new Error(body.message ?? 'Failed to start checkout');
         }
-        const { sessionId, projectKey, region } = await res.json();
+        const { sessionId, projectKey, region, profileContact } = (await res.json()) as {
+          sessionId: string;
+          projectKey: string;
+          region: string;
+          profileContact?: { firstName?: string; lastName?: string; email?: string; phone?: string };
+        };
 
         const { checkoutFlow } = await import('@commercetools/checkout-browser-sdk');
         checkoutFlow({
@@ -63,6 +68,31 @@ export default function CheckoutPage() {
           logInfo: process.env.NODE_ENV !== 'production',
           logWarn: true,
           logError: true,
+          forms: {
+            default: {
+              address: {
+                fields: {
+                  firstName: {
+                    initialValue: profileContact?.firstName,
+                    validation: { required: { value: true } },
+                  },
+                  lastName: {
+                    initialValue: profileContact?.lastName,
+                    validation: { required: { value: true } },
+                  },
+                  email: {
+                    initialValue: profileContact?.email,
+                    validation: { required: { value: true } },
+                  },
+                  phone: {
+                    initialValue: profileContact?.phone,
+                    validation: { required: { value: false } },
+                  },
+                  state: { validation: { required: { value: true } } },
+                },
+              },
+            },
+          },
           onInfo: (message: Message) => {
             if (message.code === 'checkout_completed' && !completed.current) {
               completed.current = true;

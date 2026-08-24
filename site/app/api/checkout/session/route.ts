@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionApiRoot, persistSession } from '@/lib/ct/session';
-import { getOrCreateCart } from '@/lib/ct/cart';
+import { getOrCreateCart, setCheckoutAddresses } from '@/lib/ct/cart';
 import { createCheckoutSession } from '@/lib/ct/checkout';
+import { getCustomerById } from '@/lib/ct/customer';
+import { customerPhone } from '@/lib/customer-profile';
 import { apiError } from '../../_utils';
 
 /**
@@ -20,8 +22,46 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Cart is empty' }, { status: 400 });
     }
 
-    const result = await createCheckoutSession(cart.id);
-    return NextResponse.json(result);
+    let checkoutCart = cart;
+    let profileContact: { firstName?: string; lastName?: string; email?: string; phone?: string } | undefined;
+    if (session.customerId) {
+      const customer = await getCustomerById(apiRoot, session.customerId);
+      profileContact = {
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        email: customer.email,
+        phone: customerPhone(customer) || undefined,
+      };
+
+      // find() preserves address-book order if malformed/external customer data
+      // contains more than one matching entry.
+      const savedDefaultShippingAddress = customer.addresses.find(
+        (address) => address.id === customer.defaultShippingAddressId,
+      );
+      const savedDefaultBillingAddress = customer.addresses.find(
+        (address) => address.id === customer.defaultBillingAddressId,
+      );
+      const withProfileContact = (address: typeof savedDefaultShippingAddress) =>
+        address
+          ? {
+              ...address,
+              firstName: address.firstName || customer.firstName,
+              lastName: address.lastName || customer.lastName,
+              email: address.email || customer.email,
+              phone: address.phone || customerPhone(customer) || undefined,
+            }
+          : undefined;
+
+      checkoutCart = await setCheckoutAddresses(
+        apiRoot,
+        cart,
+        withProfileContact(savedDefaultShippingAddress),
+        withProfileContact(savedDefaultBillingAddress),
+      );
+    }
+
+    const result = await createCheckoutSession(checkoutCart.id);
+    return NextResponse.json({ ...result, profileContact });
   } catch (err) {
     return apiError(err);
   }

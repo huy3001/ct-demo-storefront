@@ -28,6 +28,8 @@ export default function EditAddressPage() {
       <AddressForm
         addressId={id}
         initialAddress={address}
+        initialDefaultShipping={customer?.defaultShippingAddressId === id}
+        initialDefaultBilling={customer?.defaultBillingAddressId === id}
       />
     </div>
   );

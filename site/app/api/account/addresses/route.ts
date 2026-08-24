@@ -4,13 +4,29 @@ import { getSessionApiRoot } from '@/lib/ct/session';
 import { getCustomerById, addCustomerAddress, removeCustomerAddress, updateCustomerAddress } from '@/lib/ct/customer';
 import { apiError } from '../../_utils';
 
+function hasRequiredContactFields(address: BaseAddress) {
+  return [address.firstName, address.lastName, address.email, address.state].every(
+    (value) => typeof value === 'string' && value.trim().length > 0,
+  );
+}
+
 export async function POST(req: NextRequest) {
   try {
-    const address = (await req.json()) as BaseAddress;
+    const { address, defaultShipping, defaultBilling } = (await req.json()) as {
+      address: BaseAddress;
+      defaultShipping?: boolean;
+      defaultBilling?: boolean;
+    };
     const { apiRoot, session } = await getSessionApiRoot();
     if (!session.customerId) return NextResponse.json({ message: 'Not signed in' }, { status: 401 });
+    if (!hasRequiredContactFields(address)) {
+      return NextResponse.json({ message: 'First name, last name, email address, and state are required' }, { status: 400 });
+    }
     const customer = await getCustomerById(apiRoot, session.customerId);
-    const updated = await addCustomerAddress(apiRoot, customer, address);
+    const updated = await addCustomerAddress(apiRoot, customer, address, {
+      shipping: Boolean(defaultShipping),
+      billing: Boolean(defaultBilling),
+    });
     return NextResponse.json(updated);
   } catch (err) {
     return apiError(err);
@@ -32,11 +48,22 @@ export async function DELETE(req: NextRequest) {
 
 export async function PATCH(req: NextRequest) {
   try {
-    const { addressId, address } = (await req.json()) as { addressId: string; address: BaseAddress };
+    const { addressId, address, defaultShipping, defaultBilling } = (await req.json()) as {
+      addressId: string;
+      address: BaseAddress;
+      defaultShipping?: boolean;
+      defaultBilling?: boolean;
+    };
     const { apiRoot, session } = await getSessionApiRoot();
     if (!session.customerId) return NextResponse.json({ message: 'Not signed in' }, { status: 401 });
+    if (!hasRequiredContactFields(address)) {
+      return NextResponse.json({ message: 'First name, last name, email address, and state are required' }, { status: 400 });
+    }
     const customer = await getCustomerById(apiRoot, session.customerId);
-    const updated = await updateCustomerAddress(apiRoot, customer, addressId, address);
+    const updated = await updateCustomerAddress(apiRoot, customer, addressId, address, {
+      shipping: Boolean(defaultShipping),
+      billing: Boolean(defaultBilling),
+    });
     return NextResponse.json(updated);
   } catch (err) {
     return apiError(err);

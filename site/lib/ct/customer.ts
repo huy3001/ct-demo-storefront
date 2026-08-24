@@ -1,4 +1,11 @@
-import type { ByProjectKeyRequestBuilder, Customer, CustomerSignInResult } from '@commercetools/platform-sdk';
+import { randomUUID } from 'crypto';
+import type {
+  ByProjectKeyRequestBuilder,
+  Customer,
+  CustomerSignInResult,
+  CustomerUpdateAction,
+  Type,
+} from '@commercetools/platform-sdk';
 
 export interface SignUpInput {
   email: string;
@@ -64,18 +71,86 @@ export async function getCustomerById(apiRoot: ByProjectKeyRequestBuilder, custo
 export async function updateCustomerProfile(
   apiRoot: ByProjectKeyRequestBuilder,
   customer: Customer,
-  fields: { firstName?: string; lastName?: string; email?: string }
+  fields: { firstName?: string; lastName?: string; email?: string; phone?: string }
 ): Promise<Customer> {
-  const actions = [];
+  const actions: CustomerUpdateAction[] = [];
   if (fields.firstName !== undefined) actions.push({ action: 'setFirstName' as const, firstName: fields.firstName });
   if (fields.lastName !== undefined) actions.push({ action: 'setLastName' as const, lastName: fields.lastName });
   if (fields.email !== undefined) actions.push({ action: 'changeEmail' as const, email: fields.email });
+  if (fields.phone !== undefined) {
+    const phoneType = await ensureCustomerPhoneType(apiRoot, customer);
+    if (customer.custom) {
+      if (fields.phone || typeof customer.custom.fields.phone === 'string') {
+        actions.push({ action: 'setCustomField', name: 'phone', value: fields.phone || undefined });
+      }
+    } else {
+      actions.push({
+        action: 'setCustomType',
+        type: { typeId: 'type', id: phoneType.id },
+        fields: fields.phone ? { phone: fields.phone } : {},
+      });
+    }
+  }
 
   const { body } = await apiRoot
     .customers()
     .withId({ ID: customer.id })
     .post({ body: { version: customer.version, actions } })
     .execute();
+  return body;
+}
+
+async function ensureCustomerPhoneType(
+  apiRoot: ByProjectKeyRequestBuilder,
+  customer: Customer,
+): Promise<Type> {
+  const existingType = customer.custom
+    ? (await apiRoot.types().withId({ ID: customer.custom.type.id }).get().execute()).body
+    : await getOrCreateCustomerProfileType(apiRoot);
+
+  if (existingType.fieldDefinitions.some((field) => field.name === 'phone')) return existingType;
+
+  const { body } = await apiRoot
+    .types()
+    .withId({ ID: existingType.id })
+    .post({
+      body: {
+        version: existingType.version,
+        actions: [{
+          action: 'addFieldDefinition',
+          fieldDefinition: {
+            name: 'phone',
+            label: { en: 'Phone number' },
+            required: false,
+            type: { name: 'String' },
+          },
+        }],
+      },
+    })
+    .execute();
+  return body;
+}
+
+async function getOrCreateCustomerProfileType(apiRoot: ByProjectKeyRequestBuilder): Promise<Type> {
+  try {
+    return (await apiRoot.types().withKey({ key: 'customer-profile' }).get().execute()).body;
+  } catch (err) {
+    if ((err as { statusCode?: number }).statusCode !== 404) throw err;
+  }
+
+  const { body } = await apiRoot.types().post({
+    body: {
+      key: 'customer-profile',
+      name: { en: 'Customer profile' },
+      resourceTypeIds: ['customer'],
+      fieldDefinitions: [{
+        name: 'phone',
+        label: { en: 'Phone number' },
+        required: false,
+        type: { name: 'String' },
+      }],
+    },
+  }).execute();
   return body;
 }
 
@@ -96,12 +171,20 @@ export async function changeCustomerPassword(
 export async function addCustomerAddress(
   apiRoot: ByProjectKeyRequestBuilder,
   customer: Customer,
-  address: NonNullable<Customer['addresses']>[number]
+  address: NonNullable<Customer['addresses']>[number],
+  defaults: { shipping: boolean; billing: boolean },
 ): Promise<Customer> {
+  const addressKey = randomUUID();
+  const actions: CustomerUpdateAction[] = [
+    { action: 'addAddress', address: { ...address, key: addressKey } },
+  ];
+  if (defaults.shipping) actions.push({ action: 'setDefaultShippingAddress', addressKey });
+  if (defaults.billing) actions.push({ action: 'setDefaultBillingAddress', addressKey });
+
   const { body } = await apiRoot
     .customers()
     .withId({ ID: customer.id })
-    .post({ body: { version: customer.version, actions: [{ action: 'addAddress', address }] } })
+    .post({ body: { version: customer.version, actions } })
     .execute();
   return body;
 }
@@ -123,12 +206,27 @@ export async function updateCustomerAddress(
   apiRoot: ByProjectKeyRequestBuilder,
   customer: Customer,
   addressId: string,
-  address: NonNullable<Customer['addresses']>[number]
+  address: NonNullable<Customer['addresses']>[number],
+  defaults: { shipping: boolean; billing: boolean },
 ): Promise<Customer> {
+  const actions: CustomerUpdateAction[] = [{ action: 'changeAddress', addressId, address }];
+
+  if (defaults.shipping) {
+    actions.push({ action: 'setDefaultShippingAddress', addressId });
+  } else if (customer.defaultShippingAddressId === addressId) {
+    actions.push({ action: 'setDefaultShippingAddress' });
+  }
+
+  if (defaults.billing) {
+    actions.push({ action: 'setDefaultBillingAddress', addressId });
+  } else if (customer.defaultBillingAddressId === addressId) {
+    actions.push({ action: 'setDefaultBillingAddress' });
+  }
+
   const { body } = await apiRoot
     .customers()
     .withId({ ID: customer.id })
-    .post({ body: { version: customer.version, actions: [{ action: 'changeAddress', addressId, address }] } })
+    .post({ body: { version: customer.version, actions } })
     .execute();
   return body;
 }

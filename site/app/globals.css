@@ -71,13 +71,13 @@ input[type=number] {
             background: var(--background) !important;
           }
         }
-
-        div {
-          &:focus-within,
-          &:is([class*="_containValue_"]) {
-            > label {
-              background: var(--background) !important;
-            }
+      }
+      
+      div {
+        &:focus-within,
+        &:is([class*="_containValue_"]) {
+          > label {
+            background: var(--background) !important;
           }
         }
       }

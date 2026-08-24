@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import { useSWRConfig } from 'swr';
 import type { Customer } from '@commercetools/platform-sdk';
 import { useAccount } from '@/hooks/useAccount';
+import { customerPhone } from '@/lib/customer-profile';
 
 export default function AccountProfilePage() {
   const { customer } = useAccount();
@@ -11,7 +13,13 @@ export default function AccountProfilePage() {
 }
 
 function ProfileForm({ customer }: { customer: Customer }) {
-  const [form, setForm] = useState({ firstName: customer.firstName ?? '', lastName: customer.lastName ?? '', email: customer.email });
+  const { mutate } = useSWRConfig();
+  const [form, setForm] = useState({
+    firstName: customer.firstName ?? '',
+    lastName: customer.lastName ?? '',
+    email: customer.email,
+    phone: customerPhone(customer),
+  });
   const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
   const [passwordStatus, setPasswordStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -23,6 +31,8 @@ function ProfileForm({ customer }: { customer: Customer }) {
     try {
       const res = await fetch('/api/account', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
       if (!res.ok) throw new Error();
+      const updatedCustomer = await res.json();
+      await mutate('/api/account', updatedCustomer, { revalidate: false });
       setStatus('saved');
     } catch {
       setStatus('error');
@@ -68,6 +78,7 @@ function ProfileForm({ customer }: { customer: Customer }) {
             <input placeholder="Last name" value={form.lastName} onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))} className="w-1/2 rounded-sm border border-border px-3 py-2 text-sm" />
           </div>
           <input required type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} className="w-full rounded-sm border border-border px-3 py-2 text-sm" />
+          <input type="tel" autoComplete="tel" placeholder="Phone number (optional)" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className="w-full rounded-sm border border-border px-3 py-2 text-sm" />
           <button type="submit" disabled={status === 'saving'} className="rounded-sm bg-charcoal px-5 py-2 text-sm text-white hover:bg-charcoal-light disabled:opacity-60">{status === 'saving' ? 'Saving…' : 'Save changes'}</button>
           {status === 'saved' && <p className="text-sm text-sage">Saved.</p>}
           {status === 'error' && <p className="text-sm text-red-600">Something went wrong.</p>}

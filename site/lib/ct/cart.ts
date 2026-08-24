@@ -1,4 +1,4 @@
-import type { ByProjectKeyRequestBuilder, Cart } from '@commercetools/platform-sdk';
+import type { BaseAddress, ByProjectKeyRequestBuilder, Cart, CartUpdateAction } from '@commercetools/platform-sdk';
 import { COUNTRY_CONFIG } from '@/lib/utils';
 import type { SessionPayload } from './session-cookie';
 
@@ -84,6 +84,25 @@ export async function addLineItem(
         actions: [{ action: 'addLineItem', productId, variantId, quantity }],
       },
     })
+    .execute();
+  return body;
+}
+
+export async function setCheckoutAddresses(
+  apiRoot: ByProjectKeyRequestBuilder,
+  cart: Cart,
+  shippingAddress?: BaseAddress,
+  billingAddress?: BaseAddress,
+): Promise<Cart> {
+  const actions: CartUpdateAction[] = [
+    { action: 'setShippingAddress', ...(shippingAddress ? { address: shippingAddress } : {}) },
+    { action: 'setBillingAddress', ...(billingAddress ? { address: billingAddress } : {}) },
+  ];
+
+  const { body } = await apiRoot
+    .carts()
+    .withId({ ID: cart.id })
+    .post({ body: { version: cart.version, actions } })
     .execute();
   return body;
 }
