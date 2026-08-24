@@ -30,10 +30,11 @@ function checkoutErrorMessage(message: Message): string {
 
 export default function CheckoutPage() {
   const { locale } = useParams<{ locale: string }>();
-  const { cart, isLoading } = useCart();
+  const { cart, isLoading, completeCheckout } = useCart();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const initialized = useRef(false);
+  const completed = useRef(false);
 
   useEffect(() => {
     if (isLoading || !cart || cart.lineItems.length === 0) return;
@@ -63,8 +64,14 @@ export default function CheckoutPage() {
           logWarn: true,
           logError: true,
           onInfo: (message: Message) => {
-            if (message.code === 'checkout_completed') {
-              router.push(`/${locale}/checkout/confirmation`);
+            if (message.code === 'checkout_completed' && !completed.current) {
+              completed.current = true;
+              void completeCheckout(cart.id)
+                .then(() => router.push(`/${locale}/checkout/confirmation`))
+                .catch((err) => {
+                  completed.current = false;
+                  setError(err instanceof Error ? err.message : 'Failed to clear completed cart');
+                });
             }
           },
           onError: (message: Message) => {
@@ -81,7 +88,7 @@ export default function CheckoutPage() {
         setError(err instanceof Error ? err.message : 'Failed to start checkout');
       }
     })();
-  }, [isLoading, cart, locale, router]);
+  }, [isLoading, cart, locale, router, completeCheckout]);
 
   if (!isLoading && (!cart || cart.lineItems.length === 0)) {
     return (

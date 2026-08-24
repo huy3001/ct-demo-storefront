@@ -16,9 +16,14 @@
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-:root { --background: #faf7f4; --foreground: #1a1a1a; }
+:root {
+  --background: #faf7f4;
+  --foreground: #1a1a1a;
+}
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 body {
   background: var(--background);
@@ -57,12 +62,22 @@ input[type=number] {
     }
   }
 
-  form {
+  form,
+  section {
     > fieldset {
       > div {
         &:not(:has(input[value=""])) {
           label {
             background: var(--background) !important;
+          }
+        }
+
+        div {
+          &:focus-within,
+          &:is([class*="_containValue_"]) {
+            > label {
+              background: var(--background) !important;
+            }
           }
         }
       }

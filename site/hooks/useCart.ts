@@ -16,7 +16,7 @@ const fetcher = (url: string) => fetch(url).then((response) => readJson<Cart>(re
 
 export function useCart() {
   const locale = useLocale();
-  const { data, error, isLoading, mutate } = useSWR<Cart>(`/api/cart?locale=${locale}`, fetcher, {
+  const { data, error, isLoading, mutate } = useSWR<Cart | null>(`/api/cart?locale=${locale}`, fetcher, {
     revalidateOnFocus: false,
   });
 
@@ -64,6 +64,16 @@ export function useCart() {
     return updated;
   }
 
+  async function completeCheckout(cartId: string) {
+    const response = await fetch('/api/checkout/complete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cartId }),
+    });
+    await readJson<{ success: true }>(response);
+    await mutate(null, { revalidate: false });
+  }
+
   async function applyDiscountCode(code: string) {
     const response = await fetch('/api/cart/discount-code', {
       method: 'POST',
@@ -86,6 +96,7 @@ export function useCart() {
     changeQuantity,
     removeItem,
     clearCart,
+    completeCheckout,
     applyDiscountCode,
     refresh: () => mutate(),
   };
