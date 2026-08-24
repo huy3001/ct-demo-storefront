@@ -1,4 +1,6 @@
 export const COUNTRY_CONFIG: Record<string, { currency: string; locale: string; country: string; label: string }> = {
+  'en-AU': { locale: 'en-AU', currency: 'AUD', country: 'AU', label: 'Australia' },
+  'en-NZ': { locale: 'en-NZ', currency: 'NZD', country: 'NZ', label: 'New Zealand' },
   'en-US': { locale: 'en-US', currency: 'USD', country: 'US', label: 'United States' },
   'en-GB': { locale: 'en-GB', currency: 'GBP', country: 'GB', label: 'United Kingdom' },
   'de-DE': { locale: 'de-DE', currency: 'EUR', country: 'DE', label: 'Germany' },

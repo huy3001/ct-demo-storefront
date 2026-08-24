@@ -8,7 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "setup:category-fields": "node --env-file=.env.local scripts/setup-category-fields.mjs",
-    "setup:product-brand-attributes": "node --env-file=.env.local scripts/setup-product-brand-attributes.mjs"
+    "setup:product-brand-attributes": "node --env-file=.env.local scripts/setup-product-brand-attributes.mjs",
+    "migrate:products-en-au": "node --env-file=.env.local scripts/migrate-product-locale.mjs",
+    "migrate:categories-en-au": "node --env-file=.env.local scripts/migrate-category-locale.mjs",
+    "migrate:product-prices-en-au": "node --env-file=.env.local scripts/migrate-product-prices.mjs"
   },
   "dependencies": {
     "@commercetools/checkout-browser-sdk": "^1.7.4",
