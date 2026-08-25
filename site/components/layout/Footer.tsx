@@ -20,6 +20,7 @@ export default function Footer({ locale }: { locale: string }) {
           <label className="flex items-center gap-2">
             <span>Country</span>
             <select
+              id="country-locale"
               value={locale}
               onChange={onLocaleChange}
               className="rounded-sm border border-border bg-white px-2 py-1.5 text-sm text-charcoal"

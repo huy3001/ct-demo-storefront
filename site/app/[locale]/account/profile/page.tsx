@@ -72,54 +72,191 @@ function ProfileForm({ customer }: { customer: Customer }) {
     <div className="space-y-10">
       <section>
         <h1 className="mb-6 text-xl font-semibold">Update profile</h1>
-        <form onSubmit={onSubmit} className="max-w-sm space-y-4">
+        <form
+          onSubmit={onSubmit}
+          className="space-y-4"
+        >
           <div className="flex gap-3">
-            <input placeholder="First name" value={form.firstName} onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))} className="w-1/2 rounded-sm border border-border px-3 py-2 text-sm" />
-            <input placeholder="Last name" value={form.lastName} onChange={(e) => setForm((f) => ({ ...f, lastName: e.target.value }))} className="w-1/2 rounded-sm border border-border px-3 py-2 text-sm" />
+            <div className="form-field w-1/2">
+              <label
+                htmlFor="firstName"
+                className="block text-sm mb-1"
+              >
+                First name
+              </label>
+              <input
+                id="firstName"
+                required
+                placeholder="First name"
+                value={form.firstName}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, firstName: e.target.value }))
+                }
+                className="w-full rounded-sm border border-border px-3 py-2 text-sm"
+              />
+            </div>
+            <div className="form-field w-1/2">
+              <label
+                htmlFor="lastName"
+                className="block text-sm mb-1"
+              >
+                Last name
+              </label>
+              <input
+                id="lastName"
+                required
+                placeholder="Last name"
+                value={form.lastName}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, lastName: e.target.value }))
+                }
+                className="w-full rounded-sm border border-border px-3 py-2 text-sm"
+              />
+            </div>
           </div>
-          <input required type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} className="w-full rounded-sm border border-border px-3 py-2 text-sm" />
-          <input type="tel" autoComplete="tel" placeholder="Phone number (optional)" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} className="w-full rounded-sm border border-border px-3 py-2 text-sm" />
-          <button type="submit" disabled={status === 'saving'} className="rounded-sm bg-charcoal px-5 py-2 text-sm text-white hover:bg-charcoal-light disabled:opacity-60">{status === 'saving' ? 'Saving…' : 'Save changes'}</button>
+          <div className="flex gap-3">
+            <div className="form-field w-1/2">
+              <label
+                htmlFor="email"
+                className="block text-sm mb-1"
+              >
+                Email
+              </label>
+              <input
+                id="email"
+                required
+                type="email"
+                value={form.email}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, email: e.target.value }))
+                }
+                className="w-full rounded-sm border border-border px-3 py-2 text-sm"
+              />
+            </div>
+            <div className="form-field w-1/2">
+              <label
+                htmlFor="phone"
+                className="block text-sm mb-1"
+              >
+                Phone number
+              </label>
+              <input
+                id="phone"
+                type="tel"
+                autoComplete="tel"
+                placeholder="Phone number (optional)"
+                value={form.phone}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, phone: e.target.value }))
+                }
+                className="w-full rounded-sm border border-border px-3 py-2 text-sm"
+              />
+            </div>
+          </div>
+          <button
+            type="submit"
+            disabled={status === 'saving'}
+            className="rounded-sm bg-charcoal px-5 py-2 text-sm text-white hover:bg-charcoal-light disabled:opacity-60"
+          >
+            {status === 'saving' ? 'Saving…' : 'Save changes'}
+          </button>
           {status === 'saved' && <p className="text-sm text-sage">Saved.</p>}
-          {status === 'error' && <p className="text-sm text-red-600">Something went wrong.</p>}
+          {status === 'error' && (
+            <p className="text-sm text-red-600">Something went wrong.</p>
+          )}
         </form>
       </section>
 
       <section>
         <h2 className="mb-6 text-xl font-semibold">Change password</h2>
-        <form onSubmit={onPasswordSubmit} className="max-w-sm space-y-4">
-          <input
-            required
-            type="password"
-            autoComplete="current-password"
-            placeholder="Current password"
-            value={passwords.currentPassword}
-            onChange={(e) => setPasswords((value) => ({ ...value, currentPassword: e.target.value }))}
-            className="w-full rounded-sm border border-border px-3 py-2 text-sm"
-          />
-          <input
-            required
-            type="password"
-            autoComplete="new-password"
-            placeholder="New password"
-            value={passwords.newPassword}
-            onChange={(e) => setPasswords((value) => ({ ...value, newPassword: e.target.value }))}
-            className="w-full rounded-sm border border-border px-3 py-2 text-sm"
-          />
-          <input
-            required
-            type="password"
-            autoComplete="new-password"
-            placeholder="Confirm new password"
-            value={passwords.confirmPassword}
-            onChange={(e) => setPasswords((value) => ({ ...value, confirmPassword: e.target.value }))}
-            className="w-full rounded-sm border border-border px-3 py-2 text-sm"
-          />
-          <button type="submit" disabled={passwordStatus === 'saving'} className="rounded-sm bg-charcoal px-5 py-2 text-sm text-white hover:bg-charcoal-light disabled:opacity-60">
+        <form
+          onSubmit={onPasswordSubmit}
+          className="space-y-4"
+        >
+          <div className="form-field w-full">
+            <label
+              htmlFor="currentPassword"
+              className="block text-sm mb-1"
+            >
+              Current password
+            </label>
+            <input
+              id="currentPassword"
+              required
+              type="password"
+              autoComplete="current-password"
+              placeholder="Current password"
+              value={passwords.currentPassword}
+              onChange={(e) =>
+                setPasswords((value) => ({
+                  ...value,
+                  currentPassword: e.target.value,
+                }))
+              }
+              className="w-full rounded-sm border border-border px-3 py-2 text-sm"
+            />
+          </div>
+          <div className="flex gap-3">
+            <div className="form-field w-1/2">
+              <label
+                htmlFor="newPassword"
+                className="block text-sm mb-1"
+              >
+                New password
+              </label>
+              <input
+                id="newPassword"
+                required
+                type="password"
+                autoComplete="new-password"
+                placeholder="New password"
+                value={passwords.newPassword}
+                onChange={(e) =>
+                  setPasswords((value) => ({
+                    ...value,
+                    newPassword: e.target.value,
+                  }))
+                }
+                className="w-full rounded-sm border border-border px-3 py-2 text-sm"
+              />
+            </div>
+            <div className="form-field w-1/2">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm mb-1"
+              >
+                Confirm new password
+              </label>
+              <input
+                id="confirmPassword"
+                required
+                type="password"
+                autoComplete="new-password"
+                placeholder="Confirm new password"
+                value={passwords.confirmPassword}
+                onChange={(e) =>
+                  setPasswords((value) => ({
+                    ...value,
+                    confirmPassword: e.target.value,
+                  }))
+                }
+                className="w-full rounded-sm border border-border px-3 py-2 text-sm"
+              />
+            </div>
+          </div>
+          <button
+            type="submit"
+            disabled={passwordStatus === 'saving'}
+            className="rounded-sm bg-charcoal px-5 py-2 text-sm text-white hover:bg-charcoal-light disabled:opacity-60"
+          >
             {passwordStatus === 'saving' ? 'Changing…' : 'Change password'}
           </button>
-          {passwordStatus === 'saved' && <p className="text-sm text-sage">Password changed.</p>}
-          {passwordStatus === 'error' && <p className="text-sm text-red-600">{passwordError}</p>}
+          {passwordStatus === 'saved' && (
+            <p className="text-sm text-sage">Password changed.</p>
+          )}
+          {passwordStatus === 'error' && (
+            <p className="text-sm text-red-600">{passwordError}</p>
+          )}
         </form>
       </section>
     </div>

@@ -51,6 +51,20 @@ input[type=number] {
   appearance: textfield;
 }
 
+form {
+  .form-field {
+    &:has(:required) {
+      label {
+        &::after {
+          content: '*';
+          color: var(--color-terra);
+          margin-left: 0.25rem;
+        }
+      }
+    }
+  }
+}
+
 .commercetools-checkout-embedded {
   [data-testid="checkout"] {
     background: none;

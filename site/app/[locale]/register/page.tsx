@@ -34,38 +34,79 @@ export default function RegisterPage() {
   return (
     <div className="mx-auto max-w-sm px-4 py-16">
       <h1 className="text-2xl font-semibold mb-8">Create an account</h1>
-      <form onSubmit={onSubmit} className="space-y-4">
+      <form
+        onSubmit={onSubmit}
+        className="space-y-4"
+      >
         <div className="flex gap-3">
+          <div className="form-field w-1/2">
+            <label
+              htmlFor="firstName"
+              className="block text-sm mb-1"
+            >
+              First name
+            </label>
+            <input
+              id="firstName"
+              required
+              placeholder="First name"
+              value={form.firstName}
+              onChange={update('firstName')}
+              className="w-full border border-border rounded-sm px-3 py-2 text-sm"
+            />
+          </div>
+          <div className="form-field w-1/2">
+            <label
+              htmlFor="lastName"
+              className="block text-sm mb-1"
+            >
+              Last name
+            </label>
+            <input
+              id="lastName"
+              required
+              placeholder="Last name"
+              value={form.lastName}
+              onChange={update('lastName')}
+              className="w-full border border-border rounded-sm px-3 py-2 text-sm"
+            />
+          </div>
+        </div>
+        <div className="form-field w-full">
+          <label
+            htmlFor="email"
+            className="block text-sm mb-1"
+          >
+            Email
+          </label>
           <input
-            placeholder="First name"
-            value={form.firstName}
-            onChange={update('firstName')}
-            className="w-1/2 border border-border rounded-sm px-3 py-2 text-sm"
-          />
-          <input
-            placeholder="Last name"
-            value={form.lastName}
-            onChange={update('lastName')}
-            className="w-1/2 border border-border rounded-sm px-3 py-2 text-sm"
+            id="email"
+            type="email"
+            required
+            placeholder="Email"
+            value={form.email}
+            onChange={update('email')}
+            className="w-full border border-border rounded-sm px-3 py-2 text-sm"
           />
         </div>
-        <input
-          type="email"
-          required
-          placeholder="Email"
-          value={form.email}
-          onChange={update('email')}
-          className="w-full border border-border rounded-sm px-3 py-2 text-sm"
-        />
-        <input
-          type="password"
-          required
-          minLength={8}
-          placeholder="Password"
-          value={form.password}
-          onChange={update('password')}
-          className="w-full border border-border rounded-sm px-3 py-2 text-sm"
-        />
+        <div className="form-field w-full">
+          <label
+            htmlFor="password"
+            className="block text-sm mb-1"
+          >
+            Password
+          </label>
+          <input
+            id="password"
+            type="password"
+            required
+            minLength={8}
+            placeholder="Password"
+            value={form.password}
+            onChange={update('password')}
+            className="w-full border border-border rounded-sm px-3 py-2 text-sm"
+          />
+        </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
         <button
           type="submit"
@@ -76,8 +117,12 @@ export default function RegisterPage() {
         </button>
       </form>
       <p className="text-sm text-charcoal-light mt-6">
-        Already have an account?{' '}
-        <Link href="/login" locale={locale} className="text-terra hover:underline">
+        <span>Already have an account? </span>
+        <Link
+          href="/login"
+          locale={locale}
+          className="text-terra hover:underline"
+        >
           Sign in
         </Link>
       </p>
