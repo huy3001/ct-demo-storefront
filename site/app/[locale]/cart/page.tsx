@@ -31,7 +31,7 @@ export default function CartPage() {
 
   if (!cart || cart.lineItems.length === 0) {
     return (
-      <div className="mx-auto max-w-6xl px-4 py-12">
+      <div className="mx-auto max-w-7xl px-4 py-12">
         <div className="py-12 text-center">
           <h1 className="mb-4 text-xl font-semibold">Your cart is empty</h1>
           <Link href="/category/all" locale={locale} className="text-terra hover:underline">
@@ -98,7 +98,7 @@ export default function CartPage() {
   const currency = cart.totalPrice.currencyCode;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12">
+    <div className="mx-auto max-w-7xl px-4 py-12">
       <div className="mb-8 flex items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">Your cart</h1>
         <button

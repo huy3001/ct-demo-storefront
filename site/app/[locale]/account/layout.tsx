@@ -31,26 +31,32 @@ export default function AccountLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-12 grid md:grid-cols-[180px_1fr] gap-10">
-      <nav className="space-y-2 text-sm">
-        {accountLinks.map(({ href, label }) => {
-          const active = pathname === `/${locale}${href}`;
+    <div className="mx-auto max-w-7xl px-4 py-12 grid md:grid-cols-[180px_1fr] gap-10">
+      <aside className="lg:sticky lg:top-24">
+        <h2 className="text-lg font-semibold mb-6">My account</h2>
+        <nav className="space-y-2 text-sm">
+          {accountLinks.map(({ href, label }) => {
+            const active = pathname === `/${locale}${href}`;
 
-          return (
-            <Link
-              key={href}
-              href={href}
-              locale={locale}
-              className={`block hover:text-terra ${active ? 'text-terra' : ''}`}
-            >
-              {label}
-            </Link>
-          );
-        })}
-        <button onClick={() => logout().then(() => router.push(`/${locale}`))} className="block text-charcoal-light hover:text-red-600">
-          Sign out
-        </button>
-      </nav>
+            return (
+              <Link
+                key={href}
+                href={href}
+                locale={locale}
+                className={`block hover:text-terra ${active ? 'text-terra' : ''}`}
+              >
+                {label}
+              </Link>
+            );
+          })}
+          <button
+            onClick={() => logout().then(() => router.push(`/${locale}`))}
+            className="block text-charcoal-light hover:text-red-600"
+          >
+            Sign out
+          </button>
+        </nav>
+      </aside>
       <div>{children}</div>
     </div>
   );

@@ -122,14 +122,14 @@ export default function CheckoutPage() {
 
   if (!isLoading && (!cart || cart.lineItems.length === 0)) {
     return (
-      <div className="mx-auto max-w-3xl px-4 py-24 text-center text-charcoal-light">
+      <div className="mx-auto max-w-7xl px-4 py-24 text-center text-charcoal-light">
         Your cart is empty. Add items before checking out.
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
+    <div className="mx-auto max-w-7xl px-4 py-12">
       {error && <p className="text-sm text-red-600 mb-6">{error}</p>}
       {/* Required mount point for the Checkout Browser SDK — without it the widget
           mounts at the document root and takes over the full page. */}

@@ -15,7 +15,7 @@ export default function WishlistListPage({ locale }: { locale: string }) {
     return (
       <div>
         <h1 className="text-2xl font-semibold text-charcoal">Wishlists</h1>
-        <p className="mt-4 text-charcoal-light">You have no saved items yet.</p>
+        <p className="mt-4 text-charcoal-light text-sm">You have no saved items yet.</p>
       </div>
     );
   }

@@ -5,6 +5,7 @@ import type {
   CustomerSignInResult,
   CustomerUpdateAction,
   Type,
+  Order,
 } from '@commercetools/platform-sdk';
 
 export interface SignUpInput {
@@ -237,4 +238,22 @@ export async function getCustomerOrders(apiRoot: ByProjectKeyRequestBuilder, cus
     .get({ queryArgs: { where: `customerId="${customerId}"`, sort: 'createdAt desc', limit: 20 } })
     .execute();
   return body;
+}
+
+export async function getCustomerOrder(
+  apiRoot: ByProjectKeyRequestBuilder,
+  customerId: string,
+  orderId: string,
+): Promise<Order | null> {
+  try {
+    const { body } = await apiRoot
+      .orders()
+      .withId({ ID: orderId })
+      .get({ queryArgs: { expand: 'paymentInfo.payments[*]' } })
+      .execute();
+    return body.customerId === customerId ? body : null;
+  } catch (err) {
+    if ((err as { statusCode?: number }).statusCode === 404) return null;
+    throw err;
+  }
 }

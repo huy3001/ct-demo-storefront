@@ -88,6 +88,26 @@ export async function addLineItem(
   return body;
 }
 
+export async function addLineItems(
+  apiRoot: ByProjectKeyRequestBuilder,
+  cart: Cart,
+  items: Array<{ productId: string; variantId: number; quantity: number }>,
+): Promise<Cart> {
+  if (items.length === 0) return cart;
+
+  const { body } = await apiRoot
+    .carts()
+    .withId({ ID: cart.id })
+    .post({
+      body: {
+        version: cart.version,
+        actions: items.map((item) => ({ action: 'addLineItem' as const, ...item })),
+      },
+    })
+    .execute();
+  return body;
+}
+
 export async function setCheckoutAddresses(
   apiRoot: ByProjectKeyRequestBuilder,
   cart: Cart,
