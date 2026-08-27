@@ -1,16 +1,14 @@
 'use client';
 
-import Image from 'next/image';
 import { useMemo, useState } from 'react';
 import { Link } from '@/i18n/routing';
 import { useWishlist } from '@/hooks/useWishlist';
-import { useCart } from '@/hooks/useCart';
-import { formatMoney } from '@/lib/utils';
+import ProductGrid from '@/components/product/ProductGrid';
+import type { Product } from '@/lib/types';
 
 export default function WishlistDetailPage({ locale, wishlistId }: { locale: string; wishlistId: string }) {
-  const { wishlists, isLoading, removeFromWishlist } = useWishlist();
-  const { addItem } = useCart();
-  const [busyItemId, setBusyItemId] = useState<string | null>(null);
+  const { wishlists, isLoading, removeAllFromWishlist } = useWishlist();
+  const [isRemovingAll, setIsRemovingAll] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const wishlist = useMemo(() => wishlists.find((item) => item.id === wishlistId), [wishlists, wishlistId]);
@@ -32,38 +30,54 @@ export default function WishlistDetailPage({ locale, wishlistId }: { locale: str
 
   const resolvedWishlistId = wishlist.id;
 
-  async function onRemove(lineItemId: string) {
-    setBusyItemId(lineItemId);
+  async function onRemoveAll() {
+    if (!window.confirm('Remove all products from this wishlist? This action cannot be undone.')) return;
+
+    setIsRemovingAll(true);
     setError(null);
     try {
-      await removeFromWishlist(resolvedWishlistId, lineItemId, locale);
+      await removeAllFromWishlist(resolvedWishlistId, locale);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to remove item');
+      setError(err instanceof Error ? err.message : 'Failed to remove all items');
     } finally {
-      setBusyItemId(null);
+      setIsRemovingAll(false);
     }
   }
 
-  async function onAddToCart(productId: string, variantId: number) {
-    setBusyItemId(`${productId}-${variantId}`);
-    setError(null);
-    try {
-      await addItem(productId, variantId, 1);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add item to cart');
-    } finally {
-      setBusyItemId(null);
-    }
-  }
+  const products: Product[] = wishlist.lineItems.map((item) => ({
+    type: 'Product',
+    id: item.productId,
+    name: item.name,
+    slug: item.slug ?? item.productId,
+    categories: [],
+    variants: item.variantId === undefined
+      ? []
+      : [{
+          id: item.variantId,
+          sku: '',
+          images: item.image ? [item.image] : [],
+          price: item.price,
+          prices: item.price ? [item.price] : [],
+          attributes: [],
+        }],
+  }));
 
   return (
     <div>
       <div className="mb-8 flex items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold text-charcoal">{wishlist.name}</h1>
-          <p className="text-sm text-charcoal-light">{wishlist.lineItems.length} saved items</p>
+          <h1 className="text-2xl font-semibold text-charcoal">
+            {wishlist.name}
+          </h1>
+          <p className="text-sm text-charcoal-light">
+            {wishlist.lineItems.length} saved items
+          </p>
         </div>
-        <Link href="/account/wishlists" locale={locale} className="text-sm text-terra hover:underline">
+        <Link
+          href="/account/wishlists"
+          locale={locale}
+          className="text-sm text-terra hover:underline"
+        >
           Back to wishlists
         </Link>
       </div>
@@ -71,49 +85,27 @@ export default function WishlistDetailPage({ locale, wishlistId }: { locale: str
       {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
       {wishlist.lineItems.length === 0 ? (
-        <p className="text-charcoal-light">This wishlist is empty.</p>
+        <p className="text-charcoal-light text-sm">This wishlist is empty.</p>
       ) : (
-        <div className="space-y-4">
-          {wishlist.lineItems.map((item) => (
-            <div key={item.lineItemId} className="grid grid-cols-[88px_1fr] gap-4 rounded-sm border border-border bg-white p-4 md:grid-cols-[88px_1fr_auto] md:items-center">
-              <div className="relative h-22 w-22 overflow-hidden rounded-sm bg-cream-dark">
-                {item.image ? (
-                  <Image src={item.image} alt={item.name} fill sizes="88px" className="object-cover" />
-                ) : null}
-              </div>
-              <div>
-                <Link href={item.slug ? `/product/${item.slug}` : '/'} locale={locale} className="font-medium text-charcoal hover:text-terra">
-                  {item.name}
-                </Link>
-                <p className="mt-1 text-sm text-charcoal-light">Qty: {item.quantity}</p>
-                {item.price && (
-                  <p className="mt-1 text-sm text-charcoal">
-                    {formatMoney(item.price.centAmount, item.price.currencyCode, locale)}
-                  </p>
-                )}
-              </div>
-              <div className="mt-3 flex gap-2 md:mt-0">
-                <button
-                  type="button"
-                  onClick={() => item.variantId !== undefined && onAddToCart(item.productId, item.variantId)}
-                  disabled={item.variantId === undefined || busyItemId === `${item.productId}-${item.variantId}`}
-                  className="rounded-sm border border-charcoal px-3 py-2 text-sm text-charcoal hover:bg-charcoal hover:text-white disabled:opacity-60"
-                >
-                  {item.variantId === undefined ? 'Unavailable' : 'Add to cart'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onRemove(item.lineItemId)}
-                  disabled={busyItemId === item.lineItemId}
-                  className="rounded-sm border border-border px-3 py-2 text-sm text-charcoal-light hover:text-red-600 disabled:opacity-60"
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+        <ProductGrid
+          products={products}
+          locale={locale}
+          showWishlistSelector={false}
+        />
       )}
+
+      <div className="mt-8 flex items-center gap-2">
+        {wishlist.lineItems.length > 0 && (
+          <button
+            type="button"
+            onClick={onRemoveAll}
+            disabled={isRemovingAll}
+            className="rounded-sm border border-border px-3 py-2 text-sm text-terra hover:border-red-600 hover:text-red-600 disabled:opacity-60 disabled:pointer-events-none"
+          >
+            {isRemovingAll ? 'Removing…' : 'Remove all products'}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

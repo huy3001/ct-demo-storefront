@@ -34,12 +34,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   }
 }
 
-export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const { apiRoot, session } = await getSessionApiRoot();
     if (!session.customerId) return NextResponse.json({ message: 'Not signed in' }, { status: 401 });
-    await deleteWishlist(apiRoot, session.customerId, id);
+    await deleteWishlist(apiRoot, session.customerId, id, localeFromRequest(req));
     return NextResponse.json({ ok: true });
   } catch (err) {
     return apiError(err);

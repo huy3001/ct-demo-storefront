@@ -77,5 +77,6 @@ export interface Wishlist {
   id: string;
   version: number;
   name: string;
+  createdAt: string;
   lineItems: WishlistItem[];
 }

@@ -4,7 +4,15 @@ import type { Product } from '@/lib/types';
 import { formatMoney } from '@/lib/utils';
 import WishlistToggleButton from './WishlistToggleButton';
 
-export default function ProductCard({ product, locale }: { product: Product; locale: string }) {
+export default function ProductCard({
+  product,
+  locale,
+  showWishlistSelector = true,
+}: {
+  product: Product;
+  locale: string;
+  showWishlistSelector?: boolean;
+}) {
   const variant = product.variants[0];
   const image = variant?.images[0];
   const price = variant?.price;
@@ -39,6 +47,7 @@ export default function ProductCard({ product, locale }: { product: Product; loc
             productId={product.id}
             variantId={variant.id}
             locale={locale}
+            showWishlistSelector={showWishlistSelector}
             className="absolute right-2 top-2 z-10"
           />
         )}

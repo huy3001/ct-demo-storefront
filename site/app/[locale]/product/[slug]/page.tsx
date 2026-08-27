@@ -61,7 +61,7 @@ export default async function ProductDetailPage({
             brandLogo={product.brandLogo}
           />
 
-          <section className="lg:sticky lg:top-24">
+          <section>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-terra">

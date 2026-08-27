@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import useSWR from 'swr';
 import type { Wishlist } from '@/lib/types';
 import { KEY_WISHLIST } from '@/lib/cache-keys';
@@ -52,13 +53,37 @@ export function useWishlist() {
     { revalidateOnFocus: false, shouldRetryOnError: false }
   );
 
-  const wishlists = data ?? [];
+  const wishlists = useMemo(
+    () => [...(data ?? [])].sort((left, right) => Date.parse(left.createdAt) - Date.parse(right.createdAt)),
+    [data],
+  );
 
-  async function addToWishlist(productId: string, variantId: number, locale: string, quantity = 1) {
+  async function createWishlist(name: string, locale: string) {
+    const res = await fetch('/api/wishlists', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, locale }),
+    });
+    await ensureOk(res, 'Failed to create wishlist');
+    const created = (await res.json()) as Wishlist;
+    await mutate();
+    return created;
+  }
+
+  async function addToWishlist(
+    productId: string,
+    variantId: number,
+    locale: string,
+    quantity = 1,
+    wishlistId?: string,
+  ) {
     if (!customerId) throw new Error('Please sign in to save items');
 
     const previous = wishlists;
-    const existingList = previous[0];
+    const existingList = wishlistId
+      ? previous.find((wishlist) => wishlist.id === wishlistId)
+      : previous.find((wishlist) => wishlist.name.toLocaleLowerCase() === 'my wishlist');
+    if (wishlistId && !existingList) throw new Error('Wishlist not found');
     const tempListId = '__temp_wishlist__';
     const targetListId = existingList?.id ?? tempListId;
 
@@ -85,6 +110,7 @@ export function useWishlist() {
             id: tempListId,
             version: 0,
             name: 'My Wishlist',
+            createdAt: new Date().toISOString(),
             lineItems: [
               {
                 lineItemId: `temp-${productId}-${variantId}`,
@@ -102,13 +128,11 @@ export function useWishlist() {
     try {
       let wishlistId = targetListId;
       if (!existingList) {
-        const createRes = await fetch('/api/wishlists', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: 'My Wishlist', locale }),
-        });
-        await ensureOk(createRes, 'Failed to create wishlist');
-        const created = (await createRes.json()) as Wishlist;
+        const refreshed = await mutate();
+        const created = (refreshed ?? []).find(
+          (wishlist) => wishlist.name.toLocaleLowerCase() === 'my wishlist'
+        );
+        if (!created) throw new Error('Default wishlist is unavailable');
         wishlistId = created.id;
       }
 
@@ -139,6 +163,53 @@ export function useWishlist() {
 
     try {
       await removeLineItemRequest(wishlistId, lineItemId, locale);
+      await mutate();
+    } catch (err) {
+      await mutate(previous, { revalidate: false });
+      throw err;
+    }
+  }
+
+  async function removeAllFromWishlist(wishlistId: string, locale: string) {
+    const previous = wishlists;
+    await mutate(
+      previous.map((wishlist) =>
+        wishlist.id === wishlistId ? { ...wishlist, lineItems: [] } : wishlist
+      ),
+      { revalidate: false }
+    );
+
+    try {
+      const res = await fetch(`/api/wishlists/${wishlistId}/items`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ removeAll: true, locale }),
+      });
+      await ensureOk(res, 'Failed to remove all items from wishlist');
+      await mutate();
+    } catch (err) {
+      await mutate(previous, { revalidate: false });
+      throw err;
+    }
+  }
+
+  async function deleteWishlist(wishlistId: string, locale: string) {
+    if (!customerId) throw new Error('Please sign in to manage wishlists');
+
+    const previous = wishlists;
+    const wishlist = previous.find((item) => item.id === wishlistId);
+    if (!wishlist) throw new Error('Wishlist not found');
+    if (wishlist.name.trim().toLocaleLowerCase() === 'my wishlist') {
+      throw new Error('"My Wishlist" cannot be removed');
+    }
+
+    await mutate(previous.filter((item) => item.id !== wishlistId), { revalidate: false });
+
+    try {
+      const res = await fetch(`/api/wishlists/${wishlistId}?locale=${encodeURIComponent(locale)}`, {
+        method: 'DELETE',
+      });
+      await ensureOk(res, 'Failed to remove wishlist');
       await mutate();
     } catch (err) {
       await mutate(previous, { revalidate: false });
@@ -196,8 +267,11 @@ export function useWishlist() {
     isReady: Boolean(customerId),
     totalItems,
     isSaved,
+    createWishlist,
     addToWishlist,
     removeFromWishlist,
+    removeAllFromWishlist,
+    deleteWishlist,
     toggleSaved,
     refresh: () => mutate(),
   };

@@ -17,6 +17,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const { name, locale } = (await req.json()) as { name?: string; locale?: string };
+    const normalizedName = name?.trim();
+    if (!normalizedName) {
+      return NextResponse.json({ message: 'Wishlist name is required' }, { status: 400 });
+    }
     const { apiRoot, session } = await getSessionApiRoot();
     if (!session.customerId) return NextResponse.json({ message: 'Not signed in' }, { status: 401 });
 
@@ -24,7 +28,7 @@ export async function POST(req: NextRequest) {
       apiRoot,
       session.customerId,
       locale ?? localeFromRequest(req),
-      name?.trim() ? name : 'My Wishlist'
+      normalizedName
     );
     return NextResponse.json(wishlist, { status: 201 });
   } catch (err) {
