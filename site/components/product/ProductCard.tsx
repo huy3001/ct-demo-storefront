@@ -3,6 +3,7 @@ import { Link } from '@/i18n/routing';
 import type { Product } from '@/lib/types';
 import { formatMoney } from '@/lib/utils';
 import WishlistToggleButton from './WishlistToggleButton';
+import { ProductReviewBlock } from './ProductReviews';
 
 export default function ProductCard({
   product,
@@ -60,6 +61,7 @@ export default function ProductCard({
         <h3 className="text-sm font-medium text-charcoal group-hover:text-terra">
           {product.name}
         </h3>
+        <ProductReviewBlock reviews={product.reviews ?? []} />
         {price && (
           <p className="text-sm text-charcoal-light mt-1">
             {price.discounted ? (

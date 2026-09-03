@@ -1,0 +1,323 @@
+'use client';
+
+import {
+  createContext,
+  type FormEvent,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+} from 'react';
+import type { Review } from '@/lib/types';
+
+interface ReviewsContextValue {
+  reviews: Review[];
+  openReviewModal: () => void;
+}
+
+const ReviewsContext = createContext<ReviewsContextValue | null>(null);
+
+function useReviews() {
+  const context = useContext(ReviewsContext);
+  if (!context) throw new Error('Product review components require ReviewsProvider');
+  return context;
+}
+
+function Stars({ rating, interactive = false, onChange }: {
+  rating: number;
+  interactive?: boolean;
+  onChange?: (rating: number) => void;
+}) {
+  return (
+    <span className="inline-flex gap-0.5" aria-label={`${rating} out of 5 stars`}>
+      {[1, 2, 3, 4, 5].map((star) => interactive ? (
+        <button
+          key={star}
+          type="button"
+          onClick={() => onChange?.(star)}
+          aria-label={`${star} star${star === 1 ? '' : 's'}`}
+          aria-pressed={rating === star}
+          className={`text-2xl leading-none ${star <= rating ? 'text-terra' : 'text-border'} hover:text-terra`}
+        >
+          ★
+        </button>
+      ) : (
+        <span key={star} aria-hidden className={star <= rating ? 'text-terra' : 'text-border'}>★</span>
+      ))}
+    </span>
+  );
+}
+
+function getAverageRating(reviews: Review[]) {
+  if (reviews.length === 0) return 0;
+  return Math.round(
+    reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length,
+  );
+}
+
+export function ProductReviewBlock({
+  reviews,
+  onWriteReview,
+}: {
+  reviews: Review[];
+  onWriteReview?: () => void;
+}) {
+  const averageRating = getAverageRating(reviews);
+
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
+      <Stars rating={averageRating} />
+      <span className="text-charcoal-light">
+        {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
+      </span>
+      {onWriteReview && (
+        <button
+          type="button"
+          onClick={onWriteReview}
+          className="font-medium text-terra underline-offset-4 hover:underline"
+        >
+          Write review
+        </button>
+      )}
+    </div>
+  );
+}
+
+export function ReviewsProvider({ productId, initialReviews, children }: {
+  productId: string;
+  initialReviews: Review[];
+  children: ReactNode;
+}) {
+  const [reviews, setReviews] = useState(() => [...initialReviews].sort(
+    (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt),
+  ));
+  const [isOpen, setIsOpen] = useState(false);
+  const [rating, setRating] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const titleId = useId();
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !isSubmitting) setIsOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [isOpen, isSubmitting]);
+
+  async function submitReview(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (rating === 0) return;
+    const form = new FormData(event.currentTarget);
+    const reviewInput = {
+      rating,
+      author: String(form.get('author') ?? '').trim(),
+      title: String(form.get('title') ?? '').trim(),
+      content: String(form.get('content') ?? '').trim(),
+    };
+    if (!reviewInput.author || !reviewInput.title || !reviewInput.content) return;
+
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      const response = await fetch(`/api/products/${encodeURIComponent(productId)}/reviews`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reviewInput),
+      });
+      const result = (await response.json()) as {
+        review?: Review;
+        message?: string;
+      };
+      if (!response.ok || !result.review) {
+        throw new Error(result.message ?? 'Unable to send review');
+      }
+
+      setReviews((current) => [result.review!, ...current]);
+      setRating(0);
+      setIsOpen(false);
+    } catch (error) {
+      setSubmitError(
+        error instanceof Error ? error.message : 'Unable to send review',
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  const value = useMemo(
+    () => ({
+      reviews,
+      openReviewModal: () => {
+        setSubmitError(null);
+        setIsOpen(true);
+      },
+    }),
+    [reviews],
+  );
+
+  return (
+    <ReviewsContext.Provider value={value}>
+      {children}
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+          role="presentation"
+          onMouseDown={(event) =>
+            event.target === event.currentTarget && !isSubmitting && setIsOpen(false)
+          }
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={titleId}
+            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-sm bg-white p-6 shadow-xl"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <h2
+                id={titleId}
+                className="text-xl font-semibold text-charcoal"
+              >
+                Write a review
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                disabled={isSubmitting}
+                aria-label="Close"
+                className="text-xl text-charcoal-light hover:text-charcoal"
+              >
+                ×
+              </button>
+            </div>
+            <form
+              onSubmit={submitReview}
+              className="mt-6 space-y-4"
+            >
+              <fieldset className="form-field w-full">
+                <legend className="mb-2 text-sm">
+                  Rating
+                </legend>
+                <Stars
+                  rating={rating}
+                  interactive
+                  onChange={setRating}
+                />
+                {rating === 0 && (
+                  <span className="ml-3 text-xs text-charcoal-light">
+                    Select 1–5 stars
+                  </span>
+                )}
+              </fieldset>
+              {[
+                { name: 'author', label: 'Author name' },
+                { name: 'title', label: 'Review title' },
+              ].map((field) => (
+                <div
+                  className="form-field w-full"
+                  key={field.name}
+                >
+                  <label
+                    htmlFor={field.name}
+                    className="block text-sm mb-1"
+                  >
+                    {field.label}
+                  </label>
+                  <input
+                    id={field.name}
+                    name={field.name}
+                    required
+                    className="w-full rounded-sm border border-border px-3 py-2 outline-none focus:border-terra"
+                  />
+                </div>
+              ))}
+              <div className="form-field w-full">
+                <label
+                  htmlFor="content"
+                  className="block text-sm mb-1"
+                >
+                  Review
+                </label>
+                <textarea
+                  id="content"
+                  name="content"
+                  required
+                  rows={5}
+                  className="w-full resize-y rounded-sm border border-border px-3 py-2 outline-none focus:border-terra"
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-2">
+                {submitError && (
+                  <p className="mr-auto self-center text-sm text-red-600" role="alert">
+                    {submitError}
+                  </p>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setIsOpen(false)}
+                  disabled={isSubmitting}
+                  className="rounded-sm border border-border px-4 py-2 text-sm text-charcoal hover:border-charcoal"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={rating === 0 || isSubmitting}
+                  className="rounded-sm bg-charcoal px-4 py-2 text-sm text-white hover:bg-terra disabled:pointer-events-none disabled:opacity-50"
+                >
+                  {isSubmitting ? 'Sending…' : 'Send review'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </ReviewsContext.Provider>
+  );
+}
+
+export function ProductReviewSummary({
+  showWriteReview = true,
+}: {
+  showWriteReview?: boolean;
+}) {
+  const { reviews, openReviewModal } = useReviews();
+  return <ProductReviewBlock
+    reviews={reviews}
+    onWriteReview={showWriteReview ? openReviewModal : undefined}
+  />;
+}
+
+export function ProductReviewsAccordion() {
+  const { reviews } = useReviews();
+  return (
+    <details className="group border-b border-border">
+      <summary className="flex cursor-pointer list-none items-center justify-between py-5 font-medium text-charcoal marker:hidden">
+        <span>Reviews</span>
+        <span aria-hidden className="text-xl font-light transition-transform group-open:rotate-45">+</span>
+      </summary>
+      <div className="pb-5">
+        {reviews.length === 0 ? (
+          <p className="text-sm text-charcoal-light">No reviews yet. Be the first to review this product.</p>
+        ) : (
+          <ul className="divide-y divide-border border-t border-border">
+            {reviews.map((review) => (
+              <li key={review.id} className="py-5 first:pt-4">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <Stars rating={review.rating} />
+                  {review.createdAt && <time dateTime={review.createdAt} className="text-xs text-charcoal-light">{new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(review.createdAt))}</time>}
+                </div>
+                <h3 className="mt-2 font-medium text-charcoal">{review.title}</h3>
+                <p className="mt-1 text-xs text-charcoal-light">By {review.author}</p>
+                <p className="mt-3 whitespace-pre-line text-sm leading-6 text-charcoal-light">{review.content}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </details>
+  );
+}

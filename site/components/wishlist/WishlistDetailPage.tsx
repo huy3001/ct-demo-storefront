@@ -50,6 +50,7 @@ export default function WishlistDetailPage({ locale, wishlistId }: { locale: str
     name: item.name,
     slug: item.slug ?? item.productId,
     categories: [],
+    reviews: [],
     variants: item.variantId === undefined
       ? []
       : [{

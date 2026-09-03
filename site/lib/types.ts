@@ -24,6 +24,16 @@ export interface Product {
   brandLogo?: string;
   categories: Array<{ id: string }>;
   variants: Variant[];
+  reviews: Review[];
+}
+
+export interface Review {
+  id: string;
+  rating: number;
+  author: string;
+  title: string;
+  content: string;
+  createdAt: string;
 }
 
 export interface ProductBrand {

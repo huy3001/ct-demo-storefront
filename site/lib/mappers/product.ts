@@ -1,5 +1,5 @@
 import type { ProductProjection, ProductVariant, Price as CtPrice } from '@commercetools/platform-sdk';
-import type { Product, Variant, Price } from '@/lib/types';
+import type { Product, Review, Variant, Price } from '@/lib/types';
 import { getLocalizedString } from '@/lib/utils';
 
 function mapPrice(price?: CtPrice): Price | undefined {
@@ -55,6 +55,37 @@ function getAssetUrl(value: unknown): string | undefined {
   return undefined;
 }
 
+export function mapReviews(value: unknown): Review[] {
+  let items = value;
+  if (typeof items === 'string') {
+    try {
+      items = JSON.parse(items) as unknown;
+    } catch {
+      return [];
+    }
+  }
+  if (!Array.isArray(items)) return [];
+
+  return items.flatMap((item, index) => {
+    if (!item || typeof item !== 'object') return [];
+    const review = item as Record<string, unknown>;
+    const rating = Number(review.rating);
+    const author = typeof review.author === 'string' ? review.author : '';
+    const title = typeof review.title === 'string' ? review.title : '';
+    const content = typeof review.content === 'string' ? review.content : '';
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5 || !author || !title || !content) return [];
+
+    return [{
+      id: typeof review.id === 'string' ? review.id : `existing-review-${index}`,
+      rating,
+      author,
+      title,
+      content,
+      createdAt: typeof review.createdAt === 'string' ? review.createdAt : '',
+    }];
+  });
+}
+
 export function mapProductProjection(product: ProductProjection, locale: string): Product {
   const variants = [product.masterVariant, ...(product.variants ?? [])].map(mapVariant);
   const brandLogoAsset = product.masterVariant.assets?.find(
@@ -72,5 +103,6 @@ export function mapProductProjection(product: ProductProjection, locale: string)
       getAssetUrl(brandLogoAsset?.sources),
     categories: (product.categories ?? []).map((c) => ({ id: c.id })),
     variants,
+    reviews: mapReviews(getAttributeValue(product.masterVariant, 'reviews')),
   };
 }

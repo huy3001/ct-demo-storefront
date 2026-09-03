@@ -1,8 +1,49 @@
-import type { ByProjectKeyRequestBuilder } from '@commercetools/platform-sdk';
-import type { Product, ProductBrand } from '@/lib/types';
+import type {
+  AttributeDefinitionDraft,
+  ByProjectKeyRequestBuilder,
+} from '@commercetools/platform-sdk';
+import type { Product, ProductBrand, Review } from '@/lib/types';
 import { COUNTRY_CONFIG } from '@/lib/utils';
 import { mapProductProjection } from '@/lib/mappers/product';
+import { mapReviews } from '@/lib/mappers/product';
 import { getCatalogApiRoot } from './client';
+
+const REVIEWS_ATTRIBUTE: AttributeDefinitionDraft = {
+  name: 'reviews',
+  label: { 'en-US': 'Reviews' },
+  type: { name: 'text' },
+  isRequired: false,
+  attributeConstraint: 'SameForAll',
+  isSearchable: false,
+  inputHint: 'MultiLine',
+};
+
+async function ensureReviewsAttribute(
+  apiRoot: ByProjectKeyRequestBuilder,
+  productTypeId: string,
+): Promise<void> {
+  const { body: productType } = await apiRoot
+    .productTypes()
+    .withId({ ID: productTypeId })
+    .get()
+    .execute();
+
+  if (productType.attributes?.some(({ name }) => name === REVIEWS_ATTRIBUTE.name)) return;
+
+  await apiRoot
+    .productTypes()
+    .withId({ ID: productTypeId })
+    .post({
+      body: {
+        version: productType.version,
+        actions: [{
+          action: 'addAttributeDefinition',
+          attribute: REVIEWS_ATTRIBUTE,
+        }],
+      },
+    })
+    .execute();
+}
 
 export async function getProductBySlug(slug: string, locale: string): Promise<Product | null> {
   const apiRoot: ByProjectKeyRequestBuilder = getCatalogApiRoot();
@@ -128,4 +169,45 @@ export async function getRelatedProducts(
     .execute();
 
   return body.results.map((product) => mapProductProjection(product, locale));
+}
+
+export async function createProductReview(
+  productId: string,
+  input: Pick<Review, 'rating' | 'author' | 'title' | 'content'>,
+): Promise<Review> {
+  const apiRoot = getCatalogApiRoot();
+  const { body: product } = await apiRoot
+    .products()
+    .withId({ ID: productId })
+    .get()
+    .execute();
+  await ensureReviewsAttribute(apiRoot, product.productType.id);
+
+  const reviewsAttribute = product.masterData.current.masterVariant.attributes
+    ?.find((attribute) => attribute.name === 'reviews');
+  const existingReviews = mapReviews(reviewsAttribute?.value);
+  const review: Review = {
+    ...input,
+    id: crypto.randomUUID(),
+    createdAt: new Date().toISOString(),
+  };
+
+  await apiRoot
+    .products()
+    .withId({ ID: productId })
+    .post({
+      body: {
+        version: product.version,
+        actions: [{
+          action: 'setAttribute',
+          variantId: product.masterData.current.masterVariant.id,
+          name: 'reviews',
+          value: JSON.stringify([...existingReviews, review]),
+          staged: false,
+        }],
+      },
+    })
+    .execute();
+
+  return review;
 }

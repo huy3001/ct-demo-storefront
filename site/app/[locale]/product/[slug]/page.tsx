@@ -9,6 +9,11 @@ import RecentlyViewedTracker from '@/components/product/RecentlyViewedTracker';
 import { getProductAttributeLabels } from '@/lib/ct/product-attributes';
 import { Link } from '@/i18n/routing';
 import { ProductVariantProvider } from '@/components/product/ProductVariantProvider';
+import {
+  ProductReviewsAccordion,
+  ProductReviewSummary,
+  ReviewsProvider,
+} from '@/components/product/ProductReviews';
 
 export default async function ProductDetailPage({
   params,
@@ -61,7 +66,11 @@ export default async function ProductDetailPage({
             brandLogo={product.brandLogo}
           />
 
-          <section>
+          <ReviewsProvider
+            productId={product.id}
+            initialReviews={product.reviews}
+          >
+            <section>
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-terra">
@@ -70,6 +79,7 @@ export default async function ProductDetailPage({
                 <h1 className="text-3xl font-semibold leading-tight tracking-tight text-charcoal md:text-4xl">
                   {product.name}
                 </h1>
+                <ProductReviewSummary />
               </div>
               {defaultVariant && (
                 <WishlistToggleButton
@@ -176,7 +186,9 @@ export default async function ProductDetailPage({
                 />
               </div>
             )}
-          </section>
+            <ProductReviewsAccordion />
+            </section>
+          </ReviewsProvider>
         </div>
       </ProductVariantProvider>
 
