@@ -1,12 +1,21 @@
-import { getFeaturedProducts, getProductBrands, getProductsByCategorySlug } from '@/lib/ct/product';
+import {
+  getFeaturedProducts,
+  getProductBrands,
+  getProductsByCategorySlug,
+} from '@/lib/ct/product';
 import { getCategoryTree } from '@/lib/ct/category';
 import ProductGrid from '@/components/product/ProductGrid';
 import RelatedProductsSlider from '@/components/product/RelatedProductsSlider';
 import ShopByCategory from '@/components/category/ShopByCategory';
 import ShopByBrand from '@/components/brand/ShopByBrand';
 import { Link } from '@/i18n/routing';
+import Button from '@/components/ui/atoms/button';
 
-export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function HomePage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
   const [newArrivals, featured, categoryTree, brands] = await Promise.all([
     getProductsByCategorySlug('new-arrivals', locale, 8),
@@ -27,13 +36,14 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             Explore our latest collection, thoughtfully sourced and delivered to
             your door.
           </p>
-          <Link
-            href="/category/all"
-            locale={locale}
-            className="inline-block mt-8 bg-charcoal text-white px-6 py-3 rounded-sm text-sm hover:bg-charcoal-light"
-          >
-            Shop the collection
-          </Link>
+          <Button className="inline-block mt-8">
+            <Link
+              href="/category/all"
+              locale={locale}
+            >
+              Shop the collection
+            </Link>
+          </Button>
         </div>
       </section>
 
@@ -50,7 +60,10 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
       )}
 
-      <ShopByBrand brands={brands} locale={locale} />
+      <ShopByBrand
+        brands={brands}
+        locale={locale}
+      />
 
       <section className="mx-auto max-w-7xl px-4 py-16">
         <div className="flex flex-col items-start justify-between gap-8 rounded-sm bg-charcoal px-8 py-12 text-white sm:flex-row sm:items-center md:px-12">
@@ -65,13 +78,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               Discover considered pieces at exceptional prices while they last.
             </p>
           </div>
-          <Link
-            href="/category/sale"
-            locale={locale}
-            className="shrink-0 rounded-sm bg-white px-6 py-3 text-sm font-medium text-charcoal transition-colors hover:bg-cream-dark"
+          <Button
+            variant="secondary"
+            className="shrink-0"
           >
-            Shop sale
-          </Link>
+            <Link
+              href="/category/sale"
+              locale={locale}
+            >
+              Shop sale
+            </Link>
+          </Button>
         </div>
       </section>
 

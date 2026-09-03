@@ -16,13 +16,13 @@ const useButtonClassNames: UseButtonClassNames = ({
   asSkeleton = false,
 }) => {
   const sizeClassNames: { [key in ButtonSize]: string } = {
-    xs: 'p-8',
-    s: 'py-12 px-24',
-    m: 'py-12 px-36',
-    l: 'py-12 px-48',
+    xs: 'p-2',
+    s: 'py-3 px-6',
+    m: 'py-3 px-9',
+    l: 'py-3 px-12',
     fit: 'p-0',
-    full: 'py-12 w-full',
-    icon: 'w-40 h-40 grid items-center justify-center',
+    full: 'py-3 w-full',
+    icon: 'w-10 h-10 grid items-center justify-center',
   };
 
   const primaryClassName = useClassNames([

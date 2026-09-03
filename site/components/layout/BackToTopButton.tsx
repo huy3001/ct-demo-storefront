@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Button from '@/components/ui/atoms/button';
 
 const SHOW_AFTER_SCROLL_Y = 200;
 
@@ -25,10 +26,10 @@ export default function BackToTopButton() {
   if (!isVisible) return null;
 
   return (
-    <button
-      type="button"
+    <Button
+      size="icon"
       onClick={scrollToTop}
-      className="fixed right-4 bottom-4 z-50 flex items-center gap-2 rounded-full bg-charcoal p-3 text-sm font-medium text-white shadow-lg hover:bg-terra focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-charcoal md:right-6 md:bottom-6"
+      className="fixed! right-4! bottom-4! z-50 rounded-full! md:right-6! md:bottom-6!"
       aria-label="Back to top"
     >
       <svg
@@ -46,6 +47,6 @@ export default function BackToTopButton() {
         <path d="m5 12 7-7 7 7" />
         <path d="M12 19V5" />
       </svg>
-    </button>
+    </Button>
   );
 }

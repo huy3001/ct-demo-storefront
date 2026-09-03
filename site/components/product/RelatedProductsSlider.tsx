@@ -7,6 +7,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Product } from '@/lib/types';
 import { Link } from '@/i18n/routing';
 import ProductCard from './ProductCard';
+import Button from '@/components/ui/atoms/button';
 
 import 'swiper/css';
 
@@ -110,24 +111,26 @@ export default function RelatedProductsSlider({
         </Swiper>
         {products.length > 1 && (
           <div className="flex gap-2">
-            <button
-              type="button"
+            <Button
+              size="icon"
+              variant="secondary"
               onClick={() => swiper?.slidePrev()}
               disabled={isBeginning}
               aria-label={`Previous ${title.toLowerCase()}`}
-              className="absolute top-2/5 -translate-y-1/2 z-10 left-2 flex size-10 items-center justify-center rounded-full shadow-sm bg-white text-charcoal transition-colors hover:bg-cream-dark disabled:cursor-not-allowed disabled:opacity-30 disabled:pointer-events-none"
+              className="absolute! top-2/5! -translate-y-1/2! z-10 left-2! rounded-full! shadow-sm! transition-colors! hover:bg-cream-dark! disabled:opacity-30! disabled:pointer-events-none!"
             >
               <ArrowIcon direction="previous" />
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              size="icon"
+              variant="secondary"
               onClick={() => swiper?.slideNext()}
               disabled={isEnd}
               aria-label={`Next ${title.toLowerCase()}`}
-              className="absolute top-2/5 -translate-y-1/2 z-10 right-2 flex size-10 items-center justify-center rounded-full shadow-sm bg-white text-charcoal transition-colors hover:bg-cream-dark disabled:cursor-not-allowed disabled:opacity-30 disabled:pointer-events-none"
+              className="absolute! top-2/5! -translate-y-1/2! z-10 right-2! rounded-full! shadow-sm! transition-colors! hover:bg-cream-dark! disabled:opacity-30! disabled:pointer-events-none!"
             >
               <ArrowIcon direction="next" />
-            </button>
+            </Button>
           </div>
         )}
       </div>
