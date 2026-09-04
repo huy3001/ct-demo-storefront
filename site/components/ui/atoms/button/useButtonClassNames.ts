@@ -26,30 +26,30 @@ const useButtonClassNames: UseButtonClassNames = ({
   };
 
   const primaryClassName = useClassNames([
-    'bg-gray-700 text-white outline-offset-0',
-    'hover:bg-gray-500',
-    'active:shadow-button active:disabled:shadow-none active:bg-gray-600',
-    'focus-visible:outline focus-visible:outline-gray-700 border-gray-700 focus-visible:border focus-visible:outline-offset-[3px]',
-    'disabled:bg-neutral-300 disabled:text-gray-400 disabled:border-neutral-300',
+    'bg-charcoal text-white outline-offset-0',
+    'hover:bg-charcoal-light',
+    'active:shadow-button active:disabled:shadow-none active:bg-charcoal-light',
+    'focus-visible:outline focus-visible:outline-charcoal border-charcoal focus-visible:border focus-visible:outline-offset-[3px]',
+    'disabled:bg-neutral-300 disabled:text-gray-400 disabled:border-neutral-300 disabled:pointer-events-none',
   ]);
 
   const secondaryClassName = useClassNames([
-    'bg-white-100 text-gray-700 bg-white rounded-md border border-gray-600',
-    'hover:shadow-bottom',
+    'bg-white-100 text-charcoal bg-white rounded-md border border-charcoal-light',
+    'hover:bg-cream-dark hover:shadow-bottom',
     'active:outline-2 active:shadow-button active:disabled:shadow-none active:outline-1 active:outline-gray-300 active:outline-offset-0',
     'focus-visible:outline focus-visible:border-white-100 focus-visible:border focus-visible:outline-offset-[3px]',
-    'disabled:text-gray-400',
+    'disabled:text-gray-400 disabled:pointer-events-none',
   ]);
 
   const warningClassName = useClassNames([
     'bg-red-500 text-white outline-offset-0',
     'hover:bg-red-600',
     'active:shadow-button active:disabled:shadow-none active:bg-red-500',
-    'focus-visible:outline focus-visible:bg-red-700 focus-visible:outline-gray-700 focus-visible:border-red-700 focus-visible:border focus-visible:outline-offset-[3px]',
-    'disabled:bg-neutral-300 disabled:text-gray-400',
+    'focus-visible:outline focus-visible:bg-red-700 focus-visible:outline-charcoal focus-visible:border-red-700 focus-visible:border focus-visible:outline-offset-[3px]',
+    'disabled:bg-neutral-300 disabled:text-gray-400 disabled:pointer-events-none',
   ]);
 
-  const underlineClassName = 'pb-2 text-gray-700 hover:underline disabled:text-gray-400';
+  const underlineClassName = 'pb-2 text-charcoal hover:underline disabled:text-gray-400';
 
   const ghostClassName = 'disabled:text-gray-400';
 
@@ -63,10 +63,10 @@ const useButtonClassNames: UseButtonClassNames = ({
 
   return useClassNames([
     sizeClassNames[size as ButtonSize],
-    { 'rounded-md': variant !== 'ghost' },
+    { 'rounded-sm': variant !== 'ghost' },
     { 'flex gap-10 items-center': includesIcon },
     { 'cursor-not-allowed': !!loading },
-    'relative text-14 leading-4 transition overflow-hidden font-medium',
+    'relative text-sm transition overflow-hidden font-medium',
     asSkeleton ? 'relative' : (variantClassNames[variant as ButtonVariant] as string),
     className,
   ]);

@@ -117,7 +117,7 @@ export default function RelatedProductsSlider({
               onClick={() => swiper?.slidePrev()}
               disabled={isBeginning}
               aria-label={`Previous ${title.toLowerCase()}`}
-              className="absolute! top-2/5! -translate-y-1/2! z-10 left-2! rounded-full! shadow-sm! transition-colors! hover:bg-cream-dark! disabled:opacity-30! disabled:pointer-events-none!"
+              className="absolute! top-2/5! -translate-y-1/2! z-10 left-2! rounded-full! shadow-sm! transition-colors! disabled:opacity-30!"
             >
               <ArrowIcon direction="previous" />
             </Button>
@@ -127,7 +127,7 @@ export default function RelatedProductsSlider({
               onClick={() => swiper?.slideNext()}
               disabled={isEnd}
               aria-label={`Next ${title.toLowerCase()}`}
-              className="absolute! top-2/5! -translate-y-1/2! z-10 right-2! rounded-full! shadow-sm! transition-colors! hover:bg-cream-dark! disabled:opacity-30! disabled:pointer-events-none!"
+              className="absolute! top-2/5! -translate-y-1/2! z-10 right-2! rounded-full! shadow-sm! transition-colors! disabled:opacity-30!"
             >
               <ArrowIcon direction="next" />
             </Button>

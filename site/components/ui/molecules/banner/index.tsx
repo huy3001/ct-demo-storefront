@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { XMarkIcon as CloseIcon } from '@heroicons/react/24/outline';
 import Button from '@/components/ui/atoms/button';
@@ -9,55 +11,147 @@ import { Reference } from '@/types/reference';
 
 export interface BannerProps {
   title: string;
+  heading?: string;
   description?: string;
   buttonText?: string;
   buttonLink?: Reference;
   image?: ImageProps;
   size?: 'sm' | 'md' | 'lg';
+  alignment?: 'left' | 'center' | 'right' | 'justify';
+  variant?: 'primary' | 'secondary';
+  className?: string;
+  locale: string;
 }
 
-const Banner = ({ title, description, buttonText, buttonLink, image, size = 'md' }: BannerProps) => {
+const Banner = ({
+  title,
+  heading,
+  description,
+  buttonText,
+  buttonLink,
+  image,
+  size = 'md',
+  alignment = 'left',
+  variant = 'primary',
+  className,
+  locale,
+}: BannerProps) => {
   const [isClosed, setIsClosed] = useState(false);
 
   const resolveClassName = cva({
     size: {
-      sm: 'p-20 md:p-24 lg:p-32',
-      md: 'p-24 md:p-32 lg:p-40',
-      lg: 'px-24 py-32 md:p-48 lg:px-64 lg:py-80',
+      sm: 'p-5 md:p-6 lg:p-8',
+      md: 'p-6 md:p-8 lg:p-10',
+      lg: 'px-6 py-8 md:p-12 lg:px-16 lg:py-20',
+    },
+  });
+  
+  const alignmentClassName = cva({
+    alignment: {
+      left: 'flex-col items-start text-left',
+      center: 'flex-col items-center text-center',
+      right: 'flex-col items-end text-right',
+      justify:
+        'flex-col md:flex-row md:items-center md:justify-between md:gap-8',
     },
   });
 
-  const displayInlineView = !description;
+  const titleClassName = cva({
+    variant: {
+      primary: 'text-charcoal',
+      secondary: 'text-white',
+    },
+  });
+
+  const descriptionClassName = cva({
+    variant: {
+      primary: 'text-charcoal-light',
+      secondary: 'text-white/75',
+    },
+  });
 
   if (isClosed) return <></>;
 
   return (
-    <div className="px-16 py-24 md:px-24 lg:px-20 xl:px-48">
+    <div className="px-4 py-6">
       <div
-        className={classnames('relative rounded-lg', resolveClassName(`size.${size}`).toString(), {
-          'flex items-center justify-between': displayInlineView,
-        })}
+        className={classnames(
+          'relative rounded-sm',
+          resolveClassName(`size.${size}`).toString(),
+          className,
+        )}
       >
         <button
-          className="absolute right-0 top-0 z-10 -translate-y-1/2 translate-x-1/2 cursor-pointer rounded-full bg-gray-600 p-4 lg:pointer-events-none lg:hidden"
+          className="absolute right-0 top-0 z-10 -translate-y-1/2 translate-x-1/2 cursor-pointer rounded-full bg-gray-600 p-1 lg:pointer-events-none lg:hidden"
           onClick={() => setIsClosed(true)}
         >
-          <CloseIcon className="size-16 stroke-3 text-white" />
+          <CloseIcon className="size-4 stroke-3 text-white" />
         </button>
 
-        <Image {...image} fill className="z-[-1]" alt={title} style={{ objectFit: 'cover' }} />
-
-        <h1 className="text-28 font-bold text-gray-700 md:text-32 lg:max-w-[70%] lg:text-36 xl:max-w-[60%]">{title}</h1>
-
-        {description && <p className="mt-4 text-gray-700 lg:max-w-[70%] lg:text-18 xl:max-w-[60%]">{description}</p>}
-
-        {buttonText && (
-          <Link link={buttonLink}>
-            <Button variant="primary" size="m" className={classnames({ 'mt-20': !displayInlineView })}>
-              {buttonText}
-            </Button>
-          </Link>
+        {image && (
+          <Image
+            {...image}
+            fill
+            className="z-0"
+            alt={title}
+            style={{ objectFit: 'cover' }}
+          />
         )}
+
+        <div
+          className={classnames(
+            'relative z-10 flex gap-5',
+            alignmentClassName(`alignment.${alignment}`).toString(),
+          )}
+        >
+          <div>
+            {heading && (
+              <p
+                className={classnames(
+                  'mb-2 text-sm font-medium uppercase tracking-widest',
+                  descriptionClassName(`variant.${variant}`).toString(),
+                )}
+              >
+                {heading}
+              </p>
+            )}
+
+            <h1
+              className={classnames(
+                'text-4xl md:text-5xl font-semibold tracking-tight',
+                titleClassName(`variant.${variant}`).toString(),
+              )}
+            >
+              {title}
+            </h1>
+
+            {description && (
+              <p
+                className={classnames(
+                  'mt-4 max-w-xl',
+                  descriptionClassName(`variant.${variant}`).toString(),
+                )}
+              >
+                {description}
+              </p>
+            )}
+          </div>
+
+          {buttonText && (
+            <Link
+              link={buttonLink}
+              locale={locale}
+              className="shrink-0"
+            >
+              <Button
+                variant={variant}
+                size="m"
+              >
+                {buttonText}
+              </Button>
+            </Link>
+          )}
+        </div>
       </div>
     </div>
   );
