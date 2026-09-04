@@ -2,7 +2,7 @@ import React, { ChangeEvent, ComponentProps, FC } from 'react';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
 import useClassNames from '@/hooks/useClassNames';
-import useControllableState from '@/hooks/useControllable';
+import useControllableState from '@/hooks/useControllableState';
 
 export interface DropdownProps extends ComponentProps<'select'> {
   className?: string;

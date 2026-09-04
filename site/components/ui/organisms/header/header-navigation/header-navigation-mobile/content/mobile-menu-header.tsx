@@ -18,11 +18,11 @@ export interface Props {
 const MobileMenuHeader: FC<Props> = ({ onArrowClick, logo, logoLink, hideHeaderMenu, categories }) => {
   const translate = useTranslations();
   return (
-    <div className="flex h-52 w-full justify-between border-b border-neutral-400 px-20">
+    <div className="flex h-13 w-full justify-between border-b border-neutral-400 px-5">
       {categories.length > 0 && (
         <div className="flex h-full items-center justify-start">
           <Button variant="ghost" size="fit" onClick={onArrowClick} className="px-0">
-            <ChevronLeftIcon className="w-20 text-gray-600" />
+            <ChevronLeftIcon className="w-5 text-gray-600" />
           </Button>
         </div>
       )}
@@ -31,7 +31,7 @@ const MobileMenuHeader: FC<Props> = ({ onArrowClick, logo, logoLink, hideHeaderM
           logo={logo}
           logoLink={logoLink}
           onClick={hideHeaderMenu}
-          imageClassName="flex h-full w-160 justify-center text-center text-16 font-bold md:text-28"
+          imageClassName="flex h-full w-40 justify-center text-center text-base font-bold md:text-2xl"
         />
       ) : (
         <div className="flex w-full items-center justify-center whitespace-nowrap">
@@ -40,7 +40,7 @@ const MobileMenuHeader: FC<Props> = ({ onArrowClick, logo, logoLink, hideHeaderM
       )}
       <div className="flex h-full items-center justify-end">
         <Button variant="ghost" size="xs" onClick={hideHeaderMenu} title={translate('common.close')} className="px-0">
-          <XMarkIcon className="w-24 text-gray-600" />
+          <XMarkIcon className="w-6 text-gray-600" />
         </Button>
       </div>
     </div>

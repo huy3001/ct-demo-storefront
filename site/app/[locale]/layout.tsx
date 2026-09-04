@@ -32,10 +32,19 @@ export default async function LocaleLayout({
   ]);
 
   return (
-    <html lang={locale} className="h-full">
+    <html
+      lang={locale}
+      className="h-full"
+    >
       <body className="min-h-full flex flex-col bg-cream text-charcoal">
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          <Header locale={locale} categoryTree={categoryTree} />
+        <NextIntlClientProvider
+          locale={locale}
+          messages={messages}
+        >
+          <Header
+            locale={locale}
+            categoryTree={categoryTree}
+          />
           <main className="flex-1">{children}</main>
           <Footer locale={locale} />
           <BackToTopButton />

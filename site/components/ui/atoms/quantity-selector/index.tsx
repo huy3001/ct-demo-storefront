@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import useClassNames from '@/hooks/useClassNames';
-import useControllableState from '@/hooks/useControllable';
+import useControllableState from '@/hooks/useControllableState';
 import { QuantitySelectorProps } from './types';
 
 const QuantitySelector = ({

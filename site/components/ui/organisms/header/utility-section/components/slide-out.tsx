@@ -81,7 +81,7 @@ const Slideout: React.FC<SlideOutProps> = ({
     }
   }, [translate, state]);
 
-  const iconClassName = 'absolute -bottom-23 left-1/2 -translate-x-1/2 h-2 w-[130%] transition duration-200';
+  const iconClassName = 'absolute -bottom-6 left-1/2 -translate-x-1/2 h-0.5 w-[130%] transition duration-200';
 
   const wishlistClassName = useClassNames([
     iconClassName,
@@ -153,9 +153,9 @@ const Slideout: React.FC<SlideOutProps> = ({
 
   return (
     <>
-      <div className="flex items-center justify-between border-b border-neutral-400 py-24 pb-22 pl-12 pr-8 md:pl-22 md:pr-18">
-        <h3 className="text-18 font-medium leading-normal md:text-20">{title}</h3>
-        <div className="flex h-full items-center gap-24">
+      <div className="flex items-center justify-between border-b border-neutral-400 py-6 pb-5.5 pl-3 pr-2 md:pl-5.5 md:pr-4.5">
+        <h3 className="text-lg font-medium leading-normal md:text-xl">{title}</h3>
+        <div className="flex h-full items-center gap-6">
           {enableWishlistState && (
             <button
               className="relative h-full cursor-pointer transition hover:opacity-80"
@@ -164,9 +164,9 @@ const Slideout: React.FC<SlideOutProps> = ({
             >
               <div className={wishlistClassName} />
               {totalWishlistItems > 0 && (
-                <span className="absolute -right-8 -top-3 size-10 rounded-full bg-green-500" />
+                <span className="absolute -right-2 -top-1 size-2.5 rounded-full bg-green-500" />
               )}
-              <HeartIcon className="w-28" stroke="#494949" />
+              <HeartIcon className="w-7" stroke="#494949" />
             </button>
           )}
           {enableCartState && (
@@ -177,7 +177,7 @@ const Slideout: React.FC<SlideOutProps> = ({
             >
               <div className={cartClassName} />
               <div className="relative">
-                <CartIcon className="w-28" totalCartItems={totalCartItems} counterClassName="-translate-y-1/4" />
+                <CartIcon className="w-7" totalCartItems={totalCartItems} counterClassName="-translate-y-1/4" />
               </div>
             </button>
           )}
@@ -187,7 +187,7 @@ const Slideout: React.FC<SlideOutProps> = ({
             data-testid="close-icon"
             aria-label={translate('common.close')}
           >
-            <CloseIcon className="w-28" stroke="#494949" />
+            <CloseIcon className="w-7" stroke="#494949" />
           </button>
         </div>
       </div>

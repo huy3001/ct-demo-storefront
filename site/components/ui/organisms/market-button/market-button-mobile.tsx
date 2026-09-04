@@ -6,7 +6,7 @@ import Button from '@/components/ui/atoms/button';
 import Dropdown from '@/components/ui/atoms/dropdown';
 import FlagIcons from '@/components/icons/flags';
 import useClassNames from '@/hooks/useClassNames';
-import { useShipAndLanguage } from '../../../../providers/ship-and-language';
+import { useShipAndLanguage } from '@/providers/ship-and-language';
 
 export interface Props {
   menuTop?: boolean;

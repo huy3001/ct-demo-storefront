@@ -1,6 +1,6 @@
 import React from 'react';
 import useClassNames from '@/hooks/useClassNames';
-import useControllableState from '@/hooks/useControllable';
+import useControllableState from '@/hooks/useControllableState';
 
 interface Props extends Omit<React.ComponentProps<'input'>, 'key'> {
   className?: string;

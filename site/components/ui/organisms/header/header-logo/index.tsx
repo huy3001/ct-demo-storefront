@@ -20,7 +20,7 @@ const HeaderLogo: FC<Props> = ({ logoLink, logo, imageClassName, onClick }) => {
   const matchingLocale = availableLocales.find((key) => key.startsWith(locale));
 
   return (
-    <div className="relative px-10 md:mt-0" onClick={onClick}>
+    <div className="relative px-2.5 md:mt-0" onClick={onClick}>
       <Link className={imageClassName} link={logoLink}>
         <Image
           media={logo?.media}

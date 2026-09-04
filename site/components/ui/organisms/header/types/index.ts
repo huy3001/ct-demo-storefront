@@ -68,4 +68,5 @@ export interface HeaderProps extends EmptyStateProps {
   enableAlgoliaSearch?: boolean;
   searchItems: Product[];
   onSearchQueryUpdate?: (query: string) => void;
+  locale: string;
 }

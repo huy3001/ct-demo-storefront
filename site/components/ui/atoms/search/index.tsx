@@ -64,7 +64,7 @@ const Search: React.FC<Props> = ({ categories, items, onQueryUpdate }) => {
     <>
       {focused && <Overlay zIndex={49} />}
 
-      <div className="relative z-350 xl:px-20">
+      <div className="relative z-350 xl:px-5">
         <div
           className={`relative z-50 border-neutral-400 bg-white lg:rounded-sm lg:border ${
             focused ? 'border-b' : 'border'
@@ -78,7 +78,7 @@ const Search: React.FC<Props> = ({ categories, items, onQueryUpdate }) => {
             <input
               title={translate('common.type-search-term')}
               aria-label={translate('common.type-search-term')}
-              className="box-content grow border-none p-0 px-12 py-10 transition placeholder:text-14 placeholder:text-gray-600 focus:outline-none"
+              className="box-content grow border-none p-0 px-3 py-2.5 transition placeholder:text-sm placeholder:text-gray-600 focus:outline-none"
               onFocus={onFocus}
               placeholder={`${translate('common.search-placeholder')}...`}
               {...register('search', {
@@ -91,21 +91,21 @@ const Search: React.FC<Props> = ({ categories, items, onQueryUpdate }) => {
               type="submit"
               title={translate('common.click-to-search')}
               aria-label={translate('common.click-to-search')}
-              className={`shrink-0 border-l border-neutral-400 px-16 py-10 transition ${
+              className={`shrink-0 border-l border-neutral-400 px-4 py-2.5 transition ${
                 focused ? 'bg-primary' : 'bg-white'
               }`}
             >
-              <SearchIcon className={`size-24 stroke-0 ${focused ? 'fill-white' : 'fill-gray-600'}`} />
+              <SearchIcon className={`size-6 stroke-0 ${focused ? 'fill-white' : 'fill-gray-600'}`} />
             </button>
             {searchValue && (
               <button
                 data-testid="reset-button"
                 type="reset"
-                className="absolute right-70 top-1/2 block -translate-y-1/2"
+                className="absolute right-17.5 top-1/2 block -translate-y-1/2"
                 onClick={cleanUp}
                 onMouseDown={(e) => e.preventDefault()}
               >
-                <CloseIcon className="w-24 fill-primary" />
+                <CloseIcon className="w-6 fill-primary" />
               </button>
             )}
           </form>
@@ -114,7 +114,7 @@ const Search: React.FC<Props> = ({ categories, items, onQueryUpdate }) => {
         <Transition
           as="div"
           show={focused}
-          className="absolute bottom-0 left-0 max-h-[60vh] w-full translate-y-full overflow-auto bg-white px-20 py-28 xl:max-h-[unset] xl:translate-y-[calc(100%-56px)] xl:rounded-md xl:pt-84"
+          className="absolute bottom-0 left-0 max-h-[60vh] w-full translate-y-full overflow-auto bg-white px-5 py-7 xl:max-h-[unset] xl:translate-y-[calc(100%-56px)] xl:rounded-md xl:pt-21"
           enter="transition duration-75"
           enterFrom="opacity-0"
           enterTo="opacity-100"
@@ -122,7 +122,7 @@ const Search: React.FC<Props> = ({ categories, items, onQueryUpdate }) => {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div data-testid="search-panel" className="grid grid-cols-1 gap-30 md:grid-cols-2">
+          <div data-testid="search-panel" className="grid grid-cols-1 gap-7.5 md:grid-cols-2">
             {items.slice(0, 6).map((item) => (
               <SearchItem key={item.productId} hit={item} categories={categories} />
             ))}

@@ -33,16 +33,16 @@ const SearchItem: React.FC<Props> = ({ hit, categories, onClick }) => {
 
   return (
     <Link link={hit._url} onMouseUp={handleClick}>
-      <div className="flex items-center gap-12">
-        <div className="shrink-0 p-8">
-          <div className="relative h-90 w-80">
+      <div className="flex items-center gap-3">
+        <div className="shrink-0 p-2">
+          <div className="relative h-22.5 w-20">
             <Image src={variant?.images?.[0]} alt={hit.name} suffix="small" style={{ objectFit: 'contain' }} fill />
           </div>
         </div>
         <div>
-          <p className="text-16 uppercase text-primary">{hit.name}</p>
-          <div className="mt-5">
-            <span className="text-14 text-gray-600">{primaryCategory?.name}</span>
+          <p className="text-base uppercase text-primary">{hit.name}</p>
+          <div className="mt-1">
+            <span className="text-sm text-gray-600">{primaryCategory?.name}</span>
           </div>
         </div>
       </div>

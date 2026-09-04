@@ -14,7 +14,7 @@ export interface Props {
 const MobileMenu: FC<Props> = ({ links, categoriesNavigator, insertCategory, hideHeaderMenu }) => {
   const translate = useTranslations();
   return (
-    <div className="ml-24 mr-22">
+    <div className="ml-6 mr-5.5">
       {categoriesNavigator && categoriesNavigator?.length > 0 && (
         <div className="pt-24">
           {categoriesNavigator[categoriesNavigator.length - 1]?.categoryId != 'myAccount' && (

@@ -1,5 +1,5 @@
-import { Tile } from 'components/commercetools-ui/organisms/header/types';
-import { Category } from 'types/entity/category';
+import { Tile } from '@/components/ui/organisms/header/types';
+import { Category } from '@/types/entity/category';
 
 export const logo = {
   media: {

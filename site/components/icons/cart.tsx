@@ -11,9 +11,9 @@ const Icon: React.FC<Props> = ({ className, totalCartItems = 0, counterClassName
   <div className="relative">
     {totalCartItems > 0 && (
       <>
-        <span className="absolute -right-6 -top-3 size-10 rounded-full bg-green-500" />
+        <span className="absolute -right-1.5 -top-1 size-2.5 rounded-full bg-green-500" />
         <span
-          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-9 text-gray-600 ${counterClassName}`}
+          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[9px] text-gray-600 ${counterClassName}`}
         >
           {totalCartItems}
         </span>

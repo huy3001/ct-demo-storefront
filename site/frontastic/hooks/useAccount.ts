@@ -59,11 +59,11 @@ const useAccount = () => {
     return shippingAddresses?.find(
       (address) => address.isDefaultShippingAddress,
     );
-  }, [data.account]);
+  }, [shippingAddresses]);
 
   const defaultBillingAddress = useMemo(() => {
     return billingAddresses?.find((address) => address.isDefaultBillingAddress);
-  }, [data.account]);
+  }, [billingAddresses]);
 
   const login = async (
     email: string,

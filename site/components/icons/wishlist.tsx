@@ -8,7 +8,7 @@ type Props = {
 
 const Icon: React.FC<Props> = ({ className, totalWishlistItems }: Props) => (
   <>
-    {totalWishlistItems > 0 && <span className="absolute -right-10 -top-3 size-10 rounded-full bg-green-500" />}
+    {totalWishlistItems > 0 && <span className="absolute -right-2.5 -top-1 size-2.5 rounded-full bg-green-500" />}
     <HeartIcon className={className} />
   </>
 );

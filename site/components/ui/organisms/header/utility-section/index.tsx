@@ -73,28 +73,28 @@ const UtilitySection: React.FC<Props> = ({
   };
 
   return (
-    <div className="mt-12 flex h-40 items-center">
-      <div className="flex justify-between gap-x-8 lg:gap-x-16">
+    <div className="mt-3 flex h-10 items-center">
+      <div className="flex justify-between gap-x-2 lg:gap-x-4">
         <AccountButton />
 
-        <div className="h-40 w-fit">
+        <div className="h-10 w-fit">
           <button
             aria-label={translate('wishlist.my-wishlist')}
-            className="relative h-fit cursor-pointer border-gray-600 pb-8 hover:border-b-2"
+            className="relative h-fit cursor-pointer border-gray-600 pb-2 hover:border-b-2"
             onClick={onWishlistClicked}
           >
-            <WishlistIcon totalWishlistItems={totalWishlistItems} className="w-28 text-gray-600" />
+            <WishlistIcon totalWishlistItems={totalWishlistItems} className="w-7 text-gray-600" />
           </button>
         </div>
 
-        <div className="h-40 w-fit">
+        <div className="h-10 w-fit">
           <button
             aria-label={translate('cart.myCart')}
-            className="h-fit cursor-pointer border-gray-600 pb-8 hover:border-b-2"
+            className="h-fit cursor-pointer border-gray-600 pb-2 hover:border-b-2"
             onClick={onCartClicked}
           >
             <CartIcon
-              className="w-28 text-gray-600"
+              className="w-7 text-gray-600"
               totalCartItems={totalCartItems}
               counterClassName="-translate-y-1/4"
             />

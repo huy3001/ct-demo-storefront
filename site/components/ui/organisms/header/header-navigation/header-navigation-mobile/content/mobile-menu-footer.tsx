@@ -54,10 +54,10 @@ const MobileMenuFooter: FC<Props> = ({ showMenu, hideHeaderMenu, insertCategory 
 
   return (
     <>
-      <div className="mb-16 mt-12 w-full border border-neutral-400" />
+      <div className="mb-4 mt-3 w-full border border-neutral-400" />
 
       {account ? (
-        <div className="ml-24 mr-22 block pt-16 md:hidden">
+        <div className="ml-6 mr-5.5 block pt-4 md:hidden">
           <MobileMenuNavButton
             link={accountButton}
             onClick={() => insertCategory(accountButton)}
@@ -65,25 +65,25 @@ const MobileMenuFooter: FC<Props> = ({ showMenu, hideHeaderMenu, insertCategory 
           />
         </div>
       ) : (
-        <div className="ml-24 mr-22 block py-16 md:hidden">
-          <Link link="/help" onClick={hideHeaderMenu} className="py-16">
+        <div className="ml-6 mr-5.5 block py-4 md:hidden">
+          <Link link="/help" onClick={hideHeaderMenu} className="py-4">
             <p className="text-14 text-primary">{translate('common.help-and-support')}</p>
           </Link>{' '}
         </div>
       )}
 
-      <div className="mx-24 flex py-16">
+      <div className="mx-6 flex py-4">
         {account ? (
           <Button variant="ghost" size="fit" onClick={handleLogout}>
             <span className="font-normal text-primary">{translate('account.sign-out')}</span>
           </Button>
         ) : (
           <Link link="/login" onClick={hideHeaderMenu} className="px-0">
-            <span className="text-14 font-normal text-primary">{translate('account.sign-in')}</span>
+            <span className="text-sm font-normal text-primary">{translate('account.sign-in')}</span>
           </Link>
         )}
       </div>
-      <div className="p-16" ref={marketButtonRef}>
+      <div className="p-4" ref={marketButtonRef}>
         <MarketButtonMobile menuTop={languageMenuTop} />
       </div>
     </>

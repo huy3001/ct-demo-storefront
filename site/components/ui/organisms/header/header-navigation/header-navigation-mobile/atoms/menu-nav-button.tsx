@@ -14,14 +14,14 @@ export interface Props {
 const MobileMenuNavButton: FC<Props> = ({ link, categoriesNavigator, onClick, hideHeaderMenu }) => {
   const linkClassNames = useClassNames([
     'flex justify-between',
-    categoriesNavigator?.length === 0 ? 'py-24' : link?.categoryId === 'myAccount' ? 'pb-16' : 'pb-36',
+    categoriesNavigator?.length === 0 ? 'py-6' : link?.categoryId === 'myAccount' ? 'pb-4' : 'pb-9',
   ]);
   return (
     <div key={link.categoryId} className="cursor-pointer">
       {link?.descendants && link?.descendants?.length > 0 ? (
         <div onClick={onClick} className={linkClassNames}>
           <p className="text-primary">{link.name}</p>
-          <ChevronRightIcon className="w-20 text-gray-600" />
+          <ChevronRightIcon className="w-5 text-gray-600" />
         </div>
       ) : (
         <div onClick={hideHeaderMenu} className={linkClassNames}>

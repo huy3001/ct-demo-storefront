@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from 'react';
 import { Listbox, Transition, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react';
 import { CheckIcon, ChevronDownIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
-import useControllableState from '@/hooks/useControllable';
+import useControllableState from '@/hooks/useControllableState';
 import { Option } from './index';
 
 export interface Props {

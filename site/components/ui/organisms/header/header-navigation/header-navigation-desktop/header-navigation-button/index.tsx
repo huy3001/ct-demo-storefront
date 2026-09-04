@@ -21,7 +21,7 @@ const HeaderNavigationButtonDesktop: FC<Props> = ({ show, link, updateSubMenu })
   const isActive = `${link._url}/` === pathnameWithoutQuery;
 
   const navLinkClassNames = useClassNames([
-    'flex py-4 cursor-pointer relative hover:[&>:nth-child(1)]:border-primary hover:[&>:nth-child(1)]:font-semibold',
+    'flex py-1 cursor-pointer relative hover:[&>:nth-child(1)]:border-primary hover:[&>:nth-child(1)]:font-semibold',
   ]);
 
   useEffect(() => {
@@ -31,7 +31,7 @@ const HeaderNavigationButtonDesktop: FC<Props> = ({ show, link, updateSubMenu })
   if (!isLoaded) return <></>;
 
   return (
-    <div onClick={updateSubMenu} className="h-52 px-10 py-12">
+    <div onClick={updateSubMenu} className="h-13 px-2.5 py-3">
       <Link link={link?._url} title={link?.name} className={navLinkClassNames}>
         <span
           className={classnames(
@@ -41,7 +41,7 @@ const HeaderNavigationButtonDesktop: FC<Props> = ({ show, link, updateSubMenu })
         >
           {link?.name}
         </span>
-        {link?.descendants && link?.descendants.length > 0 && <ChevronDownIcon className="ml-10 w-16 text-gray-600" />}
+        {link?.descendants && link?.descendants.length > 0 && <ChevronDownIcon className="ml-2.5 w-4 text-gray-600" />}
       </Link>
     </div>
   );

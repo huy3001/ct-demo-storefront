@@ -4,7 +4,7 @@ import { useTranslations } from 'use-intl';
 import Button from '@/components/ui/atoms/button';
 import Drawer from '@/components/ui/atoms/drawer';
 import FlagIcons from '@/components/icons/flags';
-import { useShipAndLanguage } from '../../../../providers/ship-and-language';
+import { useShipAndLanguage } from '@/providers/ship-and-language';
 
 const MarketButton = () => {
   const [showMarket, setShowMarket] = useState(false);

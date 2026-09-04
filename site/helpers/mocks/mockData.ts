@@ -1,12 +1,12 @@
-import { Account } from 'shared/@/types/account';
-import { AccountToken } from 'shared/@/types/account/AccountToken';
-import { Address } from 'shared/@/types/account/Address';
-import { LineItem as CartLineItem } from 'shared/@/types/cart/LineItem';
-import { ShippingInfo } from 'shared/@/types/cart/ShippingInfo';
-import { Variant } from 'shared/@/types/product';
-import { Money } from 'shared/@/types/product/Money';
-import { LineItem } from 'shared/@/types/wishlist/LineItem';
-import { Wishlist } from 'shared/@/types/wishlist/Wishlist';
+import { Account } from '@/types/account';
+import { AccountToken } from '@/types/account/AccountToken';
+import { Address } from '@/types/account/Address';
+import { LineItem as CartLineItem } from '@/types/cart/LineItem';
+import { ShippingInfo } from '@/types/cart/ShippingInfo';
+import { Variant } from '@/types/product';
+import { Money } from '@/types/product/Money';
+import { LineItem } from '@/types/wishlist/LineItem';
+import { Wishlist } from '@/types/wishlist/Wishlist';
 import { ImageProps } from '@/components/ui/atoms/image';
 import { Category } from '@/types/entity/category';
 

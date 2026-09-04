@@ -5,7 +5,7 @@ import { useHits } from 'react-instantsearch';
 import { useTranslations } from 'use-intl';
 import Accordion from '@/components/ui/atoms/accordion';
 import Drawer from '@/components/ui/atoms/drawer';
-import { useLocalizedIndex } from 'providers/algolia/localized-index';
+import { useLocalizedIndex } from '@/providers/algolia/localized-index';
 import { useProductList } from '../../context';
 import useDynamicFacets from '../../hooks/useDynamicFacets';
 import { FacetConfiguration } from '../../types';
@@ -81,7 +81,7 @@ const MobileFacets: React.FC<Props> = ({ facetsConfiguration }) => {
       <div className="flex items-center justify-between border-b border-neutral-400 pb-16 pt-40 lg:hidden">
         <div>
           <button
-            className="flex min-w-80 cursor-pointer items-center gap-8 rounded-md border border-transparent bg-white px-12 py-6 text-14 leading-[20px] transition hover:border-gray-500"
+            className="flex min-w-80 cursor-pointer items-center gap-8 rounded-md border border-transparent bg-white px-12 py-6 text-14 leading-5 transition hover:border-gray-500"
             onClick={() => setIsOpen(true)}
           >
             <span className="text-14">{translate('product.sortAndFilter')}</span>
