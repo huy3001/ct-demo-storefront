@@ -1,13 +1,12 @@
-import React, { useContext } from 'react';
 import { useTranslations } from 'use-intl';
 import Link from '@/components/ui/atoms/link';
-import { AccountContext } from '@/context/account';
 import { useRouter } from '@/i18n/routing';
+import { useAccount } from '@/hooks/useAccount';
 
 const LoggedIn = () => {
   const router = useRouter();
   const translate = useTranslations();
-  const { logout } = useContext(AccountContext);
+  const { logout } = useAccount();
 
   const handleLogout = () => {
     logout().then(() => router.push('/login'));
@@ -16,7 +15,7 @@ const LoggedIn = () => {
   return (
     <div className="w-58.75 p-3.5 pb-6">
       <Link
-        link="/account#"
+        link="/account"
         className="mt-2.5 block w-fit"
       >
         <p className="text-primary hover:underline">
