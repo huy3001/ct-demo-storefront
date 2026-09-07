@@ -45,7 +45,7 @@ const Wishlist: React.FC<Props> = ({
         </>
       ) : (
         <>
-          <div className="h-[83vh] grow divide-y divide-neutral-400 overflow-auto px-12 md:px-22">
+          <div className="h-[83vh] grow divide-y divide-neutral-400 overflow-auto px-3 md:px-5.5">
             {wishlist?.lineItems?.map((lineItem) => (
               <WishlistItem
                 key={lineItem.lineItemId}
@@ -55,8 +55,8 @@ const Wishlist: React.FC<Props> = ({
               />
             ))}
           </div>
-          <div className="absolute bottom-0 h-88 w-full p-20">
-            <Button onClick={onClearWishlist} variant="secondary" className="w-full text-16">
+          <div className="absolute bottom-0 h-22 w-full p-5">
+            <Button onClick={onClearWishlist} variant="secondary" className="w-full text-base">
               {translate('wishlist.wishlist-clear-list')}
             </Button>
           </div>

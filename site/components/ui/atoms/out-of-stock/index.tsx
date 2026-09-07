@@ -10,7 +10,7 @@ const OutOfStock: React.FC<React.PropsWithChildren<Props>> = ({ className }) => 
   const translate = useTranslations();
 
   const classNames = useClassNames([
-    'flex h-[25px] w-fit items-center justify-center py-4 px-8 text-12 bg-red-500 text-white',
+    'flex h-6.25 w-fit items-center justify-center py-1 px-2 text-xs bg-red-500 text-white',
     className,
   ]);
 

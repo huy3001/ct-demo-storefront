@@ -9,20 +9,20 @@ const CartItemPrice: FC<{ item: LineItem }> = ({ item }) => {
   const translate = useTranslations();
 
   if (item.isGift) {
-    return <p className="text-14 font-normal">{translate('cart.gift')}</p>;
+    return <p className="text-sm font-normal">{translate('cart.gift')}</p>;
   }
 
   return item.discountedPrice ? (
-    <div className="flex items-center gap-5">
-      <p className="text-14 font-medium leading-loose text-red-500">
+    <div className="flex items-center gap-1.25">
+      <p className="text-sm font-medium leading-loose text-red-500">
         {CurrencyHelpers.formatForCurrency(item.discountedPrice?.value ?? 0, locale)}
       </p>
-      <p className="text-12 font-normal leading-loose text-gray-500 line-through">
+      <p className="text-xs font-normal leading-loose text-gray-500 line-through">
         {CurrencyHelpers.formatForCurrency(item.price ?? 0, locale)}
       </p>
     </div>
   ) : (
-    <p className="text-14 font-medium leading-loose">{CurrencyHelpers.formatForCurrency(item.price ?? 0, locale)}</p>
+    <p className="text-sm font-medium leading-loose">{CurrencyHelpers.formatForCurrency(item.price ?? 0, locale)}</p>
   );
 };
 

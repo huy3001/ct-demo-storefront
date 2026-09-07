@@ -15,7 +15,7 @@ const QuantitySelector = ({
   const [value, setValue] = useControllableState(valueProp, defaultValue);
 
   const className = useClassNames([
-    'flex w-fit items-center gap-12 rounded-sm border border-neutral-400 transition hover:border-neutral-800',
+    'flex w-fit items-center gap-3 rounded-sm border border-neutral-400 transition hover:border-neutral-800',
     disabled ? 'cursor-not-allowed bg-neutral-200 text-gray-400' : 'cursor-pointer bg-white text-gray-600',
     classNameProp,
   ]);
@@ -42,15 +42,15 @@ const QuantitySelector = ({
       <button
         disabled={value <= minValue}
         onClick={() => handleChange(value - 1)}
-        className="w-36 cursor-[inherit] self-stretch border-r border-neutral-200 px-12 py-3 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-gray-400"
+        className="w-9 cursor-[inherit] self-stretch border-r border-neutral-200 px-3 py-0.75 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-gray-400"
       >
         {`-`}
       </button>
-      <span className="py-3 text-14">{value}</span>
+      <span className="py-0.75 text-sm">{value}</span>
       <button
         disabled={value >= maxValue}
         onClick={() => handleChange(value + 1)}
-        className="w-36 cursor-[inherit] self-stretch border-l border-neutral-200 px-12 py-3 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-gray-400"
+        className="w-9 cursor-[inherit] self-stretch border-l border-neutral-200 px-3 py-0.75 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-gray-400"
       >
         {`+`}
       </button>

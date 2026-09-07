@@ -24,6 +24,7 @@ const HeaderLogo: FC<Props> = ({ logoLink, logo, imageClassName, onClick }) => {
       <Link className={imageClassName} link={logoLink}>
         <Image
           media={logo?.media}
+          src={logo?.media?.file}
           fill
           style={{ objectFit: 'contain' }}
           alt={matchingLocale ? logo.title?.[matchingLocale] : 'Logo'}

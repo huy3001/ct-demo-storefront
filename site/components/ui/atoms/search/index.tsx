@@ -66,7 +66,7 @@ const Search: React.FC<Props> = ({ categories, items, onQueryUpdate }) => {
 
       <div className="relative z-350 xl:px-5">
         <div
-          className={`relative z-50 border-neutral-400 bg-white lg:rounded-sm lg:border ${
+          className={`relative z-50 border-neutral-400 bg-white overflow-hidden lg:rounded-sm lg:border ${
             focused ? 'border-b' : 'border'
           }`}
         >
@@ -92,7 +92,7 @@ const Search: React.FC<Props> = ({ categories, items, onQueryUpdate }) => {
               title={translate('common.click-to-search')}
               aria-label={translate('common.click-to-search')}
               className={`shrink-0 border-l border-neutral-400 px-4 py-2.5 transition ${
-                focused ? 'bg-primary' : 'bg-white'
+                focused ? 'bg-charcoal' : 'bg-white'
               }`}
             >
               <SearchIcon className={`size-6 stroke-0 ${focused ? 'fill-white' : 'fill-gray-600'}`} />
@@ -105,7 +105,7 @@ const Search: React.FC<Props> = ({ categories, items, onQueryUpdate }) => {
                 onClick={cleanUp}
                 onMouseDown={(e) => e.preventDefault()}
               >
-                <CloseIcon className="w-6 fill-primary" />
+                <CloseIcon className="w-6 fill-charcoal" />
               </button>
             )}
           </form>

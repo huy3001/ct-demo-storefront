@@ -83,7 +83,10 @@ const UtilitySection: React.FC<Props> = ({
             className="relative h-fit cursor-pointer border-gray-600 pb-2 hover:border-b-2"
             onClick={onWishlistClicked}
           >
-            <WishlistIcon totalWishlistItems={totalWishlistItems} className="w-7 text-gray-600" />
+            <WishlistIcon
+              totalWishlistItems={totalWishlistItems}
+              className="w-7 text-gray-600"
+            />
           </button>
         </div>
 
@@ -105,7 +108,7 @@ const UtilitySection: React.FC<Props> = ({
       <Drawer
         isOpen={isDrawerOpen}
         direction="right"
-        className="w-[90%] max-w-380 bg-white"
+        className="w-[90%] max-w-95 bg-white"
         onClose={() => setIsDrawerOpen(false)}
       >
         <Slideout

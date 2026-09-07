@@ -49,7 +49,7 @@ const HeaderNavigationDesktop: React.FC<Props> = ({ links, tiles }) => {
   const scrollDirection = useScrollDirection(5, -1);
   const navigationClassNames = useClassNames([
     'hidden items-center xl:flex duration-150 transition-all pl-11 w-fit',
-    scrollDirection === 'down' ? 'h-0 opacity-0 pointer-events-none' : 'h-13 opacity-1 pointer-events-auto',
+    scrollDirection === 'down' ? 'h-0 opacity-0 pointer-events-none' : 'h-13 opacity-100 pointer-events-auto',
   ]);
 
   const { ref } = useFocusOutside(blurMenu);
@@ -58,10 +58,18 @@ const HeaderNavigationDesktop: React.FC<Props> = ({ links, tiles }) => {
   return (
     <div>
       {links && (
-        <div className={navigationClassNames} onMouseLeave={blurMenu} ref={ref}>
+        <div
+          className={navigationClassNames}
+          onMouseLeave={blurMenu}
+          ref={ref}
+        >
           <div className="flex w-fit justify-start">
             {links.map((link) => (
-              <div key={link?.categoryId} onMouseEnter={() => focusMenu(link)} onFocus={() => focusMenu(link)}>
+              <div
+                key={link?.categoryId}
+                onMouseEnter={() => focusMenu(link)}
+                onFocus={() => focusMenu(link)}
+              >
                 <HeaderNavigationButtonDesktop
                   show={link.categoryId === activeCategory?.categoryId}
                   link={link}
@@ -71,7 +79,11 @@ const HeaderNavigationDesktop: React.FC<Props> = ({ links, tiles }) => {
             ))}
           </div>
           <MenuDropdown
-            show={!!activeCategory && activeCategory.descendants && activeCategory.descendants.length > 0}
+            show={
+              !!activeCategory &&
+              activeCategory.descendants &&
+              activeCategory.descendants.length > 0
+            }
             onClick={hideSubMenu}
             links={activeCategory?.descendants ?? []}
             tileContent={tileContent[0]}

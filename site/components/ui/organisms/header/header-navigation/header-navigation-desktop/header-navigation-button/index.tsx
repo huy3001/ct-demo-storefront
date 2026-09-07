@@ -3,7 +3,7 @@ import Link from '@/components/ui/atoms/link';
 import useClassNames from '@/hooks/useClassNames';
 import { classnames } from '@/helpers/utils/classnames';
 import { usePathname } from '@/i18n/routing';
-import { FC, useEffect, useState } from 'react';
+import { FC } from 'react';
 import { Category } from '@/types/entity/category';
 
 export interface Props {
@@ -12,36 +12,43 @@ export interface Props {
   updateSubMenu: () => void;
 }
 
-const HeaderNavigationButtonDesktop: FC<Props> = ({ show, link, updateSubMenu }) => {
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
-
+const HeaderNavigationButtonDesktop: FC<Props> = ({
+  show,
+  link,
+  updateSubMenu,
+}) => {
   const pathname = usePathname();
   const pathnameWithoutQuery = pathname.split('?')[0];
 
   const isActive = `${link._url}/` === pathnameWithoutQuery;
 
   const navLinkClassNames = useClassNames([
-    'flex py-1 cursor-pointer relative hover:[&>:nth-child(1)]:border-primary hover:[&>:nth-child(1)]:font-semibold',
+    'flex py-1 cursor-pointer relative hover:[&>:nth-child(1)]:border-charcoal font-semibold',
   ]);
 
-  useEffect(() => {
-    setIsLoaded(true);
-  }, []);
-
-  if (!isLoaded) return <></>;
-
   return (
-    <div onClick={updateSubMenu} className="h-13 px-2.5 py-3">
-      <Link link={link?._url} title={link?.name} className={navLinkClassNames}>
+    <div
+      onClick={updateSubMenu}
+      className="h-13 px-2.5 py-3"
+    >
+      <Link
+        link={link?._url}
+        title={link?.name}
+        className={navLinkClassNames}
+      >
         <span
           className={classnames(
             'block border-b-2',
-            show || isActive ? 'border-primary font-semibold' : 'border-transparent',
+            show || isActive
+              ? 'border-charcoal font-semibold'
+              : 'border-transparent',
           )}
         >
           {link?.name}
         </span>
-        {link?.descendants && link?.descendants.length > 0 && <ChevronDownIcon className="ml-2.5 w-4 text-gray-600" />}
+        {link?.descendants && link?.descendants.length > 0 && (
+          <ChevronDownIcon className="ml-2.5 w-4 text-gray-600" />
+        )}
       </Link>
     </div>
   );

@@ -17,12 +17,17 @@ export interface Props {
 const MenuDropdown: FC<Props> = ({ show, links, tileContent, onClick }) => {
   const ref = useRef<HTMLAnchorElement>(null);
   const wrapperClassNames = useClassNames([
-    'transition absolute flex justify-between bottom-0 left-0 duration-300 ease-in-out min-h-[300px] w-[100%] translate-y-full',
-    show ? 'opacity-1 z-20 delay-300' : 'opacity-0 z-[-999] pointer-events-none',
-    'border-b-2 border-t-2 border-b-accent border-t-neutral-400 bg-white pl-52 pr-48 py-32',
+    'transition absolute flex justify-between bottom-0 left-0 duration-300 ease-in-out min-h-75 w-[100%] translate-y-full',
+    show
+      ? 'opacity-100 z-20 delay-300'
+      : 'opacity-0 z-[-999] pointer-events-none',
+    'border-b-2 border-t-2 border-b-accent border-t-neutral-400 bg-white pl-13 pr-13 py-8',
   ]);
 
-  const linksClassNames = useClassNames(['grid grid-cols-4 gap-x-116 gap-y-28', tileContent ? 'pr-116' : '']);
+  const linksClassNames = useClassNames([
+    'grid grid-cols-4 gap-x-29 gap-y-7',
+    tileContent ? 'pr-29' : '',
+  ]);
   useEffect(() => {
     if (show && links?.length) {
       ref.current?.focus();
@@ -45,27 +50,27 @@ const MenuDropdown: FC<Props> = ({ show, links, tileContent, onClick }) => {
           <li key={link.categoryId}>
             {link.depth === 1 ? (
               <>
-                <div className="w-min pb-8">
+                <div className="w-min pb-2">
                   <Link
                     link={link?._url}
                     ref={index === 0 ? ref : null}
                     variant="menu-header"
                     className={getLinkClassName(link)}
                   >
-                    <p className="text-14">{link.name}</p>
+                    <p className="text-sm">{link.name}</p>
                   </Link>
                 </div>
                 {link.descendants?.map((field) => (
-                  <div key={field.categoryId} className="w-min pb-8">
+                  <div key={field.categoryId} className="w-min pb-2">
                     <Link link={field?._url} onClick={onClick} variant="menu-item" className={getLinkClassName(field)}>
-                      <p className="text-14">{field.name}</p>
+                      <p className="text-sm">{field.name}</p>
                     </Link>
                   </div>
                 ))}
               </>
             ) : (
               <Link key={link.categoryId} link={link?._url} variant="menu-header" className={getLinkClassName(link)}>
-                <p className="text-14">{link.name}</p>
+                <p className="text-sm">{link.name}</p>
               </Link>
             )}
           </li>

@@ -16,9 +16,9 @@ const MobileMenu: FC<Props> = ({ links, categoriesNavigator, insertCategory, hid
   return (
     <div className="ml-6 mr-5.5">
       {categoriesNavigator && categoriesNavigator?.length > 0 && (
-        <div className="pt-24">
+        <div className="pt-6">
           {categoriesNavigator[categoriesNavigator.length - 1]?.categoryId != 'myAccount' && (
-            <div className="pb-36" onClick={hideHeaderMenu}>
+            <div className="pb-9" onClick={hideHeaderMenu}>
               <Link
                 link={
                   categoriesNavigator[categoriesNavigator.length - 1]?._url ??

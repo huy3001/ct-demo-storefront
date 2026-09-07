@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { TrashIcon } from '@heroicons/react/24/outline';
-import { LineItem as CartLineItem } from 'shared/@/types/cart/LineItem';
+import { LineItem as CartLineItem } from '@/types/cart/LineItem';
 import { useTranslations } from 'use-intl';
 import Image from '@/components/ui/atoms/image';
 import Link from '@/components/ui/atoms/link';
@@ -64,16 +64,26 @@ const CartItem: React.FC<Props> = ({ item, onRemoveItem, onUpdateItem, OnMoveToW
   }, [OnMoveToWishlist, processing]);
 
   return (
-    <div className="flex max-w-full items-stretch justify-start gap-10 py-18 md:gap-15">
-      <div className="w-125 shrink-0 bg-white p-12">
-        <Link title={item.name} className="relative block size-full rounded-sm" link={item._url}>
-          <Image alt={item.name} src={item.variant?.images?.[0]} suffix="small" style={{ objectFit: 'contain' }} fill />
+    <div className="flex max-w-full items-stretch justify-start gap-2.5 py-4.5 md:gap-3.75">
+      <div className="w-31.25 shrink-0 bg-white p-3">
+        <Link
+          title={item.name}
+          className="relative block size-full rounded-sm"
+          link={item._url}
+        >
+          <Image
+            alt={item.name}
+            src={item.variant?.images?.[0]}
+            suffix="small"
+            style={{ objectFit: 'contain' }}
+            fill
+          />
         </Link>
       </div>
       <div className="max-w-full grow overflow-hidden">
         <div className="flex items-center justify-between">
           <Link
-            className="block max-w-[85%] overflow-hidden text-ellipsis whitespace-pre text-14 uppercase leading-loose"
+            className="block max-w-[85%] overflow-hidden text-ellipsis whitespace-pre text-sm uppercase leading-loose"
             title={item.name}
             link={item._url}
           >
@@ -86,18 +96,21 @@ const CartItem: React.FC<Props> = ({ item, onRemoveItem, onUpdateItem, OnMoveToW
             disabled={processing}
             aria-label={translate('common.delete')}
           >
-            <TrashIcon stroke="#494949" className="w-20" />
+            <TrashIcon
+              stroke="#494949"
+              className="w-5"
+            />
           </button>
         </div>
         {!item.variant?.isOnStock && (
-          <div className="mt-8">
+          <div className="mt-2">
             <OutOfStock />
           </div>
         )}
-        <div className="mt-8">
+        <div className="mt-2">
           <CartItemPrice item={item} />
         </div>
-        <div className="mt-16">
+        <div className="mt-4">
           <QuantitySelector
             value={item.count}
             defaultValue={1}
@@ -107,8 +120,11 @@ const CartItem: React.FC<Props> = ({ item, onRemoveItem, onUpdateItem, OnMoveToW
             onChange={handleUpdateItem}
           />
         </div>
-        <div className="mt-16 text-12">
-          <p className={wishlistButtonClassName} onClick={handleMoveToWishlist}>
+        <div className="mt-4 text-xs">
+          <p
+            className={wishlistButtonClassName}
+            onClick={handleMoveToWishlist}
+          >
             {translate('cart.move-to-wishlist')}
           </p>
         </div>

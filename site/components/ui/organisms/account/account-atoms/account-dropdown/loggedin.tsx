@@ -14,17 +14,32 @@ const LoggedIn = () => {
   };
 
   return (
-    <div className="w-235 p-14 pb-24">
-      <Link link="/account#" className="mt-10 block w-fit">
-        <p className="text-primary hover:underline">{translate('account.my-account')}</p>
+    <div className="w-58.75 p-3.5 pb-6">
+      <Link
+        link="/account#"
+        className="mt-2.5 block w-fit"
+      >
+        <p className="text-primary hover:underline">
+          {translate('account.my-account')}
+        </p>
       </Link>
 
-      <Link link="/account/?hash=support" className="mt-32 block w-fit">
-        <p className="text-primary hover:underline">{translate('account.customer-support')}</p>
+      <Link
+        link="/account/?hash=support"
+        className="mt-8 block w-fit"
+      >
+        <p className="text-primary hover:underline">
+          {translate('account.customer-support')}
+        </p>
       </Link>
 
-      <button onClick={handleLogout} className="mt-32 w-fit text-left">
-        <p className="text-16 text-primary hover:underline">{translate('account.sign-out')}</p>
+      <button
+        onClick={handleLogout}
+        className="mt-8 w-fit text-left"
+      >
+        <p className="text-base text-primary hover:underline">
+          {translate('account.sign-out')}
+        </p>
       </button>
     </div>
   );

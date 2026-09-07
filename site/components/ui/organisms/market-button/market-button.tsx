@@ -32,7 +32,7 @@ const MarketButton = () => {
       <Drawer
         isOpen={showMarket}
         direction="right"
-        className="w-[90%] max-w-380 bg-neutral-200"
+        className="w-[90%] max-w-95 bg-neutral-200"
         onClose={hideMarketMenu}
       >
         <div className="flex w-full items-center justify-between border-b border-neutral-400 px-16 py-20">

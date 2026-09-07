@@ -19,8 +19,8 @@ const WishlistItem: FC<WishlistItemProps> = ({ item, onRemove, onMoveToCart }) =
   const translate = useTranslations();
 
   return (
-    <div className="flex max-w-full items-stretch justify-start gap-10 py-18 md:gap-15">
-      <div className="h-145 w-125 shrink-0 bg-white p-12">
+    <div className="flex max-w-full items-stretch justify-start gap-2.5 py-4.5 md:gap-3.75">
+      <div className="h-36.25 w-31.25 shrink-0 bg-white p-3">
         <div className="relative size-full">
           <Image
             src={item.variant?.images?.[0]}
@@ -33,31 +33,52 @@ const WishlistItem: FC<WishlistItemProps> = ({ item, onRemove, onMoveToCart }) =
       </div>
       <div className="grow">
         <div className="flex max-w-full items-center justify-between">
-          <p className="max-w-150 overflow-hidden text-ellipsis whitespace-pre text-14 uppercase leading-loose">
+          <p className="max-w-37.5 overflow-hidden text-ellipsis whitespace-pre text-sm uppercase leading-loose">
             {item.name}
           </p>
-          <i onClick={onRemove} className="block cursor-pointer" data-testid="remove-button">
-            <TrashIcon stroke="#494949" className="w-20" />
+          <i
+            onClick={onRemove}
+            className="block cursor-pointer"
+            data-testid="remove-button"
+          >
+            <TrashIcon
+              stroke="#494949"
+              className="w-5"
+            />
           </i>
         </div>
-        <div className="mt-12">
+        <div className="mt-3">
           {item.variant?.discountedPrice ? (
-            <div className="flex items-center gap-5">
-              <span className="text-14 font-medium leading-loose text-red-500">
-                {CurrencyHelpers.formatForCurrency(item.variant?.discountedPrice?.value ?? 0, locale)}
+            <div className="flex items-center gap-1.25">
+              <span className="text-sm font-medium leading-loose text-red-500">
+                {CurrencyHelpers.formatForCurrency(
+                  item.variant?.discountedPrice?.value ?? 0,
+                  locale,
+                )}
               </span>
-              <span className="text-12 font-normal leading-loose text-gray-500 line-through">
-                {CurrencyHelpers.formatForCurrency(item.variant?.price ?? 0, locale)}
+              <span className="text-xs font-normal leading-loose text-gray-500 line-through">
+                {CurrencyHelpers.formatForCurrency(
+                  item.variant?.price ?? 0,
+                  locale,
+                )}
               </span>
             </div>
           ) : (
-            <span className="text-14 font-medium leading-loose">
-              {CurrencyHelpers.formatForCurrency(item.variant?.price ?? 0, locale)}
+            <span className="text-sm font-medium leading-loose">
+              {CurrencyHelpers.formatForCurrency(
+                item.variant?.price ?? 0,
+                locale,
+              )}
             </span>
           )}
         </div>
-        <div className="mt-16 leading-normal">
-          <Button variant="primary" onClick={onMoveToCart} disabled={!item.variant?.isOnStock} className="py-8 text-14">
+        <div className="mt-4 leading-normal">
+          <Button
+            variant="primary"
+            onClick={onMoveToCart}
+            disabled={!item.variant?.isOnStock}
+            className="py-2 text-sm"
+          >
             {translate('wishlist.wishlist-add-to-cart')}
           </Button>
         </div>

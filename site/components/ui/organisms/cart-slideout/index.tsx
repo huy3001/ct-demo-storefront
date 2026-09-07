@@ -37,7 +37,7 @@ const CartSlideout: FC<CartSlideoutProps> = ({
           handleCategoryClick={handleCategoryClick}
         />
       ) : (
-        <div className="h-[65vh] grow divide-y divide-neutral-400 overflow-auto px-12 md:px-22">
+        <div className="h-[65vh] grow divide-y divide-neutral-400 overflow-auto px-3 md:px-5.5">
           {cart?.lineItems?.map((lineItem) => (
             <CartItem
               key={lineItem.lineItemId}
@@ -55,10 +55,10 @@ const CartSlideout: FC<CartSlideoutProps> = ({
         onRemoveDiscountCode={onRemoveDiscountCode}
         isEmpty={isEmpty}
         classNames={{
-          applyDiscountButton: 'px-12 py-24 md:px-22',
-          infoContainer: 'px-12 p-16 md:px-22',
-          totalAmount: 'pb-20',
-          subCost: 'text-14',
+          applyDiscountButton: 'px-3 py-6 md:px-5.5',
+          infoContainer: 'px-3 p-4 md:px-5.5',
+          totalAmount: 'pb-5',
+          subCost: 'text-sm',
         }}
         button={
           <CheckoutButton disabled={isEmpty} text={translate('cart.cart-go')} link="/cart" onClick={closeFlyouts} />

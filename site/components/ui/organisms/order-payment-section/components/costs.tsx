@@ -17,11 +17,11 @@ const Costs: FC<CostsProps> = ({
   const { costsToRender, total } = useCostsData({ dataReference, order });
 
   const totalAmountClassNames = useClassNames([
-    'mt-24 flex items-center justify-between font-medium',
+    'mt-6 flex items-center justify-between font-medium',
     totalAmountClassName,
   ]);
 
-  const subCostsContainerClassNames = useClassNames(['grid gap-8', subCostsContainerClassName]);
+  const subCostsContainerClassNames = useClassNames(['grid gap-2', subCostsContainerClassName]);
   const subCostsClassNames = useClassNames([
     'flex items-center justify-between capitalize text-gray-600 ',
     subCostClassName,

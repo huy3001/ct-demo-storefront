@@ -22,22 +22,34 @@ export const EmptyState: React.FC<Props> = ({
   handleCategoryClick,
   className = '',
 }: Props) => {
-  const titleClassNames = useClassNames(['py-36 text-center overflow-auto', className]);
+  const titleClassNames = useClassNames(['py-9 text-center overflow-auto', className]);
 
   return (
     <div className={titleClassNames}>
       <h6 className="text-center">{title}</h6>
       <div className="hidden w-full justify-center md:flex">
-        <div className="relative h-92 w-197 px-10 text-center md:mb-32 md:mt-55">
-          <Image media={image?.media} fill style={{ objectFit: 'contain' }} alt={image?.title} />
+        <div className="relative h-23 w-49.25 px-2.5 text-center md:mb-8 md:mt-13.75">
+          <Image
+            media={image?.media}
+            src={image?.media?.file}
+            fill
+            style={{ objectFit: 'contain' }}
+            alt={image?.title}
+          />
         </div>
       </div>
-      <ul className="mt-55 flex flex-col items-center gap-y-20">
+      <ul className="mt-13.75 flex flex-col items-center gap-y-5">
         <h6 className="text-center">{subtitle}</h6>
         {categories?.map((category) => (
-          <li key={category.name} onClick={handleCategoryClick}>
+          <li
+            key={category.name}
+            onClick={handleCategoryClick}
+          >
             <Link link={category.reference}>
-              <Button className="w-200 rounded-md border border-primary text-16 text-gray-600" variant="secondary">
+              <Button
+                className="w-50 rounded-md border border-primary text-base text-gray-600"
+                variant="secondary"
+              >
                 {category.name}
               </Button>
             </Link>

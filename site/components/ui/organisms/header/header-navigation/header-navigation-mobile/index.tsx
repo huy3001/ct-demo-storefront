@@ -45,7 +45,7 @@ const HeaderNavigationMobile: FC<Props> = ({ links, logo, logoLink }) => {
         size="fit"
         onClick={showHeaderMenu}
         title={translate('common.header-menu-open')}
-        className="mr-8"
+        className="mr-2"
       >
         <Bars3Icon className="w-7.5 text-gray-600 lg:w-12" />
       </Button>
