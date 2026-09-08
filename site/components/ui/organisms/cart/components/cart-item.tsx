@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
+import { useParams } from 'next/navigation';
 import { TrashIcon } from '@heroicons/react/24/outline';
-import { LineItem as CartLineItem } from '@/types/cart/LineItem';
 import { useTranslations } from 'use-intl';
 import Image from '@/components/ui/atoms/image';
 import Link from '@/components/ui/atoms/link';
@@ -8,28 +8,39 @@ import OutOfStock from '@/components/ui/atoms/out-of-stock';
 import QuantitySelector from '@/components/ui/atoms/quantity-selector';
 import useClassNames from '@/hooks/useClassNames';
 import CartItemPrice from './cart-item-price';
+import Button from '@/components/ui/atoms/button';
+import { useCart } from '@/hooks/useCart';
+import { useWishlist } from '@/hooks/useWishlist';
+import { getLocalizedString } from '@/lib/utils';
+import type { LineItem as CartLineItem } from '@commercetools/platform-sdk';
 
 interface ClassNames {
   moveToWishlist?: string;
 }
 
-interface Props {
+interface CartItemProps {
   item: CartLineItem;
   classNames?: ClassNames;
-  onRemoveItem(): Promise<void>;
-  onUpdateItem(quantity: number): Promise<void>;
-  OnMoveToWishlist(): Promise<void>;
 }
 
-const CartItem: React.FC<Props> = ({ item, onRemoveItem, onUpdateItem, OnMoveToWishlist, classNames = {} }) => {
+const CartItem: React.FC<CartItemProps> = ({
+  item,
+  classNames = {},
+}) => {
   const translate = useTranslations();
+  const { locale } = useParams();
+  const { changeQuantity, removeItem } = useCart();
+  const { addToWishlist } = useWishlist();
 
   const [processing, setProcessing] = useState(false);
 
-  const deleteButtonClassName = useClassNames(['inline-block', processing ? 'cursor-not-allowed' : 'cursor-pointer']);
+  const deleteButtonClassName = useClassNames([
+    'inline-block',
+    processing ? 'cursor-not-allowed' : 'cursor-pointer',
+  ]);
 
   const wishlistButtonClassName = useClassNames([
-    'text-gray-600 decoration-gray-600 decoration-solid hover:underline hover:underline-offset-2',
+    'text-gray-600 decoration-gray-600 decoration-solid text-xs! p-0! hover:underline hover:underline-offset-2',
     classNames.moveToWishlist,
     processing ? 'cursor-not-allowed' : 'cursor-pointer',
   ]);
@@ -40,40 +51,48 @@ const CartItem: React.FC<Props> = ({ item, onRemoveItem, onUpdateItem, OnMoveToW
 
       setProcessing(true);
 
-      await (quantity < 1 ? onRemoveItem() : onUpdateItem(quantity));
+      await (quantity < 1
+        ? removeItem(item.id)
+        : changeQuantity(item.id, quantity));
 
       setProcessing(false);
     },
-    [onUpdateItem, onRemoveItem, processing],
+    [changeQuantity, item.id, processing, removeItem],
   );
 
   const handleRemoveItem = useCallback(async () => {
     if (processing) return;
 
     setProcessing(true);
-    await onRemoveItem();
+    await removeItem(item.id);
     setProcessing(false);
-  }, [onRemoveItem, processing]);
+  }, [removeItem, item.id, processing]);
 
   const handleMoveToWishlist = useCallback(async () => {
     if (processing) return;
 
     setProcessing(true);
-    await OnMoveToWishlist();
+    await addToWishlist(item.productId, item.variant.id, locale);
     setProcessing(false);
-  }, [OnMoveToWishlist, processing]);
+  }, [addToWishlist, item.productId, item.variant.id, locale, processing]);
+
+  const image = item.variant.images?.[0]?.url;
+  const name = getLocalizedString(item.name, locale);
+  const slug = getLocalizedString(item.productSlug, locale);
+
+  const url = `/product/${slug}`;
 
   return (
     <div className="flex max-w-full items-stretch justify-start gap-2.5 py-4.5 md:gap-3.75">
-      <div className="w-31.25 shrink-0 bg-white p-3">
+      <div className="h-30 w-30 shrink-0 bg-white p-3">
         <Link
-          title={item.name}
+          title={name}
           className="relative block size-full rounded-sm"
-          link={item._url}
+          link={url}
         >
           <Image
-            alt={item.name}
-            src={item.variant?.images?.[0]}
+            alt={name}
+            src={image}
             suffix="small"
             style={{ objectFit: 'contain' }}
             fill
@@ -84,10 +103,10 @@ const CartItem: React.FC<Props> = ({ item, onRemoveItem, onUpdateItem, OnMoveToW
         <div className="flex items-center justify-between">
           <Link
             className="block max-w-[85%] overflow-hidden text-ellipsis whitespace-pre text-sm uppercase leading-loose"
-            title={item.name}
-            link={item._url}
+            title={name}
+            link={url}
           >
-            {item.name}
+            {name}
           </Link>
           <button
             data-testid="remove-button"
@@ -102,7 +121,7 @@ const CartItem: React.FC<Props> = ({ item, onRemoveItem, onUpdateItem, OnMoveToW
             />
           </button>
         </div>
-        {!item.variant?.isOnStock && (
+        {!item.variant?.availability?.isOnStock && (
           <div className="mt-2">
             <OutOfStock />
           </div>
@@ -112,21 +131,23 @@ const CartItem: React.FC<Props> = ({ item, onRemoveItem, onUpdateItem, OnMoveToW
         </div>
         <div className="mt-4">
           <QuantitySelector
-            value={item.count}
+            value={item.quantity}
             defaultValue={1}
             minValue={0}
-            maxValue={item.variant?.availableQuantity}
+            maxValue={item.variant?.availability?.availableQuantity}
             disabled={processing}
             onChange={handleUpdateItem}
           />
         </div>
-        <div className="mt-4 text-xs">
-          <p
+        <div className="mt-4">
+          <Button
+            size="xs"
+            variant="underlined"
             className={wishlistButtonClassName}
             onClick={handleMoveToWishlist}
           >
             {translate('cart.move-to-wishlist')}
-          </p>
+          </Button>
         </div>
       </div>
     </div>

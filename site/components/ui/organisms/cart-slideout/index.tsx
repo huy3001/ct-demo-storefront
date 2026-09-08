@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { useTranslations } from 'use-intl';
 import useCloseFlyouts from '@/hooks/useCloseFlyouts';
 import { CartSlideoutProps } from './type';
@@ -6,9 +6,9 @@ import CartItem from '../cart/components/cart-item';
 import { EmptyState } from '../empty-state';
 import OrderPaymentSection from '../order-payment-section';
 import CheckoutButton from '../order-summary/components/checkout-button';
+import { useCart } from '@/hooks/useCart';
 
 const CartSlideout: FC<CartSlideoutProps> = ({
-  cart,
   isEmpty,
   onApplyDiscountCode,
   onRemoveDiscountCode,
@@ -17,13 +17,12 @@ const CartSlideout: FC<CartSlideoutProps> = ({
   emptyStateSubtitle,
   emptyStateCategories,
   handleCategoryClick,
-  onRemoveItem,
-  onUpdateItem,
-  OnMoveToWishlist,
 }) => {
   const translate = useTranslations();
 
   const closeFlyouts = useCloseFlyouts();
+
+  const { cart } = useCart();
 
   return (
     <>
@@ -40,11 +39,8 @@ const CartSlideout: FC<CartSlideoutProps> = ({
         <div className="h-[65vh] grow divide-y divide-neutral-400 overflow-auto px-3 md:px-5.5">
           {cart?.lineItems?.map((lineItem) => (
             <CartItem
-              key={lineItem.lineItemId}
+              key={lineItem.id}
               item={lineItem}
-              onRemoveItem={() => onRemoveItem(lineItem.lineItemId as string)}
-              onUpdateItem={(quantity) => onUpdateItem(lineItem.lineItemId as string, quantity)}
-              OnMoveToWishlist={() => OnMoveToWishlist(lineItem)}
             />
           ))}
         </div>
@@ -61,7 +57,12 @@ const CartSlideout: FC<CartSlideoutProps> = ({
           subCost: 'text-sm',
         }}
         button={
-          <CheckoutButton disabled={isEmpty} text={translate('cart.cart-go')} link="/cart" onClick={closeFlyouts} />
+          <CheckoutButton
+            disabled={isEmpty}
+            text={translate('cart.cart-go')}
+            link="/cart"
+            onClick={closeFlyouts}
+          />
         }
       />
     </>

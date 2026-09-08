@@ -5,7 +5,8 @@ import { useTranslations } from 'use-intl';
 import AccordionBtn, { AccordionProps } from '@/components/ui/atoms/accordion';
 import CloseIcon from '@/components/icons/close';
 import useClassNames from '@/hooks/useClassNames';
-import { DiscountCode } from '@/types/entity/cart';
+// import { DiscountCode } from '@/types/entity/cart';
+import type { DiscountCodeInfo as DiscountCode } from '@commercetools/platform-sdk';
 
 export interface Props {
   className?: string;

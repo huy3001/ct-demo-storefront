@@ -4,6 +4,8 @@ import { CurrencyHelpers } from '@/helpers/currencyHelpers';
 import useClassNames from '@/hooks/useClassNames';
 import useCostsData from '../hooks/useCostsData';
 import { CostsProps } from '../types';
+import { useCart } from '@/hooks/useCart';
+import { formatMoney } from '@/lib/utils';
 
 const Costs: FC<CostsProps> = ({
   className,
@@ -14,6 +16,7 @@ const Costs: FC<CostsProps> = ({
   totalAmountClassName,
 }) => {
   const { locale } = useParams();
+  const { cart } = useCart();
   const { costsToRender, total } = useCostsData({ dataReference, order });
 
   const totalAmountClassNames = useClassNames([
@@ -34,7 +37,10 @@ const Costs: FC<CostsProps> = ({
           ({ key, label, value }) =>
             !!value?.centAmount &&
             value.centAmount > 0 && (
-              <div key={key} className={subCostsClassNames}>
+              <div
+                key={key}
+                className={subCostsClassNames}
+              >
                 <p>{label}</p>
                 <p>{CurrencyHelpers.formatForCurrency(value, locale)}</p>
               </div>
@@ -43,7 +49,15 @@ const Costs: FC<CostsProps> = ({
       </div>
       <div className={totalAmountClassNames}>
         <p>{total.label}</p>
-        <p>{CurrencyHelpers.formatForCurrency(total.value, locale)}</p>
+        <p>
+          {cart?.totalPrice
+            ? formatMoney(
+                cart.totalPrice.centAmount,
+                cart.totalPrice.currencyCode,
+                locale,
+              )
+            : CurrencyHelpers.formatForCurrency(total.value, locale)}
+        </p>
       </div>
     </div>
   );

@@ -8,25 +8,18 @@ import { Link } from '@/components/ui/organisms/header/types';
 import Wishlist from '@/components/ui/organisms/wishlist';
 import CartIcon from '@/components/icons/cart';
 import useClassNames from '@/hooks/useClassNames';
-import { Cart as CartShape, DiscountCode, LineItem as CartLineItem } from '@/types/entity/cart';
-import { LineItem as WishlistLineItem, Wishlist as WishlistShape } from '@/types/entity/wishlist';
+import type {
+  DiscountCodeInfo as DiscountCode
+} from '@commercetools/platform-sdk';
 
 export type MenuState = 'wishlist' | 'cart';
 
 export interface SlideOutProps {
-  cart?: CartShape;
   isEmpty?: boolean;
   onApplyDiscountCode?: (code: string) => Promise<void>;
   onRemoveDiscountCode?: (discount: DiscountCode) => Promise<void>;
   totalCartItems?: number;
   totalWishlistItems?: number;
-  onRemoveItem(itemId: string): Promise<void>;
-  onUpdateItem(itemId: string, quantity: number): Promise<void>;
-  OnMoveToWishlist(lineItem: CartLineItem): Promise<void>;
-  wishlist?: WishlistShape;
-  onRemoveFromWishlist?: (lineItemId: string) => Promise<void>;
-  onMoveToCart?: (lineItem: WishlistLineItem) => Promise<void>;
-  onClearWishlist?: () => Promise<void>;
   state?: MenuState;
   changeState?: (newState?: MenuState) => void;
   onClose?: () => void;
@@ -43,19 +36,11 @@ export interface SlideOutProps {
 }
 
 const Slideout: React.FC<SlideOutProps> = ({
-  cart,
   isEmpty,
   totalCartItems = 0,
   onApplyDiscountCode,
   onRemoveDiscountCode,
   totalWishlistItems = 0,
-  onRemoveItem,
-  onUpdateItem,
-  OnMoveToWishlist,
-  wishlist,
-  onRemoveFromWishlist,
-  onMoveToCart,
-  onClearWishlist,
   state,
   changeState,
   onClose,
@@ -81,16 +66,17 @@ const Slideout: React.FC<SlideOutProps> = ({
     }
   }, [translate, state]);
 
-  const iconClassName = 'absolute -bottom-6 left-1/2 -translate-x-1/2 h-0.5 w-[130%] transition duration-200';
+  const iconClassName =
+    'absolute -bottom-5.75 left-1/2 -translate-x-1/2 h-0.5 w-[130%] transition duration-200';
 
   const wishlistClassName = useClassNames([
     iconClassName,
-    state === 'wishlist' ? 'bg-accent ease-out' : 'bg-transparent ease-in',
+    state === 'wishlist' ? 'bg-charcoal ease-out' : 'bg-transparent ease-in',
   ]);
 
   const cartClassName = useClassNames([
     iconClassName,
-    state === 'cart' ? 'bg-accent ease-out' : 'bg-transparent ease-in',
+    state === 'cart' ? 'bg-charcoal ease-out' : 'bg-transparent ease-in',
   ]);
 
   const ActiveSection = useMemo(
@@ -98,7 +84,6 @@ const Slideout: React.FC<SlideOutProps> = ({
       ({
         cart: (
           <Cart
-            cart={cart}
             isEmpty={isEmpty}
             onApplyDiscountCode={onApplyDiscountCode}
             onRemoveDiscountCode={onRemoveDiscountCode}
@@ -107,17 +92,10 @@ const Slideout: React.FC<SlideOutProps> = ({
             emptyStateSubtitle={emptyCartSubtitle}
             emptyStateCategories={emptyCartCategories}
             handleCategoryClick={onClose}
-            onRemoveItem={onRemoveItem}
-            onUpdateItem={onUpdateItem}
-            OnMoveToWishlist={OnMoveToWishlist}
           />
         ),
         wishlist: (
           <Wishlist
-            wishlist={wishlist}
-            onRemoveFromWishlist={onRemoveFromWishlist}
-            onMoveToCart={onMoveToCart}
-            onClearWishlist={onClearWishlist}
             emptyWishlistTitle={emptyWishlistTitle}
             emptyWishlistSubtitle={emptyWishlistSubtitle}
             emptyWishlistImage={emptyWishlistImage}
@@ -127,17 +105,9 @@ const Slideout: React.FC<SlideOutProps> = ({
         ),
       })[state as MenuState] ?? <></>,
     [
-      cart,
       isEmpty,
       onApplyDiscountCode,
       onRemoveDiscountCode,
-      onRemoveItem,
-      onUpdateItem,
-      OnMoveToWishlist,
-      wishlist,
-      onRemoveFromWishlist,
-      onMoveToCart,
-      onClearWishlist,
       emptyCartCategories,
       emptyCartImage,
       emptyCartSubtitle,
@@ -154,7 +124,9 @@ const Slideout: React.FC<SlideOutProps> = ({
   return (
     <>
       <div className="flex items-center justify-between border-b border-neutral-400 py-6 pb-5.5 pl-3 pr-2 md:pl-5.5 md:pr-4.5">
-        <h3 className="text-lg font-medium leading-normal md:text-xl">{title}</h3>
+        <h3 className="text-lg font-medium leading-normal md:text-xl">
+          {title}
+        </h3>
         <div className="flex h-full items-center gap-6">
           {enableWishlistState && (
             <button
@@ -166,7 +138,10 @@ const Slideout: React.FC<SlideOutProps> = ({
               {totalWishlistItems > 0 && (
                 <span className="absolute -right-2 -top-1 size-2.5 rounded-full bg-green-500" />
               )}
-              <HeartIcon className="w-7" stroke="#494949" />
+              <HeartIcon
+                className="w-7"
+                stroke="#494949"
+              />
             </button>
           )}
           {enableCartState && (
@@ -177,7 +152,11 @@ const Slideout: React.FC<SlideOutProps> = ({
             >
               <div className={cartClassName} />
               <div className="relative">
-                <CartIcon className="w-7" totalCartItems={totalCartItems} counterClassName="-translate-y-1/4" />
+                <CartIcon
+                  className="w-7"
+                  totalCartItems={totalCartItems}
+                  counterClassName="-translate-y-1/4"
+                />
               </div>
             </button>
           )}
@@ -187,7 +166,10 @@ const Slideout: React.FC<SlideOutProps> = ({
             data-testid="close-icon"
             aria-label={translate('common.close')}
           >
-            <CloseIcon className="w-7" stroke="#494949" />
+            <CloseIcon
+              className="w-7"
+              stroke="#494949"
+            />
           </button>
         </div>
       </div>

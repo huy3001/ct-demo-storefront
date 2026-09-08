@@ -11,6 +11,16 @@ export const logo = {
   },
 };
 
+export const emptyImage = {
+  media: {
+    file: 'https://images.us-east-2.aws.commercetools.com/1a6aae69-17a8-469c-992e-fb6a71954696/empty-t497xCx1.png',
+    mediaId: '1a6aae69-17a8-469c-992e-fb6a71954696',
+    name: 'Empty Image',
+    width: 1600,
+    height: 779,
+  },
+};
+
 export const tiles: Tile[] = [
   {
     tileImage: {

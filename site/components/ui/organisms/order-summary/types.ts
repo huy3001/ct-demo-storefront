@@ -1,8 +1,12 @@
 import { ReactElement } from 'react';
 import { Order } from 'shared/@/types/cart';
 import { Account } from '@/types/entity/account';
-import { Cart, DiscountCode } from '@/types/entity/cart';
+// import { Cart, DiscountCode } from '@/types/entity/cart';
 import { PaymentMethod } from '../order-payment-section/types';
+import type {
+  Cart,
+  DiscountCodeInfo as DiscountCode,
+} from '@commercetools/platform-sdk';
 
 export type CheckoutButtonProps = {
   className?: string;
@@ -25,7 +29,7 @@ export interface ClassNames {
 
 export type OrderSummaryProps = {
   title?: string;
-  cart?: Cart;
+  cart?: Cart | null;
   isEmpty?: boolean;
   discounts: DiscountCode[];
   onApplyDiscountCode?: (code: string) => Promise<void>;

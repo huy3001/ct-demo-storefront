@@ -1,28 +1,22 @@
 import React from 'react';
+import { useParams } from 'next/navigation';
 import { useTranslations } from 'use-intl';
 import Button from '@/components/ui/atoms/button';
 import { ImageProps } from '@/components/ui/atoms/image';
 import WishlistItem from '@/components/ui/molecules/wishlist-item';
 import { EmptyState } from '@/components/ui/organisms/empty-state';
 import { FooterLink } from '@/components/ui/organisms/footer/atoms/column';
-import { LineItem, Wishlist as WishlistShape } from '@/types/entity/wishlist';
+import { useWishlist } from '@/hooks/useWishlist';
 
-export interface Props {
-  wishlist?: WishlistShape;
-  onRemoveFromWishlist?: (lineItemId: string) => Promise<void>;
-  onMoveToCart?: (lineItem: LineItem) => Promise<void>;
-  onClearWishlist?: () => Promise<void>;
+export interface WishlistProps {
   emptyWishlistTitle: string;
   emptyWishlistSubtitle: string;
   emptyWishlistImage: ImageProps;
   emptyWishlistCategories: FooterLink[];
   handleCategoryClick?: () => void;
 }
-const Wishlist: React.FC<Props> = ({
-  wishlist,
-  onRemoveFromWishlist,
-  onMoveToCart,
-  onClearWishlist,
+
+const Wishlist: React.FC<WishlistProps> = ({
   emptyWishlistTitle,
   emptyWishlistSubtitle,
   emptyWishlistImage,
@@ -30,6 +24,22 @@ const Wishlist: React.FC<Props> = ({
   handleCategoryClick,
 }) => {
   const translate = useTranslations();
+  const { locale } = useParams();
+  const { wishlists, removeFromWishlist, removeAllFromWishlist } = useWishlist();
+
+  const wishlist = wishlists?.[0];
+
+  const handleClearWishlist = async () => {
+    if (wishlist?.lineItems?.length) {
+      await removeAllFromWishlist(wishlist.id, locale);
+    }
+  };
+
+  const handleRemoveFromWishlist = async (lineItemId: string) => {
+    if (wishlist) {
+      await removeFromWishlist(wishlist.id, lineItemId, locale);
+    }
+  };
 
   return (
     <>
@@ -50,13 +60,16 @@ const Wishlist: React.FC<Props> = ({
               <WishlistItem
                 key={lineItem.lineItemId}
                 item={lineItem}
-                onRemove={async () => onRemoveFromWishlist?.(lineItem.lineItemId as string)}
-                onMoveToCart={async () => onMoveToCart?.(lineItem)}
+                onRemove={async () => handleRemoveFromWishlist(lineItem.lineItemId)}
               />
             ))}
           </div>
           <div className="absolute bottom-0 h-22 w-full p-5">
-            <Button onClick={onClearWishlist} variant="secondary" className="w-full text-base">
+            <Button
+              onClick={handleClearWishlist}
+              variant="secondary"
+              className="w-full text-base"
+            >
               {translate('wishlist.wishlist-clear-list')}
             </Button>
           </div>

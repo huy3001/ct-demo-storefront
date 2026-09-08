@@ -6,24 +6,15 @@ import { Link } from '@/components/ui/organisms/header/types';
 import Slideout, { MenuState } from '@/components/ui/organisms/header/utility-section/components/slide-out';
 import CartIcon from '@/components/icons/cart';
 import WishlistIcon from '@/components/icons/wishlist';
-import { Cart, DiscountCode, LineItem as CartLineItem } from '@/types/entity/cart';
-import { LineItem as WishlistLineItem, Wishlist } from '@/types/entity/wishlist';
 import AccountButton from './components/account-button';
+import type { DiscountCodeInfo as DiscountCode } from '@commercetools/platform-sdk';
 
 export interface Props {
-  cart?: Cart;
   isEmpty?: boolean;
   onApplyDiscountCode?: (code: string) => Promise<void>;
   onRemoveDiscountCode?: (discount: DiscountCode) => Promise<void>;
   totalCartItems?: number;
   totalWishlistItems?: number;
-  onRemoveItem(itemId: string): Promise<void>;
-  onUpdateItem(itemId: string, quantity: number): Promise<void>;
-  OnMoveToWishlist(lineItem: CartLineItem): Promise<void>;
-  wishlist?: Wishlist;
-  onRemoveFromWishlist?: (lineItemId: string) => Promise<void>;
-  onMoveToCart?: (lineItem: WishlistLineItem) => Promise<void>;
-  onClearWishlist?: () => Promise<void>;
   emptyCartTitle: string;
   emptyCartSubtitle: string;
   emptyCartImage: ImageProps;
@@ -35,19 +26,11 @@ export interface Props {
 }
 
 const UtilitySection: React.FC<Props> = ({
-  cart,
   isEmpty,
   onApplyDiscountCode,
   onRemoveDiscountCode,
-  onRemoveItem,
-  onUpdateItem,
-  OnMoveToWishlist,
   totalCartItems = 0,
   totalWishlistItems = 0,
-  wishlist,
-  onRemoveFromWishlist,
-  onMoveToCart,
-  onClearWishlist,
   emptyCartTitle,
   emptyCartSubtitle,
   emptyCartImage,
@@ -112,17 +95,9 @@ const UtilitySection: React.FC<Props> = ({
         onClose={() => setIsDrawerOpen(false)}
       >
         <Slideout
-          cart={cart}
           isEmpty={isEmpty}
           onApplyDiscountCode={onApplyDiscountCode}
           onRemoveDiscountCode={onRemoveDiscountCode}
-          onRemoveItem={onRemoveItem}
-          onUpdateItem={onUpdateItem}
-          OnMoveToWishlist={OnMoveToWishlist}
-          wishlist={wishlist}
-          onRemoveFromWishlist={onRemoveFromWishlist}
-          onMoveToCart={onMoveToCart}
-          onClearWishlist={onClearWishlist}
           state={menuState}
           onClose={() => setIsDrawerOpen(false)}
           changeState={(newState) => setMenuState(newState)}

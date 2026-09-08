@@ -10,19 +10,11 @@ import UtilitySection from '@/components/ui/organisms/header/utility-section';
 const CommercetoolsSearch = dynamic(() => import('@/components/ui/atoms/search'));
 
 const Header: React.FC<HeaderProps> = ({
-  cart,
   isEmpty,
   onRemoveDiscountCode,
   onApplyDiscountCode,
   totalCartItems,
   totalWishlistItems,
-  onRemoveItem,
-  onUpdateItem,
-  OnMoveToWishlist,
-  wishlist,
-  onMoveToCart,
-  onRemoveFromWishlist,
-  onClearWishlist,
   navLinks,
   categories,
   logo,
@@ -74,17 +66,9 @@ const Header: React.FC<HeaderProps> = ({
         </div>
 
         <UtilitySection
-          cart={cart}
           onRemoveDiscountCode={onRemoveDiscountCode}
           onApplyDiscountCode={onApplyDiscountCode}
           isEmpty={isEmpty}
-          onRemoveItem={onRemoveItem}
-          onUpdateItem={onUpdateItem}
-          OnMoveToWishlist={OnMoveToWishlist}
-          wishlist={wishlist}
-          onRemoveFromWishlist={onRemoveFromWishlist}
-          onMoveToCart={onMoveToCart}
-          onClearWishlist={onClearWishlist}
           totalCartItems={totalCartItems}
           totalWishlistItems={totalWishlistItems}
           emptyCartTitle={emptyCartTitle}

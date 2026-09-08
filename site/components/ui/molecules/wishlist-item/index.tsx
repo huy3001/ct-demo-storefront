@@ -1,29 +1,36 @@
 import React, { FC } from 'react';
-import { useParams } from 'next/navigation';
+// import { useParams } from 'next/navigation';
 import { TrashIcon } from '@heroicons/react/24/outline';
-import { LineItem } from '@/types/wishlist/LineItem';
 import { useTranslations } from 'use-intl';
 import Button from '@/components/ui/atoms/button';
 import Image from '@/components/ui/atoms/image';
-import { CurrencyHelpers } from '@/helpers/currencyHelpers';
+// import { formatMoney } from '@/lib/utils';
+import { useCart } from '@/hooks/useCart';
+import type { WishlistItem } from '@/lib/types';
 
 export interface WishlistItemProps {
-  item: LineItem;
+  item: WishlistItem;
   onRemove?: () => Promise<void>;
-  onMoveToCart?: () => Promise<void>;
 }
 
-const WishlistItem: FC<WishlistItemProps> = ({ item, onRemove, onMoveToCart }) => {
-  const { locale } = useParams();
+const WishlistItem: FC<WishlistItemProps> = ({ item, onRemove }) => {
+  // const { locale } = useParams();
+  const { addItem } = useCart();
 
   const translate = useTranslations();
 
+  // const currencyCode = item?.price?.currencyCode ?? 'USD';
+
+  const handleMoveToCart = async () => {
+    await addItem(item.productId, item?.variantId ?? 1, item.quantity);
+  };
+
   return (
     <div className="flex max-w-full items-stretch justify-start gap-2.5 py-4.5 md:gap-3.75">
-      <div className="h-36.25 w-31.25 shrink-0 bg-white p-3">
-        <div className="relative size-full">
+      <div className="h-30 w-30 shrink-0 bg-white p-3">
+        <div className="relative h-full w-full">
           <Image
-            src={item.variant?.images?.[0]}
+            src={item?.image}
             suffix="small"
             style={{ objectFit: 'contain' }}
             alt={item.name ?? ''}
@@ -33,7 +40,7 @@ const WishlistItem: FC<WishlistItemProps> = ({ item, onRemove, onMoveToCart }) =
       </div>
       <div className="grow">
         <div className="flex max-w-full items-center justify-between">
-          <p className="max-w-37.5 overflow-hidden text-ellipsis whitespace-pre text-sm uppercase leading-loose">
+          <p className="max-w-40 overflow-hidden text-ellipsis whitespace-pre text-sm uppercase leading-loose">
             {item.name}
           </p>
           <i
@@ -47,37 +54,36 @@ const WishlistItem: FC<WishlistItemProps> = ({ item, onRemove, onMoveToCart }) =
             />
           </i>
         </div>
-        <div className="mt-3">
-          {item.variant?.discountedPrice ? (
+        {/* <div className="mt-3">
+          {item?.price?.discounted ? (
             <div className="flex items-center gap-1.25">
               <span className="text-sm font-medium leading-loose text-red-500">
-                {CurrencyHelpers.formatForCurrency(
-                  item.variant?.discountedPrice?.value ?? 0,
+                {formatMoney(
+                  item?.price?.discounted?.centAmount ?? 0,
+                  currencyCode,
                   locale,
                 )}
               </span>
               <span className="text-xs font-normal leading-loose text-gray-500 line-through">
-                {CurrencyHelpers.formatForCurrency(
-                  item.variant?.price ?? 0,
+                {formatMoney(
+                  item?.price?.centAmount ?? 0,
+                  currencyCode,
                   locale,
                 )}
               </span>
             </div>
           ) : (
             <span className="text-sm font-medium leading-loose">
-              {CurrencyHelpers.formatForCurrency(
-                item.variant?.price ?? 0,
-                locale,
-              )}
+              {formatMoney(item?.price?.centAmount ?? 0, currencyCode, locale)}
             </span>
           )}
-        </div>
+        </div> */}
         <div className="mt-4 leading-normal">
           <Button
+            size="xs"
             variant="primary"
-            onClick={onMoveToCart}
-            disabled={!item.variant?.isOnStock}
-            className="py-2 text-sm"
+            onClick={handleMoveToCart}
+            disabled={item.quantity === 0}
           >
             {translate('wishlist.wishlist-add-to-cart')}
           </Button>

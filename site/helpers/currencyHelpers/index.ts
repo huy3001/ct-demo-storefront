@@ -1,4 +1,4 @@
-import { Money } from 'shared/@/types/product/Money';
+import { Money } from '@/types/product/Money';
 import { Log } from '../errorLogger';
 import { StringHelpers } from '../stringHelpers';
 
