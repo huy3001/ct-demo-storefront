@@ -5,10 +5,11 @@ import { useForm, SubmitHandler, useWatch } from 'react-hook-form';
 import { useTranslations } from 'use-intl';
 import useScrollBlock from '@/hooks/useScrollBlock';
 import { useRouter } from '@/i18n/routing';
-import { Category } from '@/types/entity/category';
+// import { Category } from '@/types/entity/category';
 import { Product } from '@/types/entity/product';
 import SearchItem from './search-item';
 import Overlay from '../overlay';
+import type { Category } from '@/lib/types';
 
 interface Props {
   categories: Category[];

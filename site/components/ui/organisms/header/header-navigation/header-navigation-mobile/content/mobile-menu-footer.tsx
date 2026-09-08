@@ -1,12 +1,12 @@
-import React, { FC, useContext, useLayoutEffect, useRef, useState } from 'react';
+import { FC, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import Button from '@/components/ui/atoms/button';
 import Link from '@/components/ui/atoms/link';
 import MarketButtonMobile from '@/components/ui/organisms/market-button/market-button-mobile';
-import { AccountContext } from '@/context/account';
 import { useRouter } from '@/i18n/routing';
-import { Category } from '@/types/entity/category';
 import MobileMenuNavButton from '../atoms/menu-nav-button';
+import { useAccount } from '@/hooks/useAccount';
+import type { Category } from '@/lib/types';
 
 export interface Props {
   showMenu: boolean;
@@ -18,7 +18,7 @@ const MobileMenuFooter: FC<Props> = ({ showMenu, hideHeaderMenu, insertCategory 
   const router = useRouter();
   const translate = useTranslations();
   const marketButtonRef = useRef<HTMLDivElement>(null);
-  const { account, logout } = useContext(AccountContext);
+  const { isSignedIn, logout } = useAccount();
   const [languageMenuTop, setLanguageMenuTop] = useState(false);
 
   const tabs = [
@@ -31,13 +31,19 @@ const MobileMenuFooter: FC<Props> = ({ showMenu, hideHeaderMenu, insertCategory 
   ];
 
   const accountButton: Category = {
-    categoryId: 'myAccount',
+    id: 'myAccount',
     name: translate('account.my-account'),
-    depth: 1,
-    descendants: tabs.map((tab) => {
-      return { categoryId: tab.href, name: tab.name, slug: tab.href, descendants: [], depth: 1, _urls: {} };
+    slug: 'account',
+    showInNavigation: true,
+    children: tabs.map((tab) => {
+      return {
+        id: tab.href,
+        name: tab.name,
+        slug: tab.href,
+        showInNavigation: true,
+        children: [],
+      };
     }),
-    _urls: {},
   };
 
   const handleLogout = () => {
@@ -56,34 +62,57 @@ const MobileMenuFooter: FC<Props> = ({ showMenu, hideHeaderMenu, insertCategory 
     <>
       <div className="mb-4 mt-3 w-full border border-neutral-400" />
 
-      {account ? (
+      {isSignedIn ? (
         <div className="ml-6 mr-5.5 block pt-4 md:hidden">
           <MobileMenuNavButton
             link={accountButton}
             onClick={() => insertCategory(accountButton)}
             hideHeaderMenu={hideHeaderMenu}
+            isAccountMenu
           />
         </div>
       ) : (
         <div className="ml-6 mr-5.5 block py-4 md:hidden">
-          <Link link="/help" onClick={hideHeaderMenu} className="py-4">
-            <p className="text-14 text-primary">{translate('common.help-and-support')}</p>
-          </Link>{' '}
+          <Link
+            link="/help"
+            onClick={hideHeaderMenu}
+            className="py-4"
+          >
+            <p className="text-primary">
+              {translate('common.help-and-support')}
+            </p>
+          </Link>
         </div>
       )}
 
       <div className="mx-6 flex py-4">
-        {account ? (
-          <Button variant="ghost" size="fit" onClick={handleLogout}>
-            <span className="font-normal text-primary">{translate('account.sign-out')}</span>
+        {isSignedIn ? (
+          <Button
+            variant="ghost"
+            size="fit"
+            onClick={handleLogout}
+            className="text-base!"
+          >
+            <span className="font-normal text-primary">
+              {translate('account.sign-out')}
+            </span>
           </Button>
         ) : (
-          <Link link="/login" onClick={hideHeaderMenu} className="px-0">
-            <span className="text-sm font-normal text-primary">{translate('account.sign-in')}</span>
+          <Link
+            link="/login"
+            onClick={hideHeaderMenu}
+            className="px-0"
+          >
+            <span className="font-normal text-primary">
+              {translate('account.sign-in')}
+            </span>
           </Link>
         )}
       </div>
-      <div className="p-4" ref={marketButtonRef}>
+      <div
+        className="p-4"
+        ref={marketButtonRef}
+      >
         <MarketButtonMobile menuTop={languageMenuTop} />
       </div>
     </>

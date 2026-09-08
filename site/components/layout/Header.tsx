@@ -5,7 +5,7 @@ import { useWishlist } from '@/hooks/useWishlist';
 import type { Category } from '@/lib/types';
 import Header from '@/components/ui/organisms/header';
 import { linkReferenceOne } from '@/helpers/mocks/mockCommonData';
-import { emptyImage, links, logo, tiles } from '@/helpers/mocks/mockHeaderData';
+import { emptyImage, logo, tiles } from '@/helpers/mocks/mockHeaderData';
 import { Link } from '@/components/ui/organisms/header/types';
 
 export default function HeaderContainer({
@@ -25,12 +25,13 @@ export default function HeaderContainer({
       type: 'link',
     },
   }));
+  console.log('categoryTree', categoryTree);
 
   return (
     <Header
-      navLinks={links}
+      navLinks={categoryTree}
       logo={logo}
-      categories={links}
+      categories={categoryTree}
       logoMobile={logo}
       logoLink={linkReferenceOne}
       logoLinkMobile={linkReferenceOne}

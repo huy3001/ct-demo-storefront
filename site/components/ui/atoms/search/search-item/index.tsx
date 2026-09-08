@@ -3,9 +3,10 @@ import Image from '@/components/ui/atoms/image';
 import { trackEvent } from '@/helpers/analytics';
 import { AUTOCOMPLETE_PRODUCT_CLICKED } from '@/helpers/constants/events';
 import { useRouter } from '@/i18n/routing';
-import { Category } from '@/types/entity/category';
+// import { Category } from '@/types/entity/category';
 import { Product } from '@/types/entity/product';
 import Link from '../../link';
+import type { Category } from '@/lib/types';
 
 interface Props {
   hit: Product;
@@ -17,7 +18,7 @@ const SearchItem: React.FC<Props> = ({ hit, categories, onClick }) => {
   const router = useRouter();
 
   const primaryCategory = useMemo(
-    () => categories.find((category) => category.categoryId === hit.categories?.[0]?.categoryId),
+    () => categories.find((category) => category.id === hit.categories?.[0]?.categoryId),
     [categories, hit],
   );
 

@@ -5,8 +5,8 @@ import useClassNames from '@/hooks/useClassNames';
 import { useFocusOutside } from '@/hooks/useFocusOutside';
 import useOnClickOutside from '@/hooks/useOnClickOutside';
 import useScrollDirection from '@/hooks/useScrollDirection';
-import { Category } from '@/types/entity/category';
 import MenuDropdown from './menu-dropdown';
+import type { Category } from '@/lib/types';
 
 export interface Props {
   links: Category[];
@@ -66,12 +66,12 @@ const HeaderNavigationDesktop: React.FC<Props> = ({ links, tiles }) => {
           <div className="flex w-fit justify-start">
             {links.map((link) => (
               <div
-                key={link?.categoryId}
+                key={link?.id}
                 onMouseEnter={() => focusMenu(link)}
                 onFocus={() => focusMenu(link)}
               >
                 <HeaderNavigationButtonDesktop
-                  show={link.categoryId === activeCategory?.categoryId}
+                  show={link.id === activeCategory?.id}
                   link={link}
                   updateSubMenu={hideSubMenu}
                 />
@@ -81,11 +81,11 @@ const HeaderNavigationDesktop: React.FC<Props> = ({ links, tiles }) => {
           <MenuDropdown
             show={
               !!activeCategory &&
-              activeCategory.descendants &&
-              activeCategory.descendants.length > 0
+              activeCategory.children &&
+              activeCategory.children.length > 0
             }
             onClick={hideSubMenu}
-            links={activeCategory?.descendants ?? []}
+            links={activeCategory?.children ?? []}
             tileContent={tileContent[0]}
           />
         </div>

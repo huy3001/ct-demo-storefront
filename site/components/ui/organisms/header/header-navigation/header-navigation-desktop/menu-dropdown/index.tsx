@@ -2,10 +2,10 @@ import React, { FC, useEffect, useRef } from 'react';
 import Link from '@/components/ui/atoms/link';
 import { Tile } from '@/components/ui/organisms/header/types';
 import useClassNames from '@/hooks/useClassNames';
-import { Category } from '@/types/entity/category';
 import HeaderDropdownTile from './header-menu-tile';
 import { usePathname } from '@/i18n/routing';
 import { classnames } from '@/helpers/utils/classnames';
+import type { Category } from '@/lib/types';
 
 export interface Props {
   show: boolean | undefined;
@@ -37,9 +37,14 @@ const MenuDropdown: FC<Props> = ({ show, links, tileContent, onClick }) => {
   const pathname = usePathname();
   const pathnameWithoutQuery = pathname.split('?')[0];
 
+  const getLinkUrl = (link: Category) => {
+    return `/category/${link.slug}`;
+  };
+
   const getLinkClassName = (link: Category) => {
     return classnames('whitespace-nowrap', {
-      'underline underline-offset-2 font-semibold': `${link._url}/` === pathnameWithoutQuery,
+      'underline underline-offset-2 font-semibold':
+        `/category/${link.slug}` === pathnameWithoutQuery,
     });
   };
 
@@ -47,12 +52,12 @@ const MenuDropdown: FC<Props> = ({ show, links, tileContent, onClick }) => {
     <div className={wrapperClassNames}>
       <ul className={linksClassNames}>
         {links?.map((link, index) => (
-          <li key={link.categoryId}>
-            {link.depth === 1 ? (
+          <li key={link.id}>
+            {link.children && link.children.length > 0 ? (
               <>
                 <div className="w-min pb-2">
                   <Link
-                    link={link?._url}
+                    link={getLinkUrl(link)}
                     ref={index === 0 ? ref : null}
                     variant="menu-header"
                     className={getLinkClassName(link)}
@@ -60,16 +65,29 @@ const MenuDropdown: FC<Props> = ({ show, links, tileContent, onClick }) => {
                     <p className="text-sm">{link.name}</p>
                   </Link>
                 </div>
-                {link.descendants?.map((field) => (
-                  <div key={field.categoryId} className="w-min pb-2">
-                    <Link link={field?._url} onClick={onClick} variant="menu-item" className={getLinkClassName(field)}>
+                {link.children.map((field) => (
+                  <div
+                    key={field.id}
+                    className="w-min pb-2"
+                  >
+                    <Link
+                      link={getLinkUrl(field)}
+                      onClick={onClick}
+                      variant="menu-item"
+                      className={getLinkClassName(field)}
+                    >
                       <p className="text-sm">{field.name}</p>
                     </Link>
                   </div>
                 ))}
               </>
             ) : (
-              <Link key={link.categoryId} link={link?._url} variant="menu-header" className={getLinkClassName(link)}>
+              <Link
+                key={link.id}
+                link={getLinkUrl(link)}
+                variant="menu-header"
+                className={getLinkClassName(link)}
+              >
                 <p className="text-sm">{link.name}</p>
               </Link>
             )}

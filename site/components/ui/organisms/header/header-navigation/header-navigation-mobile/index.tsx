@@ -4,11 +4,11 @@ import { useTranslations } from 'use-intl';
 import Button from '@/components/ui/atoms/button';
 import Drawer from '@/components/ui/atoms/drawer';
 import { ImageProps } from '@/components/ui/atoms/image';
-import { Category } from '@/types/entity/category';
 import { Reference } from '@/types/reference';
 import MobileMenu from './content/mobile-menu';
 import MobileMenuFooter from './content/mobile-menu-footer';
 import MobileMenuHeader from './content/mobile-menu-header';
+import type { Category } from '@/lib/types';
 
 export interface Props {
   logo: ImageProps;

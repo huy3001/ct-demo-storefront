@@ -4,8 +4,8 @@ import { useTranslations } from 'use-intl';
 import Button from '@/components/ui/atoms/button';
 import { ImageProps } from '@/components/ui/atoms/image';
 import HeaderLogo from '@/components/ui/organisms/header/header-logo';
-import { Category } from '@/types/entity/category';
 import { Reference } from '@/types/reference';
+import type { Category } from '@/lib/types';
 
 export interface Props {
   logo: ImageProps;

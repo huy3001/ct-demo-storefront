@@ -1,8 +1,8 @@
 import React, { FC } from 'react';
 import { useTranslations } from 'use-intl';
 import Link from '@/components/ui/atoms/link';
-import { Category } from '@/types/entity/category';
 import MobileMenuNavButton from '../atoms/menu-nav-button';
+import type { Category } from '@/lib/types';
 
 export interface Props {
   links: Category[];
@@ -13,16 +13,20 @@ export interface Props {
 
 const MobileMenu: FC<Props> = ({ links, categoriesNavigator, insertCategory, hideHeaderMenu }) => {
   const translate = useTranslations();
+
+  const getLinkUrl = (link: Category) => {
+    return `/category/${link.slug}`;
+  };
+
   return (
     <div className="ml-6 mr-5.5">
       {categoriesNavigator && categoriesNavigator?.length > 0 && (
         <div className="pt-6">
-          {categoriesNavigator[categoriesNavigator.length - 1]?.categoryId != 'myAccount' && (
+          {categoriesNavigator[categoriesNavigator.length - 1]?.id != 'myAccount' && (
             <div className="pb-9" onClick={hideHeaderMenu}>
               <Link
                 link={
-                  categoriesNavigator[categoriesNavigator.length - 1]?._url ??
-                  categoriesNavigator[categoriesNavigator.length - 1]?.slug
+                  getLinkUrl(categoriesNavigator[categoriesNavigator.length - 1])
                 }
               >
                 <p className="text-primary">{translate('common.view-all')}</p>
@@ -34,7 +38,7 @@ const MobileMenu: FC<Props> = ({ links, categoriesNavigator, insertCategory, hid
       {categoriesNavigator && categoriesNavigator.length <= 0 ? (
         links?.map((link) => (
           <MobileMenuNavButton
-            key={link.categoryId}
+            key={link.id}
             categoriesNavigator={categoriesNavigator}
             link={link}
             onClick={() => insertCategory(link)}
@@ -44,9 +48,9 @@ const MobileMenu: FC<Props> = ({ links, categoriesNavigator, insertCategory, hid
       ) : (
         <>
           {categoriesNavigator &&
-            categoriesNavigator[categoriesNavigator.length - 1].descendants?.map((nav) => (
+            categoriesNavigator[categoriesNavigator.length - 1].children?.map((nav) => (
               <MobileMenuNavButton
-                key={nav.categoryId}
+                key={nav.id}
                 categoriesNavigator={categoriesNavigator}
                 link={nav}
                 onClick={() => insertCategory(nav)}

@@ -4,7 +4,7 @@ import useClassNames from '@/hooks/useClassNames';
 import { classnames } from '@/helpers/utils/classnames';
 import { usePathname } from '@/i18n/routing';
 import { FC } from 'react';
-import { Category } from '@/types/entity/category';
+import type { Category } from '@/lib/types';
 
 export interface Props {
   show: boolean;
@@ -20,7 +20,9 @@ const HeaderNavigationButtonDesktop: FC<Props> = ({
   const pathname = usePathname();
   const pathnameWithoutQuery = pathname.split('?')[0];
 
-  const isActive = `${link._url}/` === pathnameWithoutQuery;
+  const linkUrl = `/category/${link.slug}`;
+
+  const isActive = linkUrl === pathnameWithoutQuery;
 
   const navLinkClassNames = useClassNames([
     'flex py-1 cursor-pointer relative hover:[&>:nth-child(1)]:border-charcoal font-semibold',
@@ -32,7 +34,7 @@ const HeaderNavigationButtonDesktop: FC<Props> = ({
       className="h-13 px-2.5 py-3"
     >
       <Link
-        link={link?._url}
+        link={linkUrl}
         title={link?.name}
         className={navLinkClassNames}
       >
@@ -46,7 +48,7 @@ const HeaderNavigationButtonDesktop: FC<Props> = ({
         >
           {link?.name}
         </span>
-        {link?.descendants && link?.descendants.length > 0 && (
+        {link?.children && link?.children.length > 0 && (
           <ChevronDownIcon className="ml-2.5 w-4 text-gray-600" />
         )}
       </Link>
