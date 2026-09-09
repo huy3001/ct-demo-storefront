@@ -30,7 +30,6 @@ const Header: React.FC<HeaderProps> = ({
   emptyWishlistImage,
   emptyWishlistCategories,
   // enableAlgoliaSearch = false,
-  // locale,
 }) => {
   // const Search = enableAlgoliaSearch ? AlgoliaSearch : CommercetoolsSearch;
 

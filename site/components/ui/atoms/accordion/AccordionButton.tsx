@@ -26,7 +26,7 @@ const AccordionButton: FC<AccordionButtonProps> = ({
     <DisclosureButton className={`${buttonWrapperClassName} w-full`}>
       <div className={buttonClassNames}>
         <h4 className="self-center transition">{open ? openSectionTitle : closedSectionTitle}</h4>
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-2">
           {!open && collapsedLabel && <p className="font-medium text-primary">{collapsedLabel}</p>}
           {variant === 'arrow' ? (
             <ChevronDownIcon width={17.5} strokeWidth={1} className={`${open ? 'rotate-180' : ''} ${iconClassName}`} />

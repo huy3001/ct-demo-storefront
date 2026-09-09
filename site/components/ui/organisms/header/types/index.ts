@@ -55,5 +55,5 @@ export interface HeaderProps extends EmptyStateProps {
   logoLinkMobile: Reference;
   tiles?: Tile[];
   enableAlgoliaSearch?: boolean;
-  locale: string;
+  locale?: string;
 }

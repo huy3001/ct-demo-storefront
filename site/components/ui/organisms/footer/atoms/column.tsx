@@ -16,8 +16,8 @@ export interface Props {
 const Column: React.FC<Props> = ({ header, links, className }) => {
   return (
     <div className={className}>
-      {header && <p className="self-start font-medium text-neutral-200 sm:pb-20">{header}</p>}
-      <ul role="list" className="mb-3 flex flex-col items-start gap-y-18 self-start">
+      {header && <p className="self-start font-medium text-neutral-200 sm:pb-5">{header}</p>}
+      <ul role="list" className="mb-1 flex flex-col items-start gap-y-4 self-start">
         {links.map((item, i) => (
           <li key={i}>
             <Link variant="primary" link={item.reference}>
