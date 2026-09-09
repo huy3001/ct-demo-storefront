@@ -25,7 +25,6 @@ export default function HeaderContainer({
       type: 'link',
     },
   }));
-  console.log('categoryTree', categoryTree);
 
   return (
     <Header
@@ -44,7 +43,6 @@ export default function HeaderContainer({
       emptyWishlistImage={emptyImage}
       emptyWishlistCategories={categoryLinks as Link[]}
       tiles={tiles}
-      searchItems={[]}
       totalCartItems={cartCount}
       totalWishlistItems={wishlistCount}
       locale={locale}

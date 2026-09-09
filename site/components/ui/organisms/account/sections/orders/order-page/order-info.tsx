@@ -30,7 +30,7 @@ const OrderInfoSection: FC<Props> = ({ order, shippingInfo, paymentInfo, shippin
       <div className="flex 2xl:pl-0">
         <p className="whitespace-nowrap text-14 text-gray-600 md:text-16">{translate('orders.shipping-method')}</p>
 
-        <p className="pl-8 text-14 font-medium text-primary md:pl-20 md:text-16 2xl:whitespace-nowrap 2xl:pl-44">
+        <p className="pl-8 text-14 font-medium text-charcoal md:pl-20 md:text-16 2xl:whitespace-nowrap 2xl:pl-44">
           {shippingInfo}
         </p>
       </div>
@@ -39,14 +39,14 @@ const OrderInfoSection: FC<Props> = ({ order, shippingInfo, paymentInfo, shippin
         <p className="whitespace-nowrap text-14 text-gray-600 md:text-16">{translate('checkout.shippingAddress')}</p>
 
         <div className="pl-8 md:pl-20 2xl:pl-44">
-          <p className="pb-8 text-14 font-medium text-primary md:text-16">
+          <p className="pb-8 text-14 font-medium text-charcoal md:text-16">
             {`${shippingAddress.firstName} ${shippingAddress.lastName}`}
           </p>
-          <p className="text-14 text-primary md:text-16">
+          <p className="text-14 text-charcoal md:text-16">
             {`${shippingAddress.streetName}, ${shippingAddress.city}, ${shippingAddress.postalCode}`}
           </p>
           {shippingAddress.additionalAddressInfo && (
-            <p className="mt-8 text-14 text-primary md:text-16">{shippingAddress.additionalAddressInfo}</p>
+            <p className="mt-8 text-14 text-charcoal md:text-16">{shippingAddress.additionalAddressInfo}</p>
           )}
         </div>
       </div>
@@ -54,7 +54,7 @@ const OrderInfoSection: FC<Props> = ({ order, shippingInfo, paymentInfo, shippin
       <div className="mt-32 flex 2xl:pl-0">
         <p className="whitespace-nowrap text-14 text-gray-600 md:text-16">{translate('orders.payment-method')}</p>
 
-        <p className="pl-8 text-14 font-medium uppercase text-primary md:pl-20 md:text-16 2xl:pl-44">{paymentInfo}</p>
+        <p className="pl-8 text-14 font-medium uppercase text-charcoal md:pl-20 md:text-16 2xl:pl-44">{paymentInfo}</p>
       </div>
 
       <SummaryAccordion className="my-24 border-b 2xl:hidden" order={order} />
@@ -84,12 +84,12 @@ const OrderInfoSection: FC<Props> = ({ order, shippingInfo, paymentInfo, shippin
           )}
         </div>
 
-        <p className="mt-40 w-full text-center text-14 text-primary md:text-16 lg:text-left 2xl:text-left">
+        <p className="mt-40 w-full text-center text-14 text-charcoal md:text-16 lg:text-left 2xl:text-left">
           {translate('orders.questions')}
         </p>
 
         <Link link={'?hash=support'} className="mt-16 flex cursor-pointer">
-          <p className="w-full text-center text-14 font-medium text-primary hover:underline md:text-16 lg:text-left 2xl:text-left">
+          <p className="w-full text-center text-14 font-medium text-charcoal hover:underline md:text-16 lg:text-left 2xl:text-left">
             {translate('orders.contact-support')}
           </p>
         </Link>

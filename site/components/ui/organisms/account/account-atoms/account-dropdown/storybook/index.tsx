@@ -27,7 +27,7 @@ const AccountDropdownContent: FC = () => {
                   <PopoverButton title={'Popover Title'}>
                     <div className="flex w-fit whitespace-nowrap">
                       <div className="border-primary pb-2 hover:border-b-2">
-                        <UserIcon className="w-7 text-gray-600" />
+                        <UserIcon className="w-7 text-charcoal" />
                       </div>
                     </div>
                   </PopoverButton>

@@ -68,7 +68,7 @@ const UtilitySection: React.FC<Props> = ({
           >
             <WishlistIcon
               totalWishlistItems={totalWishlistItems}
-              className="w-7 text-gray-600"
+              className="w-7 text-charcoal"
             />
           </button>
         </div>
@@ -80,7 +80,7 @@ const UtilitySection: React.FC<Props> = ({
             onClick={onCartClicked}
           >
             <CartIcon
-              className="w-7 text-gray-600"
+              className="w-7 text-charcoal"
               totalCartItems={totalCartItems}
               counterClassName="-translate-y-1/4"
             />

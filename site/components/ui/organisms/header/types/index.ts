@@ -1,6 +1,4 @@
 import { ImageProps } from '@/components/ui/atoms/image';
-// import { Category } from '@/types/entity/category';
-import { Product } from '@/types/entity/product';
 import { Reference } from '@/types/reference';
 import type { Category } from '@/lib/types';
 import type { DiscountCodeInfo as DiscountCode } from '@commercetools/platform-sdk';
@@ -51,14 +49,11 @@ export interface HeaderProps extends EmptyStateProps {
   isEmpty?: boolean;
   totalCartItems?: number;
   totalWishlistItems?: number;
-  categories: Category[];
   logo: ImageProps;
   logoMobile: ImageProps;
   logoLink: Reference;
   logoLinkMobile: Reference;
   tiles?: Tile[];
   enableAlgoliaSearch?: boolean;
-  searchItems: Product[];
-  onSearchQueryUpdate?: (query: string) => void;
   locale: string;
 }

@@ -29,7 +29,7 @@ const LoggedOut = () => {
       <PopoverButton tabIndex={-1}>
         <Link
           link="/"
-          className="mt-5 block w-fit text-left text-primary hover:underline"
+          className="mt-5 block w-fit text-left text-charcoal hover:underline"
         >
           {translate('account.membership-info')}
         </Link>
@@ -41,7 +41,7 @@ const LoggedOut = () => {
         <PopoverButton tabIndex={-1}>
           <Link
             link="/register"
-            className="whitespace-nowrap font-medium text-primary hover:underline"
+            className="whitespace-nowrap font-medium text-charcoal hover:underline"
           >
             {translate('account.join-here')}
           </Link>

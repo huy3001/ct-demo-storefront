@@ -17,7 +17,7 @@ export interface Props {
 const MenuDropdown: FC<Props> = ({ show, links, tileContent, onClick }) => {
   const ref = useRef<HTMLAnchorElement>(null);
   const wrapperClassNames = useClassNames([
-    'transition absolute flex justify-between bottom-0 left-0 duration-300 ease-in-out min-h-75 w-[100%] translate-y-full',
+    'transition absolute bottom-0 left-0 duration-300 ease-in-out min-h-75 w-[100%] translate-y-full',
     show
       ? 'opacity-100 z-20 delay-300'
       : 'opacity-0 z-[-999] pointer-events-none',
@@ -28,6 +28,7 @@ const MenuDropdown: FC<Props> = ({ show, links, tileContent, onClick }) => {
     'grid grid-cols-4 gap-x-29 gap-y-7',
     tileContent ? 'pr-29' : '',
   ]);
+
   useEffect(() => {
     if (show && links?.length) {
       ref.current?.focus();
@@ -50,51 +51,53 @@ const MenuDropdown: FC<Props> = ({ show, links, tileContent, onClick }) => {
 
   return (
     <div className={wrapperClassNames}>
-      <ul className={linksClassNames}>
-        {links?.map((link, index) => (
-          <li key={link.id}>
-            {link.children && link.children.length > 0 ? (
-              <>
-                <div className="w-min pb-2">
-                  <Link
-                    link={getLinkUrl(link)}
-                    ref={index === 0 ? ref : null}
-                    variant="menu-header"
-                    className={getLinkClassName(link)}
-                  >
-                    <p className="text-sm">{link.name}</p>
-                  </Link>
-                </div>
-                {link.children.map((field) => (
-                  <div
-                    key={field.id}
-                    className="w-min pb-2"
-                  >
+      <div className="flex justify-between mx-auto max-w-7xl px-4">
+        <ul className={linksClassNames}>
+          {links?.map((link, index) => (
+            <li key={link.id}>
+              {link.children && link.children.length > 0 ? (
+                <>
+                  <div className="w-min pb-2">
                     <Link
-                      link={getLinkUrl(field)}
-                      onClick={onClick}
-                      variant="menu-item"
-                      className={getLinkClassName(field)}
+                      link={getLinkUrl(link)}
+                      ref={index === 0 ? ref : null}
+                      variant="menu-header"
+                      className={getLinkClassName(link)}
                     >
-                      <p className="text-sm">{field.name}</p>
+                      <p className="text-sm">{link.name}</p>
                     </Link>
                   </div>
-                ))}
-              </>
-            ) : (
-              <Link
-                key={link.id}
-                link={getLinkUrl(link)}
-                variant="menu-header"
-                className={getLinkClassName(link)}
-              >
-                <p className="text-sm">{link.name}</p>
-              </Link>
-            )}
-          </li>
-        ))}
-      </ul>
-      {tileContent && <HeaderDropdownTile tileContent={tileContent} />}
+                  {link.children.map((field) => (
+                    <div
+                      key={field.id}
+                      className="w-min pb-2"
+                    >
+                      <Link
+                        link={getLinkUrl(field)}
+                        onClick={onClick}
+                        variant="menu-item"
+                        className={getLinkClassName(field)}
+                      >
+                        <p className="text-sm">{field.name}</p>
+                      </Link>
+                    </div>
+                  ))}
+                </>
+              ) : (
+                <Link
+                  key={link.id}
+                  link={getLinkUrl(link)}
+                  variant="menu-header"
+                  className={getLinkClassName(link)}
+                >
+                  <p className="text-sm">{link.name}</p>
+                </Link>
+              )}
+            </li>
+          ))}
+        </ul>
+        {tileContent && <HeaderDropdownTile tileContent={tileContent} />}
+      </div>
     </div>
   );
 };

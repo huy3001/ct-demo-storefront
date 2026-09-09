@@ -22,15 +22,15 @@ const PaymentCard: FC<Props> = ({ payment }) => {
     <div className="mt-16 flex items-center justify-between rounded-md border px-16 py-12 lg:p-24">
       <div className="flex items-center">
         {/* eslint-disable-next-line */}
-        <img className="h-fit w-[32px]" src={resolveCCImage(payment.cardNumber)} />
-        <p className="ml-16 text-14 text-primary">
+        <img className="h-fit w-8" src={resolveCCImage(payment.cardNumber)} />
+        <p className="ml-16 text-14 text-charcoal">
           {`...${payment.cardNumber.substring(payment.cardNumber.length - 4, payment.cardNumber.length)} ${
             payment.cardExpiryMonth.name
           }/${payment.cardExpiryYear.name}`}
         </p>
       </div>
-      <Button variant="ghost" onClick={() => goToEdit(payment)} className="py-0 text-primary hover:underline">
-        <span className="hidden text-14 text-primary md:block">{translate('payment.edit')}</span>
+      <Button variant="ghost" onClick={() => goToEdit(payment)} className="py-0 text-charcoal hover:underline">
+        <span className="hidden text-14 text-charcoal md:block">{translate('payment.edit')}</span>
       </Button>
 
       <Button

@@ -18,7 +18,7 @@ const LoggedIn = () => {
         link="/account"
         className="mt-2.5 block w-fit"
       >
-        <p className="text-primary hover:underline">
+        <p className="text-charcoal hover:underline">
           {translate('account.my-account')}
         </p>
       </Link>
@@ -27,7 +27,7 @@ const LoggedIn = () => {
         link="/account/?hash=support"
         className="mt-8 block w-fit"
       >
-        <p className="text-primary hover:underline">
+        <p className="text-charcoal hover:underline">
           {translate('account.customer-support')}
         </p>
       </Link>
@@ -36,7 +36,7 @@ const LoggedIn = () => {
         onClick={handleLogout}
         className="mt-8 w-fit text-left"
       >
-        <p className="text-base text-primary hover:underline">
+        <p className="text-base text-charcoal hover:underline">
           {translate('account.sign-out')}
         </p>
       </button>
