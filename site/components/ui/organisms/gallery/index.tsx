@@ -1,3 +1,5 @@
+'use client';
+
 import { FC, useState, useEffect, useRef, useCallback } from 'react';
 import Image from '@/components/ui/atoms/image';
 import useClassNames from '@/hooks/useClassNames';

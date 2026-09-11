@@ -1,8 +1,16 @@
-import { Variant } from 'shared/@/types/product';
+import { Variant } from '@/lib/types';
 
-export const filterAttributeBasedVariants = (variants: Variant[], currentVariant: Variant, attribute: string) => {
+export const filterAttributeBasedVariants = (
+  variants: Variant[],
+  currentVariant: Variant,
+  attribute: string,
+) => {
   const filteredVariants = variants?.filter(
-    ({ attributes }) => attributes?.[attribute] === currentVariant.attributes?.[attribute],
+    ({ attributes }) =>
+      (attributes as unknown as Record<string, string>)?.[attribute] ===
+      (currentVariant.attributes as unknown as Record<string, string>)?.[
+        attribute
+      ],
   );
   return filteredVariants;
 };

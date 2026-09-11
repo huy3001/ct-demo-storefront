@@ -1,4 +1,5 @@
 import React, { FC } from 'react';
+import toast from 'react-hot-toast';
 // import { useParams } from 'next/navigation';
 import { TrashIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'use-intl';
@@ -22,7 +23,11 @@ const WishlistItem: FC<WishlistItemProps> = ({ item, onRemove }) => {
   // const currencyCode = item?.price?.currencyCode ?? 'USD';
 
   const handleMoveToCart = async () => {
-    await addItem(item.productId, item?.variantId ?? 1, item.quantity);
+    await addItem(item.productId, item?.variantId ?? 1, item.quantity).then(
+      () => {
+        toast.success('Item moved to cart');
+      },
+    );
   };
 
   return (

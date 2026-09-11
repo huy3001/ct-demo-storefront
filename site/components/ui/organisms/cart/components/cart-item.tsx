@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from 'react';
+import toast from 'react-hot-toast';
 import { useParams } from 'next/navigation';
 import { TrashIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'use-intl';
@@ -64,7 +65,9 @@ const CartItem: React.FC<CartItemProps> = ({
     if (processing) return;
 
     setProcessing(true);
-    await removeItem(item.id);
+    await removeItem(item.id).then(() => {
+      toast.success('Item removed from cart');
+    });
     setProcessing(false);
   }, [removeItem, item.id, processing]);
 
@@ -72,7 +75,9 @@ const CartItem: React.FC<CartItemProps> = ({
     if (processing) return;
 
     setProcessing(true);
-    await addToWishlist(item.productId, item.variant.id, locale);
+    await addToWishlist(item.productId, item.variant.id, locale).then(() => {
+      toast.success('Item moved to wishlist');
+    });
     setProcessing(false);
   }, [addToWishlist, item.productId, item.variant.id, locale, processing]);
 

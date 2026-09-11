@@ -8,11 +8,11 @@ import useClassNames from '@/hooks/useClassNames';
 import useTouchDevice from '@/hooks/useTouchDevice';
 import { mediumDesktop, tablet } from '@/helpers/utils/screensizes';
 import { Cart, ShippingMethod } from '@/types/entity/cart';
-import { Product, Variant } from '@/types/entity/product';
 import { LineItem, Wishlist } from '@/types/entity/wishlist';
 import { Reference } from '@/types/reference';
 import useTrack from './useTrack';
 import Link from '../../content/link';
+import type { Product, Variant } from '@/lib/types';
 
 export interface ProductSliderProps extends Partial<SwiperProps> {
   products: Product[];
@@ -135,7 +135,7 @@ const ProductSlider: FC<ProductSliderProps> = ({
         >
           {products.map((product, index) => (
             <ProductTile
-              key={product.productId}
+              key={product.id}
               wishlist={wishlist}
               cart={cart}
               shippingMethods={shippingMethods}

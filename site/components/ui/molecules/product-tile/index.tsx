@@ -1,4 +1,6 @@
-import React, { FC, useMemo, useState } from 'react';
+'use client';
+
+import { FC, useMemo, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import Image from '@/components/ui/atoms/image';
 import Link from '@/components/ui/atoms/link';
@@ -10,10 +12,11 @@ import useVariantWithDiscount from '@/hooks/useVariantWithDiscount';
 import { textToColor } from '@/helpers/textToColor/textToColor';
 import { desktop } from '@/helpers/utils/screensizes';
 import { Cart, ShippingMethod } from '@/types/entity/cart';
-import { Product, Variant } from '@/types/entity/product';
 import { LineItem, Wishlist } from '@/types/entity/wishlist';
 import Prices from './prices';
 import useTrack from './useTrack';
+import type { Product, Variant } from '@/lib/types';
+import type { Attribute } from '@commercetools/platform-sdk';
 
 export interface ProductTileProps {
   product: Product;
@@ -51,78 +54,98 @@ const ProductTile: FC<ProductTileProps> = ({
   const { ref } = useTrack({ product });
   const translate = useTranslations();
 
-  const variantWithDiscount = useVariantWithDiscount(product.variants) as Variant;
+  const variantWithDiscount = useVariantWithDiscount(
+    product.variants,
+  ) as Variant;
 
-  const [userSelectedVariant, setUserSelectedVariant] = useState<Variant | undefined>(undefined);
+  const [userSelectedVariant, setUserSelectedVariant] = useState<
+    Variant | undefined
+  >(undefined);
 
-  const selectedVariant = userSelectedVariant ?? variantWithDiscount ?? product?.variants[selectedVariantIndex];
+  const selectedVariant =
+    userSelectedVariant ??
+    variantWithDiscount ??
+    product?.variants[selectedVariantIndex];
 
   const hasDiscount =
-    selectedVariant.discountedPrice?.value?.centAmount &&
-    selectedVariant.price?.centAmount &&
-    selectedVariant.discountedPrice?.value?.centAmount < selectedVariant.price.centAmount;
+    selectedVariant?.price?.centAmount &&
+    selectedVariant?.price?.discounted?.centAmount &&
+    selectedVariant?.price?.discounted?.centAmount <
+      selectedVariant?.price?.centAmount;
 
-  const discountedPrice = selectedVariant?.discountedPrice;
+  const discountedPrice = selectedVariant?.price?.discounted;
 
   const discountPercentage = selectedVariant
-    ? ((selectedVariant.price?.centAmount as number) - (discountedPrice?.value?.centAmount as number)) /
+    ? ((selectedVariant.price?.centAmount as number) -
+        (discountedPrice?.centAmount as number)) /
       (selectedVariant.price?.centAmount as number)
     : 0;
 
-  const productToWishlistLineItem = useMemo<LineItem | undefined>(() => {
-    if (product) {
-      return {
-        lineItemId: product.productId ?? '',
-        productId: product.productId,
-        productKey: product.productKey,
-        productRef: product.productRef,
-        name: product.name,
-        count: 1,
-        variant: selectedVariant,
-        addedAt: new Date(),
-        _url: product._url,
-      };
-    }
-  }, [product, selectedVariant]);
-
   const productUrl = useMemo(() => {
-    if (!product._url) return `/${(product.name ?? '').toLowerCase().replace(/\s+/g, '-')}/p/${selectedVariant.sku}`;
+    if (!product.slug)
+      return `/product/${(product.name ?? '').toLowerCase().replace(/\s+/g, '-')}`;
 
-    const name = product._url.split('/')[1];
+    const name = product.slug;
 
-    return `/${name}/p/${selectedVariant.sku}` + (isSearchResult ? '?sr=1' : '');
-  }, [product, selectedVariant, isSearchResult]);
+    return `/product/${name}` + (isSearchResult ? '?sr=1' : '');
+  }, [product, isSearchResult]);
 
-  const getVariantColorCode = (attributes: Record<string, any> | undefined) => {
+  const getVariantColorCode = (
+    attributes: Attribute[] | undefined,
+  ) => {
     if (!attributes) return undefined;
 
-    const directCode = attributes['color-code'] || attributes['finish-code'];
-    if (directCode) return directCode;
+    const attributeValues = Array.isArray(attributes)
+      ? Object.fromEntries(attributes.map(({ name, value }) => [name, value]))
+      : attributes;
+
+    const directCode =
+      attributeValues['color-code'] || attributeValues['finish-code'];
+    if (typeof directCode === 'string' && directCode) return directCode;
+
+    const getLabel = (value: unknown) => {
+      if (typeof value === 'string') return value;
+      if (typeof value === 'object' && value !== null && 'label' in value) {
+        const label = value.label;
+        return typeof label === 'string' ? label : undefined;
+      }
+      return undefined;
+    };
 
     const labelOrText =
-      attributes['color-label'] ||
-      attributes['finish-label'] ||
-      attributes?.color ||
-      attributes?.finish ||
-      (attributes['search-color'] && attributes['search-color'].label) ||
-      (attributes['search-finish'] && attributes['search-finish'].label);
+      getLabel(attributeValues['color-label']) ||
+      getLabel(attributeValues['finish-label']) ||
+      getLabel(attributeValues.color) ||
+      getLabel(attributeValues.finish) ||
+      getLabel(attributeValues['search-color']) ||
+      getLabel(attributeValues['search-finish']);
 
-    return textToColor(labelOrText).code;
+    return labelOrText ? textToColor(labelOrText).code : undefined;
   };
 
   return (
-    <div ref={ref} data-testid="product-tile">
+    <div
+      ref={ref}
+      data-testid="product-tile"
+    >
       <div className="group relative">
         <Link link={productUrl}>
-          <div className="relative w-full" data-testid="image-container" onClick={onClick}>
-            <div className="relative flex justify-center bg-white p-8 md:p-16">
-              <div className="relative block w-[94%]" style={{ paddingBottom: '122%' }}>
+          <div
+            className="relative w-full"
+            data-testid="image-container"
+            onClick={onClick}
+          >
+            <div className="relative flex justify-center bg-white p-2 md:p-4">
+              <div
+                className="relative block w-[94%]"
+                style={{ paddingBottom: '122%' }}
+              >
                 <Image
                   src={selectedVariant.images?.[0]}
                   suffix="medium"
                   alt={product.name ?? ''}
                   style={{ objectFit: 'contain', objectPosition: 'center' }}
-                  className="rounded-sm group-hover:opacity-75 md:p-16"
+                  className="rounded-sm group-hover:opacity-75 md:p-4"
                   fill
                 />
               </div>
@@ -131,16 +154,14 @@ const ProductTile: FC<ProductTileProps> = ({
         </Link>
 
         <span
-          className="absolute right-0 top-0 z-10 flex size-32 cursor-pointer items-center justify-center md:size-48"
+          className="absolute right-0 top-0 z-10 flex size-8 cursor-pointer items-center justify-center md:size-12"
           onClick={(e) => e.preventDefault()}
         >
-          {!disableWishlistButton && productToWishlistLineItem && (
+          {!disableWishlistButton && (
             <WishlistButton
-              data={wishlist}
-              lineItem={productToWishlistLineItem}
-              className="size-28 lg:size-32"
-              addToWishlist={addToWishlist}
-              removeFromWishlist={removeLineItem}
+              productId={product.id}
+              variantId={selectedVariant.id}
+              className="size-7 lg:size-8"
             />
           )}
         </span>
@@ -148,14 +169,14 @@ const ProductTile: FC<ProductTileProps> = ({
         <div className="absolute bottom-0 z-10 w-full">
           {hasDiscount && (
             <div className="w-full text-center">
-              <span className="mb-8 ml-8 flex h-25 w-45 items-center justify-center bg-red-500 text-12 text-white">
+              <span className="mb-2 ml-2 flex h-6 w-11 items-center justify-center bg-red-500 text-xs text-white">
                 {translate('common.percentage', { value: discountPercentage })}
               </span>
             </div>
           )}
-          {!selectedVariant.isOnStock && (
+          {!selectedVariant?.availability?.isOnStock && (
             <div className="w-full text-center">
-              <div className="mb-8 ml-8">
+              <div className="mb-2 ml-2">
                 <OutOfStock />
               </div>
             </div>
@@ -178,25 +199,28 @@ const ProductTile: FC<ProductTileProps> = ({
 
       <Link link={productUrl}>
         <div onClick={onClick}>
-          <div className="mt-4 block max-w-[80%] overflow-hidden text-ellipsis whitespace-pre text-12 uppercase leading-loose md:mt-12 md:text-14">
+          <div className="mt-1 block max-w-[80%] overflow-hidden text-ellipsis whitespace-pre text-xs uppercase leading-loose md:mt-3 md:text-sm">
             {product?.name}
           </div>
           {!disableVariants && (
-            <div className="mt-8 flex items-center gap-4 md:mt-12">
+            <div className="mt-2 flex items-center gap-1 md:mt-3">
               {product?.variants
                 .filter(
                   (variant, index, arr) =>
                     arr.findIndex(
                       (v) =>
-                        (getVariantColorCode(v.attributes) ?? '') === (getVariantColorCode(variant.attributes) ?? ''),
+                        (getVariantColorCode(v.attributes) ?? '') ===
+                        (getVariantColorCode(variant.attributes) ?? ''),
                     ) === index,
                 )
                 .map((variant, index) => (
                   <span
                     key={index}
                     data-testid="product-variant"
-                    className={`block cursor-pointer rounded-full border p-6 ${
-                      variant.sku !== selectedVariant.sku ? 'border-neutral-300' : 'border-neutral-500'
+                    className={`block cursor-pointer rounded-full border p-1.5 ${
+                      variant.sku !== selectedVariant.sku
+                        ? 'border-neutral-300'
+                        : 'border-neutral-500'
                     }`}
                     style={{
                       backgroundColor: getVariantColorCode(variant.attributes),
@@ -209,8 +233,11 @@ const ProductTile: FC<ProductTileProps> = ({
                 ))}
             </div>
           )}
-          <div className="mt-8 md:mt-12">
-            <Prices price={selectedVariant?.price} discountedPrice={discountedPrice} />
+          <div className="mt-2 md:mt-3">
+            <Prices
+              price={selectedVariant?.price}
+              discountedPrice={discountedPrice}
+            />
           </div>
         </div>
       </Link>

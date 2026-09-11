@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { trackEvent } from '@/helpers/analytics';
 import { PRODUCT_VIEWED } from '@/helpers/constants/events';
-import { Product } from '@/types/entity/product';
+// import { Product } from '@/types/entity/product';
+import type { Product } from '@/lib/types';
 
 interface Options {
   product: Product;

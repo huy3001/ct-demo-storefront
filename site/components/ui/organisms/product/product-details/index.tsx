@@ -1,4 +1,6 @@
-import React, { FC, useEffect, useState } from 'react';
+'use client';
+
+import { FC, useEffect, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import Button from '@/components/ui/atoms/button';
 import Link from '@/components/ui/atoms/link';
@@ -8,27 +10,22 @@ import Gallery from '@/components/ui/organisms/gallery';
 import { useAddToCartOverlay } from '@/context/add-to-cart-overlay';
 import useClassNames from '@/hooks/useClassNames';
 import { ShippingMethod } from '@/types/entity/cart';
-import { Category } from '@/types/entity/category';
-import { Variant } from '@/types/entity/product';
-import { LineItem, Wishlist } from '@/types/entity/wishlist';
 import AdditionalInfo from './components/additional-info';
 import ProductInformation from './components/product-information';
 import ShippingSection from './components/shipping-section';
 import useTrack from './hooks/useTrack';
 import { UIProduct } from './types';
+import type { Category, Variant } from '@/lib/types';
 
 export interface ProductDetailsProps {
   product: UIProduct;
   variant: Variant;
   url?: string;
   category?: Category;
-  wishlist?: Wishlist;
   shippingMethods?: ShippingMethod[];
   inModalVersion?: boolean;
   onChangeVariant: (sku: string) => void;
   setIsOpen?: (value: boolean) => void;
-  removeLineItem?: (item: LineItem) => Promise<void>;
-  addToWishlist?: (lineItem: LineItem, count: number) => Promise<void>;
   onAddToCart?: (variant: Variant, quantity: number) => Promise<void>;
   inCartQuantity?: number;
 }
@@ -38,19 +35,18 @@ const ProductDetails: FC<ProductDetailsProps> = ({
   variant,
   category,
   url,
-  wishlist,
   shippingMethods,
   inModalVersion,
   onChangeVariant,
   setIsOpen,
-  removeLineItem,
-  addToWishlist,
   onAddToCart,
   inCartQuantity = 0,
 }) => {
   const translate = useTranslations();
 
-  const [quantity, setQuantity] = useState<number>(variant.isOnStock ? 1 : 0);
+  const [quantity, setQuantity] = useState<number>(
+    variant?.availability?.isOnStock ? 1 : 0,
+  );
   const [loading, setLoading] = useState(false);
   const [added, setAdded] = useState(false);
 
@@ -67,10 +63,10 @@ const ProductDetails: FC<ProductDetailsProps> = ({
       setAdded(true);
       setTimeout(() => {
         setAdded(false);
-        setQuantity(inCartQuantity + quantity >= (variant.availableQuantity ?? 0) ? 0 : 1);
+        setQuantity(inCartQuantity + quantity >= (variant?.availability?.availableQuantity ?? 0) ? 0 : 1);
       }, 1000);
 
-      show({ ...product, _url: url }, variant, quantity);
+      show({ ...product }, variant, quantity);
     });
     trackAddToCart();
   };
@@ -80,28 +76,28 @@ const ProductDetails: FC<ProductDetailsProps> = ({
   }, [product, fetchRelatedProducts]);
 
   const wrapperClassName = inModalVersion
-    ? 'md:grid grid-cols-12 pt-70 pb-35 px-20 md:pr-36'
-    : 'pt-20 md:pt-24 pb-32 md:grid md:grid-cols-12 md:items-start lg:px-48 md:px-24 px-16';
+    ? 'md:grid grid-cols-12 pt-17.5 pb-9 px-5 md:pr-9'
+    : 'pt-5 md:pt-6 pb-8 md:grid md:grid-cols-12 md:items-start lg:px-12 md:px-6 px-4';
 
   const galleryContainerClassName = useClassNames([
     inModalVersion ? 'col-span-6' : 'md:col-span-7 lg:col-span-8',
-    'md:pr-26 lg:pr-60',
+    'md:pr-6.5 lg:pr-15',
   ]);
 
   const informationContainerClassName = useClassNames([
     inModalVersion ? 'col-span-6' : 'md:col-span-5 lg:col-span-4',
-    'mt-24 md:mt-0',
+    'mt-6 md:mt-0',
   ]);
 
   return (
     <div className={wrapperClassName}>
       {category && !inModalVersion && (
-        <Breadcrumb Separator="/" className="col-span-12 mb-24 hidden w-fit lg:block">
-          <Link key={category.categoryId} link={category._url} className="text-14 text-gray-700">
+        <Breadcrumb Separator="/" className="col-span-12 mb-6 hidden w-fit lg:block">
+          <Link key={category.id} link={`/category/${category.slug}`} className="text-sm text-gray-700">
             <h2>{category.name}</h2>
           </Link>
 
-          <h2 key={product.slug} className="cursor-default text-14 text-gray-500">
+          <h2 key={product.slug} className="cursor-default text-sm text-gray-500">
             {product.name}
           </h2>
         </Breadcrumb>
@@ -118,34 +114,31 @@ const ProductDetails: FC<ProductDetailsProps> = ({
           category={category}
           onChangeVariant={onChangeVariant}
           inModalVersion={inModalVersion}
-          wishlist={wishlist}
-          removeLineItem={removeLineItem}
-          addToWishlist={addToWishlist}
         />
 
-        {!variant.isOnStock && (
-          <div className="pt-20">
+        {!variant?.availability?.isOnStock && (
+          <div className="pt-5">
             <p className="font-medium text-red-500">{translate('product.outOfStock')}</p>
           </div>
         )}
 
-        <div className="flex gap-8 pt-20">
+        <div className="flex gap-2 pt-5">
           <QuantitySelector
             value={quantity}
-            minValue={inCartQuantity >= (variant.availableQuantity ?? 0) ? 0 : Number(variant.isOnStock)}
-            maxValue={(variant.availableQuantity ?? Infinity) - inCartQuantity}
-            disabled={!variant.isOnStock}
+            minValue={inCartQuantity >= (variant?.availability?.availableQuantity ?? 0) ? 0 : Number(variant?.availability?.isOnStock)}
+            maxValue={(variant?.availability?.availableQuantity ?? Infinity) - inCartQuantity}
+            disabled={!variant?.availability?.isOnStock}
             onChange={setQuantity}
           />
           <Button
-            className="w-full rounded-sm text-14 font-medium"
+            className="w-full rounded-sm text-sm font-medium"
             variant="primary"
             onClick={handleAddToCart}
             loading={loading}
             added={added}
-            disabled={!variant.isOnStock}
+            disabled={!variant?.availability?.isOnStock}
           >
-            {variant.isOnStock ? translate('cart.cart-add') : translate('product.currently-unavailable')}
+            {variant?.availability?.isOnStock ? translate('cart.cart-add') : translate('product.currently-unavailable')}
           </Button>
         </div>
 
@@ -154,7 +147,7 @@ const ProductDetails: FC<ProductDetailsProps> = ({
         {inModalVersion && (
           <Link
             link={url}
-            className="mx-auto mt-28 block w-fit border-b border-transparent text-center text-14 leading-loose text-gray-600 hover:border-gray-600"
+            className="mx-auto mt-7 block w-fit border-b border-transparent text-center text-sm leading-loose text-gray-600 hover:border-gray-600"
             onClick={() => setIsOpen?.(false)}
           >
             {translate('cart.more-details')}
@@ -163,8 +156,8 @@ const ProductDetails: FC<ProductDetailsProps> = ({
       </div>
 
       {!inModalVersion && (
-        <div className="grid gap-y-34 md:col-span-7 md:mb-50 md:pr-20 lg:col-span-8 lg:pr-52">
-          <AdditionalInfo productspec={variant?.attributes?.productspec} description={product?.description ?? ''} />
+        <div className="grid gap-y-8.5 md:col-span-7 md:mb-12.5 md:pr-5 lg:col-span-8 lg:pr-13">
+          <AdditionalInfo description={product?.description ?? ''} />
         </div>
       )}
     </div>

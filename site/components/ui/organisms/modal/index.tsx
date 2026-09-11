@@ -1,3 +1,5 @@
+'use client';
+
 import { FC, useEffect } from 'react';
 import { XMarkIcon as CloseIcon } from '@heroicons/react/24/solid';
 import ReactModal, { Props as ReactModalProps } from 'react-modal';
@@ -45,8 +47,8 @@ const Modal: FC<ModalProps> = ({ children, style, preventScroll, closeButton, cl
       parentSelector={() => document.getElementById('react-modal-custom-portal') ?? document.body}
     >
       {closeButton && (
-        <button onClick={props.onRequestClose} className="absolute right-20 top-20 focus:ring-1">
-          <CloseIcon className="size-24 text-gray-600" />
+        <button onClick={props.onRequestClose} className="absolute right-5 top-5 focus:ring-1">
+          <CloseIcon className="size-6 text-gray-600" />
         </button>
       )}
       {children}

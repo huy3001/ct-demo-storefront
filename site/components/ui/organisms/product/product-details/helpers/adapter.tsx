@@ -5,10 +5,11 @@ import { toUIColor } from '@/helpers/mappers/toUIColor';
 import { toUIProduct } from '@/helpers/mappers/toUIProduct';
 import { toUISize } from '@/helpers/mappers/toUIsize';
 import { Cart, ShippingMethod } from '@/types/entity/cart';
-import { Category } from '@/types/entity/category';
-import { Product, Variant } from '@/types/entity/product';
+// import { Category } from '@/types/entity/category';
+// import { Product, Variant } from '@/types/entity/product';
 import { LineItem, Wishlist } from '@/types/entity/wishlist';
 import ProductDetails, { ProductDetailsProps } from '..';
+import type { Category, Product, Variant } from '@/lib/types';
 
 type ProductDetailsAdapterProps = {
   product: Product;
@@ -37,7 +38,7 @@ const ProductDetailsAdapter: FC<ProductDetailsAdapterProps> = ({
 }) => {
   const { path } = usePath();
 
-  const category = categories.find((category) => product.categories?.find((c) => c.slug === category.slug));
+  const category = categories.find((category) => product.categories?.find((c) => c.id === category.id));
 
   const [variant, setVariant] = useState(() => {
     if (inModalVersion) {
@@ -68,7 +69,7 @@ const ProductDetailsAdapter: FC<ProductDetailsAdapterProps> = ({
       product={{ ...mappedProduct, images: [mappedProduct.images[0]] }}
       variant={variant}
       category={category}
-      url={product._url}
+      url={`/product/${product.slug}`}
       inModalVersion={inModalVersion}
       wishlist={wishlist}
       shippingMethods={shippingMethods}

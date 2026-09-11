@@ -1,14 +1,15 @@
 import { useMemo } from 'react';
-import { Variant } from '@/types/entity/product';
+// import { Variant } from '@/types/entity/product';
+import type { Variant } from '@/lib/types';
 
 const useVariantWithDiscount = (variants: Partial<Variant>[]) => {
   const variant = useMemo(() => {
     return variants.reduce(
       (acc: Partial<Variant> | undefined, curr) =>
-        curr.discountedPrice &&
+        curr?.price?.discounted &&
         (!acc ||
-          (acc.discountedPrice?.value?.centAmount as number) >
-            (curr.discountedPrice?.value?.centAmount as number))
+          (acc.price?.discounted?.centAmount as number) >
+            (curr.price?.discounted?.centAmount as number))
           ? curr
           : acc,
       undefined,

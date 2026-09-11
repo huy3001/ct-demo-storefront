@@ -5,6 +5,7 @@ import { getMessages } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import Toaster from '@/components/ui/atoms/toaster';
 import BackToTopButton from '@/components/layout/BackToTopButton';
 import { getCategoryTree } from '@/lib/ct/category';
 import '../globals.css';
@@ -48,6 +49,7 @@ export default async function LocaleLayout({
           <main className="flex-1">{children}</main>
           <Footer locale={locale} />
           <BackToTopButton />
+          <Toaster />
         </NextIntlClientProvider>
       </body>
     </html>

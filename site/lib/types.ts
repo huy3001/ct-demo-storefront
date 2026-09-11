@@ -1,3 +1,8 @@
+import type {
+  Attribute,
+  ProductVariantAvailability,
+} from '@commercetools/platform-sdk';
+
 export interface Price {
   centAmount: number;
   currencyCode: string;
@@ -10,8 +15,8 @@ export interface Variant {
   images: string[];
   price?: Price;
   prices: Price[];
-  attributes: Array<{ name: string; value: unknown }>;
-  availability?: { isOnStock?: boolean };
+  attributes: Attribute[];
+  availability?: ProductVariantAvailability;
 }
 
 export interface Product {

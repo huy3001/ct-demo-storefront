@@ -92,7 +92,7 @@ const Banner = ({
           <Image
             {...image}
             fill
-            className="z-0"
+            className="brightness-75 z-0"
             alt={title}
             style={{ objectFit: 'cover' }}
           />

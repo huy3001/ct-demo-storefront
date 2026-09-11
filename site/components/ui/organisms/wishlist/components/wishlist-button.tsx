@@ -1,59 +1,195 @@
-import React, { FC, useState } from 'react';
-import { HeartIcon } from '@heroicons/react/24/outline';
+'use client';
+
+import { FC, useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { usePathname, useParams, useRouter } from 'next/navigation';
+import { HeartIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'next-intl';
-import { Wishlist } from '@/types/wishlist';
-import { LineItem } from '@/types/wishlist/LineItem';
+import { useAccount } from '@/hooks/useAccount';
+import { useWishlist } from '@/hooks/useWishlist';
+import Link from '@/components/ui/atoms/link';
+import Modal from '@/components/ui/organisms/modal';
 import useClassNames from '@/hooks/useClassNames';
 
 interface WishlistButtonProps {
-  lineItem: LineItem;
+  productId: string;
+  variantId: number;
   className?: string;
-  data?: Wishlist;
-  addToWishlist?: (lineItem: LineItem, count: number) => Promise<void>;
-  removeFromWishlist?: (item: LineItem) => Promise<void>;
 }
 
-const WishlistButton: FC<WishlistButtonProps> = ({ lineItem, className, data, removeFromWishlist, addToWishlist }) => {
+const WishlistButton: FC<WishlistButtonProps> = ({
+  productId,
+  variantId,
+  className,
+}) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { locale } = useParams();
+  const { isSignedIn } = useAccount();
+  const { wishlists, isLoading, isSaved, addToWishlist, toggleSaved } =
+    useWishlist();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const translate = useTranslations();
 
-  const onWishlist = !!data?.lineItems?.find(({ variant }) => variant?.sku === lineItem.variant?.sku);
+  const saved = isSaved(productId, variantId);
 
   const pathClassNames = useClassNames([
     'transition duration-150 ease-out hover:fill-red-500 hover:stroke-red-500',
-    onWishlist ? 'fill-red-500 stroke-red-500' : '!fill-white !stroke-gray-600',
+    saved ? 'fill-red-500 stroke-red-500' : '!fill-white !stroke-gray-600',
   ]);
 
-  const buttonClassName = className || 'top-3 right-0 size-24';
+  const buttonClassName = className || 'top-1 right-0 size-6';
 
-  const handleAddToWishList = async () => {
-    await addToWishlist?.(lineItem, 1);
-  };
+  function isSavedIn(wishlistId: string) {
+    return (
+      wishlists
+        .find((wishlist) => wishlist.id === wishlistId)
+        ?.lineItems.some(
+          (item) =>
+            item.productId === productId && item.variantId === variantId,
+        ) ?? false
+    );
+  }
 
-  const onRemoveFromWishlist = async () => {
-    if (onWishlist) {
-      const item = data?.lineItems?.find(({ variant }) => variant?.sku === lineItem.variant?.sku);
-
-      if (item) await removeFromWishlist?.(item);
+  async function onClick() {
+    if (!isSignedIn) {
+      const redirect = pathname || `/${locale}`;
+      router.push(`/${locale}/login?redirect=${encodeURIComponent(redirect)}`);
+      return;
     }
-  };
 
-  const onClick = async () => {
-    if (processing) return;
+    setIsModalOpen(true);
     setProcessing(true);
-    if (onWishlist) {
-      await onRemoveFromWishlist?.();
-    } else {
-      await handleAddToWishList?.();
+    setError(null);
+    try {
+      await toggleSaved(productId, variantId, locale);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Unable to update wishlist',
+      );
+      toast.error(
+        err instanceof Error ? err.message : 'Unable to update wishlist',
+      );
+    } finally {
+      setProcessing(false);
     }
-    setProcessing(false);
-  };
+  }
+
+  async function selectWishlist(wishlistId: string) {
+    setProcessing(true);
+    setError(null);
+    try {
+      await addToWishlist(productId, variantId, locale, 1, wishlistId);
+      setIsModalOpen(false);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Unable to update wishlist',
+      );
+      toast.error(
+        err instanceof Error ? err.message : 'Unable to update wishlist',
+      );
+    } finally {
+      setProcessing(false);
+    }
+  }
+
+  useEffect(() => {
+    if (!isModalOpen) return;
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape' && !processing) setIsModalOpen(false);
+    }
+
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [processing, isModalOpen]);
 
   return (
-    <button onClick={onClick} aria-label={translate('wishlist.add-to-wishlist')}>
-      <HeartIcon className={buttonClassName + ' ' + pathClassNames} strokeWidth={'0.75'} data-testid="heart-icon" />
-    </button>
+    <>
+      <button
+        onClick={onClick}
+        aria-label={translate('wishlist.add-to-wishlist')}
+        className={className}
+      >
+        <HeartIcon
+          className={buttonClassName + ' ' + pathClassNames}
+          strokeWidth={'0.75'}
+          data-testid="heart-icon"
+        />
+      </button>
+
+      {isModalOpen && (
+        <Modal
+          shouldCloseOnOverlayClick
+          isOpen={isModalOpen}
+          onRequestClose={() => setIsModalOpen(false)}
+          className="w-full max-w-md rounded-sm bg-white p-6! text-left shadow-sm"
+        >
+          <div className="flex items-start justify-between gap-4">
+            <h2
+              id="wishlist-selector-title"
+              className="text-xl font-semibold text-charcoal"
+            >
+              Add to wishlist
+            </h2>
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              disabled={processing}
+              aria-label="Close"
+              className="text-xl text-charcoal-light hover:text-charcoal disabled:opacity-60"
+            >
+              <XMarkIcon className="h-6 w-6" />
+            </button>
+          </div>
+
+          {isLoading ? (
+            <p className="mt-6 text-sm text-charcoal-light">
+              Loading wishlists…
+            </p>
+          ) : wishlists.length === 0 ? (
+            <div className="mt-6">
+              <p className="text-sm text-charcoal-light">
+                You do not have a wishlist yet.
+              </p>
+              <Link
+                link="/account/wishlists"
+                className="mt-4 inline-block text-sm text-terra hover:underline"
+              >
+                Create a wishlist
+              </Link>
+            </div>
+          ) : (
+            <div className="mt-6 space-y-2">
+              {wishlists.map((wishlist) => {
+                const alreadySaved = isSavedIn(wishlist.id);
+                return (
+                  <button
+                    key={wishlist.id}
+                    type="button"
+                    onClick={() => selectWishlist(wishlist.id)}
+                    disabled={processing || alreadySaved}
+                    className="flex w-full items-center justify-between rounded-sm border border-border px-4 py-3 text-sm text-charcoal hover:border-terra disabled:cursor-default disabled:bg-cream disabled:opacity-70"
+                  >
+                    <span>{wishlist.name}</span>
+                    <span className="text-charcoal-light">
+                      {alreadySaved
+                        ? 'Added'
+                        : `${wishlist.lineItems.length} ${wishlist.lineItems.length === 1 ? 'item' : 'items'}`}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+        </Modal>
+      )}
+    </>
   );
 };
 

@@ -11,7 +11,7 @@ import {
   QUICK_VIEW_PRODUCT_ADDED_TO_CART_AFTER_SEARCH,
   PDP_PRODUCT_ADDED_TO_CART_AFTER_SEARCH,
 } from '@/helpers/constants/events';
-import { Product } from '@/types/entity/product';
+import type { Product } from '@/lib/types';
 
 interface Options {
   product: Product;
@@ -26,10 +26,10 @@ const useTrack = ({ product, inModalVersion }: Options) => {
   const lastProductId = useRef<string>(undefined);
 
   const trackView = useCallback(async () => {
-    if (product && product.productId !== lastProductId.current) {
+    if (product && product.id !== lastProductId.current) {
       trackEvent(isAfterSearch ? PDP_VIEWED_AFTER_SEARCH : PDP_VIEWED, { product });
 
-      lastProductId.current = product.productId;
+      lastProductId.current = product.id;
     }
   }, [product, isAfterSearch]);
 

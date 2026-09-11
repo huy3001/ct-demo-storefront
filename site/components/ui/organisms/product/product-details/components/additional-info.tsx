@@ -3,7 +3,7 @@ import dynamic from 'next/dynamic';
 import { useTranslations } from 'use-intl';
 import AccordionBtn from '@/components/ui/atoms/accordion';
 
-const Markdown = dynamic(() => import('../../../markdown'));
+const Markdown = dynamic(() => import('@/components/ui/organisms/markdown'));
 
 type AdditionalInfoProps = {
   productspec?: string;
@@ -14,7 +14,6 @@ const AdditionalInfo: FC<AdditionalInfoProps> = ({ productspec, description }) =
   const translate = useTranslations();
 
   return (
-    // eslint-disable-next-line tailwindcss/no-custom-classname
     <div className="additional-info col-span-2">
       <style>
         {`
@@ -35,13 +34,13 @@ const AdditionalInfo: FC<AdditionalInfoProps> = ({ productspec, description }) =
 
       {description && (
         <AccordionBtn
-          className="col-span-2 mt-24 border-y border-neutral-400 md:mt-0"
+          className="col-span-2 mt-6 border-y border-neutral-400 md:mt-0"
           closedSectionTitle={translate('product.product-desc')}
-          buttonClassName="py-21 font-body text-16 leading-tight text-primary pl-0 md:pr-12"
-          panelClassName="pb-20 md:pt-10 md:pb-30 text-primary"
+          buttonClassName="py-5 font-body text-base leading-tight text-primary pl-0 md:pr-3"
+          panelClassName="pb-5 md:pt-2.5 md:pb-7.5 text-primary"
         >
           <p
-            className="font-body text-14 font-regular leading-loose text-primary"
+            className="font-body text-sm font-regular leading-loose text-primary"
             dangerouslySetInnerHTML={{ __html: description }}
           />
         </AccordionBtn>
@@ -50,11 +49,11 @@ const AdditionalInfo: FC<AdditionalInfoProps> = ({ productspec, description }) =
         <AccordionBtn
           className="col-span-2 border-b border-neutral-400 md:mt-0"
           closedSectionTitle={translate('product.details-additional')}
-          buttonClassName="py-21 font-body text-16 leading-tight text-primary pl-0 md:pr-12"
-          panelClassName="pb-20 md:pt-10 md:pb-30 text-primary"
+          buttonClassName="py-5 font-body text-base leading-tight text-primary pl-0 md:pr-3"
+          panelClassName="pb-5 md:pt-2.5 md:pb-7.5 text-primary"
         >
           <Markdown
-            className="block font-body text-14 font-regular leading-loose text-primary"
+            className="block font-body text-sm font-regular leading-loose text-primary"
             markdown={productspec}
           />
         </AccordionBtn>

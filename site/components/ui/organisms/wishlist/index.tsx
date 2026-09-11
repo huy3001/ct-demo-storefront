@@ -1,4 +1,5 @@
 import React from 'react';
+import toast from 'react-hot-toast';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'use-intl';
 import Button from '@/components/ui/atoms/button';
@@ -31,13 +32,17 @@ const Wishlist: React.FC<WishlistProps> = ({
 
   const handleClearWishlist = async () => {
     if (wishlist?.lineItems?.length) {
-      await removeAllFromWishlist(wishlist.id, locale);
+      await removeAllFromWishlist(wishlist.id, locale).then(() => {
+        toast.success('Wishlist cleared');
+      });
     }
   };
 
   const handleRemoveFromWishlist = async (lineItemId: string) => {
     if (wishlist) {
-      await removeFromWishlist(wishlist.id, lineItemId, locale);
+      await removeFromWishlist(wishlist.id, lineItemId, locale).then(() => {
+        toast.success('Item removed from wishlist');
+      });
     }
   };
 

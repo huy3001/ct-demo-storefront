@@ -7,15 +7,15 @@ import ProductSlider from '@/components/ui/organisms/product/product-slider';
 import useCart from '@/frontastic/hooks/useCart';
 import useProduct from '@/frontastic/hooks/useProduct';
 import useWishlist from '@/frontastic/hooks/useWishlist';
-import { CurrencyHelpers } from '@/helpers/currencyHelpers';
 import useScrollBlock from '@/hooks/useScrollBlock';
 import useTouchDevice from '@/hooks/useTouchDevice';
 import { mediumDesktop, tablet } from '@/helpers/utils/screensizes';
 import { useParams } from 'next/navigation';
 import React, { useCallback, useContext, useState } from 'react';
-import { Product, Variant } from '@/types/entity/product';
 import { useTranslations } from 'use-intl';
 import { AddToCartOverlayContextShape, StateProduct } from './types';
+import { formatMoney } from '@/lib/utils';
+import type { Product, Variant } from '@/lib/types';
 
 const AddToCartOverlayContext = React.createContext<AddToCartOverlayContextShape>({
   show() {},
@@ -46,7 +46,7 @@ const AddToCartOverlayProvider = ({ children }: React.PropsWithChildren) => {
 
   const fetchRelatedProducts = useCallback(
     async (product: Product) => {
-      const category = product?.categories?.[0]?.categoryId;
+      const category = product?.categories?.[0]?.id;
 
       if (!category) return;
 
@@ -61,7 +61,7 @@ const AddToCartOverlayProvider = ({ children }: React.PropsWithChildren) => {
 
   const show = useCallback(
     (product: Product, variant: Variant, count: number) => {
-      setProduct({ ...product, ...variant, count });
+      setProduct({ ...product, ...variant, count, id: product.id });
       blockScroll(true);
     },
     [blockScroll],
@@ -89,7 +89,9 @@ const AddToCartOverlayProvider = ({ children }: React.PropsWithChildren) => {
         {
           <div onMouseUp={(e) => e.stopPropagation()}>
             <div className="bg-white p-16 md:px-48 md:py-24">
-              <h4 className="text-18 leading-6.75 lg:text-22 lg:leading-8.25">{translate('product.cart-added')}</h4>
+              <h4 className="text-18 leading-6.75 lg:text-22 lg:leading-8.25">
+                {translate('product.cart-added')}
+              </h4>
 
               <CloseIcon
                 className="absolute right-18 top-16 size-28 cursor-pointer fill-gray-600 stroke-0 md:top-16"
@@ -99,7 +101,10 @@ const AddToCartOverlayProvider = ({ children }: React.PropsWithChildren) => {
 
               <div className="mt-22 md:mt-35 lg:mt-30">
                 <div className="flex items-center gap-24">
-                  <Link className="block shrink-0" link={product?._url}>
+                  <Link
+                    className="block shrink-0"
+                    link={`/product/${product?.slug}`}
+                  >
                     <Image
                       width={135}
                       height={150}
@@ -111,20 +116,32 @@ const AddToCartOverlayProvider = ({ children }: React.PropsWithChildren) => {
                   </Link>
                   <div className="flex grow items-start justify-between overflow-hidden">
                     <div className="max-w-full overflow-hidden">
-                      <Link className="block max-w-full truncate text-12 uppercase md:text-14" link={product?._url}>
+                      <Link
+                        className="block max-w-full truncate text-12 uppercase md:text-14"
+                        link={`/product/${product?.slug}`}
+                      >
                         {product?.name}
                       </Link>
                       <span className="mt-8 block text-12 font-medium md:hidden">
-                        {CurrencyHelpers.formatForCurrency(
-                          product?.discountedPrice?.value ?? product?.price ?? {},
+                        {formatMoney(
+                          product?.price?.discounted?.centAmount ??
+                            product?.price?.centAmount ??
+                            0,
+                          product?.price?.discounted?.currencyCode ?? 'USD',
                           locale,
                         )}
                       </span>
-                      <span className="mt-12 block text-14 text-gray-600"> {'x ' + product?.count}</span>
+                      <span className="mt-12 block text-14 text-gray-600">
+                        {' '}
+                        {'x ' + product?.count}
+                      </span>
                     </div>
                     <span className="hidden text-14 font-medium md:block">
-                      {CurrencyHelpers.formatForCurrency(
-                        product?.discountedPrice?.value ?? product?.price ?? {},
+                      {formatMoney(
+                        product?.price?.discounted?.centAmount ??
+                          product?.price?.centAmount ??
+                          0,
+                        product?.price?.discounted?.currencyCode ?? 'USD',
                         locale,
                       )}
                     </span>
@@ -133,7 +150,11 @@ const AddToCartOverlayProvider = ({ children }: React.PropsWithChildren) => {
               </div>
 
               <div className="mt-18 flex w-full flex-col gap-16 md:mt-36 md:flex-row-reverse">
-                <Link link="/cart" onClick={hide} className="md:flex-1">
+                <Link
+                  link="/cart"
+                  onClick={hide}
+                  className="md:flex-1"
+                >
                   <button className="w-full rounded-sm bg-primary p-12 text-14 font-medium text-white">
                     {translate('cart.cart-go')}
                   </button>
@@ -148,7 +169,9 @@ const AddToCartOverlayProvider = ({ children }: React.PropsWithChildren) => {
                 </div>
               </div>
             </div>
-            <div className={`mt-36 hidden bg-neutral-200 py-24 md:block ${isTouchDevice ? 'px-48' : 'px-96'}`}>
+            <div
+              className={`mt-36 hidden bg-neutral-200 py-24 md:block ${isTouchDevice ? 'px-48' : 'px-96'}`}
+            >
               <ProductSlider
                 clearDefaultWrapperStyles
                 products={relatedProducts}
@@ -189,7 +212,9 @@ const AddToCartOverlayProvider = ({ children }: React.PropsWithChildren) => {
           </div>
         }
       </Transition>
-      <AddToCartOverlayContext.Provider value={{ show, hide, fetchRelatedProducts }}>
+      <AddToCartOverlayContext.Provider
+        value={{ show, hide, fetchRelatedProducts }}
+      >
         {children}
       </AddToCartOverlayContext.Provider>
     </>

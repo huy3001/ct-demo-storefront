@@ -1,3 +1,5 @@
+'use client';
+
 import { FC, useRef, useState } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'use-intl';
@@ -5,9 +7,10 @@ import Modal from '@/components/ui/organisms/modal';
 import useOnClickOutside from '@/hooks/useOnClickOutside';
 import useScrollBlock from '@/hooks/useScrollBlock';
 import { Cart, ShippingMethod } from '@/types/entity/cart';
-import { Product, Variant } from '@/types/entity/product';
+// import { Product, Variant } from '@/types/entity/product';
 import { Wishlist, LineItem } from '@/types/entity/wishlist';
 import ProductDetailsAdapter from '../product-details/helpers/adapter';
+import type { Product, Variant } from '@/lib/types';
 
 export type QuickViewProps = {
   buttonIsEnabled: boolean;
@@ -58,7 +61,8 @@ const QuickView: FC<QuickViewProps> = ({
     <>
       {!modalIsOpen && (
         <button
-          className="hidden w-full border border-neutral-400 bg-white py-16 text-center text-12 capitalize leading-4 transition duration-150 ease-out hover:border-primary group-focus-within:block group-hover:block"
+          role='button'
+          className="hidden w-full border border-neutral-400 bg-white py-4 text-center text-xs capitalize leading-1 transition duration-150 ease-out hover:border-primary group-focus-within:block group-hover:block"
           onClick={openModal}
         >
           {translate('product.quick-view')}
@@ -76,7 +80,7 @@ const QuickView: FC<QuickViewProps> = ({
         <div ref={ref}>
           <button onClick={() => closeModal(true)}>
             <XMarkIcon
-              className="absolute right-15 top-15 size-24 hover:cursor-pointer"
+              className="absolute right-4 top-4 size-6 hover:cursor-pointer"
               strokeWidth={1}
               color="#494949"
             />

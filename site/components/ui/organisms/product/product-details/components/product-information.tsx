@@ -1,14 +1,13 @@
-import { FC, useMemo } from 'react';
+import { FC } from 'react';
 import { useParams } from 'next/navigation';
-import { LineItem } from '@/types/wishlist/LineItem';
 import { useTranslations } from 'use-intl';
 import WishlistButton from '@/components/ui/organisms/wishlist/components/wishlist-button';
-import { CurrencyHelpers } from '@/helpers/currencyHelpers';
 import useClassNames from '@/hooks/useClassNames';
 import usePath from '@/hooks/usePath';
 import { useRouter } from '@/i18n/routing';
 import { ProductDetailsProps } from '..';
 import ProductVariant from './product-variant';
+import { formatMoney } from '@/lib/utils';
 
 type ProductInformationProps = Omit<ProductDetailsProps, 'onAddToCart'>;
 
@@ -17,9 +16,6 @@ const ProductInformation: FC<ProductInformationProps> = ({
   variant,
   onChangeVariant,
   inModalVersion,
-  wishlist,
-  removeLineItem,
-  addToWishlist,
 }) => {
   const router = useRouter();
 
@@ -29,32 +25,30 @@ const ProductInformation: FC<ProductInformationProps> = ({
 
   const { path } = usePath();
 
-  const attributesToDisplay = ['color', 'finish', 'size', 'color-label', 'finish-label'];
+  const attributesToDisplay = [
+    'color',
+    'finish',
+    'size',
+    'color-label',
+    'finish-label',
+  ];
 
   const discountPercentage =
-    variant.discountedPrice &&
-    ((variant.price?.centAmount as number) - (variant.discountedPrice?.value?.centAmount as number)) /
-      (variant.price?.centAmount as number);
+    variant?.price?.discounted &&
+    ((variant?.price?.centAmount as number) -
+      (variant?.price?.discounted?.centAmount as number)) /
+      (variant?.price?.centAmount as number);
 
   const updateVariantSKU = (sku: string) => {
-    router.replace(`/${path.split('/').filter(Boolean).slice(0, -1).join('/')}/${sku}`);
+    router.replace(
+      `/${path.split('/').filter(Boolean).slice(0, -1).join('/')}/${sku}`,
+    );
   };
 
-  const productToWishlistLineItem = useMemo<LineItem>(() => {
-    return {
-      lineItemId: product?.productId ?? '',
-      productId: product?.productId,
-      productKey: product?.productKey,
-      productRef: product?.productRef,
-      name: product?.name,
-      count: 1,
-      variant: variant,
-      addedAt: new Date(),
-      _url: product?._url,
-    };
-  }, [product, variant]);
-
-  const titleClassName = useClassNames(['break-normal mb-12', { '2xl:text-18': !inModalVersion }]);
+  const titleClassName = useClassNames([
+    'break-normal mb-12',
+    { '2xl:text-18': !inModalVersion },
+  ]);
   const priceClassName = useClassNames([
     'block leading-loose',
     { 'line-through text-gray-500': !!discountPercentage },
@@ -69,39 +63,56 @@ const ProductInformation: FC<ProductInformationProps> = ({
 
   return (
     <div>
-      <div className="relative flex items-center justify-between pr-40">
-        <h1 className={`${titleClassName} font-medium leading-loose`}>{product?.name}</h1>
+      <div className="relative flex items-start justify-between pr-10">
+        <h1 className={`${titleClassName} font-medium leading-loose`}>
+          {product?.name}
+        </h1>
         <WishlistButton
-          lineItem={productToWishlistLineItem}
-          data={wishlist}
-          removeFromWishlist={removeLineItem}
-          addToWishlist={addToWishlist}
+          productId={product?.id ?? ''}
+          variantId={variant?.id ?? 0}
+          className="size-7 lg:size-8"
         />
       </div>
       {discountPercentage ? (
         <div className="flex flex-row justify-between">
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-2">
             <p className={discountedPriceClassName}>
-              {CurrencyHelpers.formatForCurrency(variant.discountedPrice?.value as number, locale)}
+              {formatMoney(
+                variant?.price?.centAmount ?? 0,
+                variant?.price?.currencyCode ?? 'USD',
+                locale,
+              )}
             </p>
-            <p className={priceClassName}>{CurrencyHelpers.formatForCurrency(variant.price ?? 0, locale)}</p>
+            <p className={priceClassName}>
+              {formatMoney(
+                variant?.price?.centAmount ?? 0,
+                variant?.price?.currencyCode ?? 'USD',
+                locale,
+              )}
+            </p>
           </div>
 
           {
-            <span className="mb-8 ml-8 mt-10 flex h-25 w-45 items-center justify-center bg-red-500 text-11 text-white">
+            <span className="mb-2 ml-2 mt-2.5 flex h-6 w-11 items-center justify-center bg-red-500 text-11 text-white">
               {translate('common.percentage', { value: discountPercentage })}
             </span>
           }
         </div>
       ) : (
-        <p className={priceClassName}>{CurrencyHelpers.formatForCurrency(variant.price as number, locale)}</p>
+        <p className={priceClassName}>
+          {formatMoney(
+            variant?.price?.centAmount ?? 0,
+            variant?.price?.currencyCode ?? 'USD',
+            locale,
+          )}
+        </p>
       )}
       {attributesToDisplay.map((attribute) => {
-        if (variant?.attributes?.[attribute]) {
+        if (variant?.attributes?.some(({ name }) => name === attribute)) {
           return (
             <ProductVariant
               key={attribute}
-              className="mt-20 border-b border-b-neutral-400 pb-20 md:mt-24"
+              className="mt-5 border-b border-b-neutral-400 pb-5 md:mt-6"
               variants={product?.variants}
               currentVariant={variant}
               attribute={attribute}
