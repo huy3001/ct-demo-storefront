@@ -6,6 +6,7 @@ import Pagination from './Pagination';
 import ActiveFilters from './ActiveFilters';
 import ProductsPerPageSelect from './ProductsPerPageSelect';
 import Link from 'next/link';
+import Breadcrumb from '@/components/ui/molecules/breadcrumb';
 import type { Category } from '@/lib/types';
 
 export default function SearchResultsView({
@@ -43,6 +44,24 @@ export default function SearchResultsView({
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10">
+      <Breadcrumb
+        Separator="/"
+        className="mb-7 hidden w-fit md:block"
+        listClassName="px-0!"
+      >
+        <Link
+          href={`/${locale}/`}
+          locale={locale}
+          className="text-sm text-charcoal-light hover:text-terra"
+        >
+          Home
+        </Link>
+
+        <span className="cursor-default text-sm truncate text-charcoal">
+          {title}
+        </span>
+      </Breadcrumb>
+
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">{title}</h1>
         {description && (
@@ -59,6 +78,7 @@ export default function SearchResultsView({
               <Link
                 key={subcategory.id}
                 href={`/${locale}/category/${subcategory.slug}`}
+                locale={locale}
                 className="rounded-full border border-border bg-white px-4 py-2 text-sm text-charcoal hover:border-terra hover:text-terra"
               >
                 {subcategory.name}

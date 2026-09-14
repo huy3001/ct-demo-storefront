@@ -16,7 +16,7 @@ const Breadcrumb = ({
     <nav className={`scrollbar-hide relative max-w-full overflow-x-auto ${className}`} aria-label="Breadcrumb">
       <ol
         role="list"
-        className={`flex items-center justify-start gap-x-4 gap-y-22 whitespace-pre px-16 ${listClassName}`}
+        className={`flex items-center justify-start gap-x-1 gap-y-5.5 whitespace-pre px-4 ${listClassName}`}
       >
         {React.Children.map(children, (Child, index) => (
           <>
