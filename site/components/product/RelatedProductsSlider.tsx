@@ -6,8 +6,11 @@ import { A11y, Keyboard } from 'swiper/modules';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import type { Product } from '@/lib/types';
 import { Link } from '@/i18n/routing';
-import ProductCard from './ProductCard';
+// import ProductCard from './ProductCard';
 import Button from '@/components/ui/atoms/button';
+import ProductTile from '@/components/ui/molecules/product-tile';
+import { shippingMethods } from '@/helpers/mocks/mockCommonData';
+import { wishlist } from '@/helpers/mocks/mockData';
 
 import 'swiper/css';
 
@@ -102,9 +105,10 @@ export default function RelatedProductsSlider({
               key={product.id}
               className="h-auto"
             >
-              <ProductCard
+              <ProductTile
                 product={product}
-                locale={locale}
+                wishlist={wishlist}
+                shippingMethods={shippingMethods}
               />
             </SwiperSlide>
           ))}

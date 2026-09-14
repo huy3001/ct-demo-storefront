@@ -14,6 +14,8 @@
   --color-sage: #7d9b7a;
   --color-border: #e5e0d8;
   --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --text-xxs: 0.625rem;
+  --text-xxs--line-height: 1;
 }
 
 :root {

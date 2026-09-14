@@ -17,15 +17,15 @@ const Prices: React.FC<Props> = ({ price, discountedPrice }) => {
   return (
     <>
       {discountedPrice ? (
-        <div className="flex items-center gap-8">
-          <p className="text-11 font-medium leading-loose text-red-500 md:text-14">
+        <div className="flex items-center gap-2">
+          <p className="text-xs font-medium leading-loose text-red-500 md:text-sm">
             {formatMoney(
               discountedPrice?.centAmount ?? 0,
               discountedPrice?.currencyCode ?? 'USD',
               locale,
             )}
           </p>
-          <p className="text-10 font-medium leading-loose text-gray-500 line-through md:text-12">
+          <p className="text-xxs font-medium leading-loose text-gray-500 line-through md:text-xs">
             {formatMoney(
               price?.centAmount ?? 0,
               price?.currencyCode ?? 'USD',
@@ -34,7 +34,7 @@ const Prices: React.FC<Props> = ({ price, discountedPrice }) => {
           </p>
         </div>
       ) : (
-        <p className="text-11 font-medium leading-loose text-primary md:text-14">
+        <p className="text-xs font-medium leading-loose text-primary md:text-sm">
           {formatMoney(
             price?.centAmount ?? 0,
             price?.currencyCode ?? 'USD',

@@ -15,6 +15,7 @@ import { Cart, ShippingMethod } from '@/types/entity/cart';
 import { LineItem, Wishlist } from '@/types/entity/wishlist';
 import Prices from './prices';
 import useTrack from './useTrack';
+import { ProductReviewBlock } from '@/components/product/ProductReviews';
 import type { Product, Variant } from '@/lib/types';
 import type { Attribute } from '@commercetools/platform-sdk';
 
@@ -202,6 +203,7 @@ const ProductTile: FC<ProductTileProps> = ({
           <div className="mt-1 block max-w-[80%] overflow-hidden text-ellipsis whitespace-pre text-xs uppercase leading-loose md:mt-3 md:text-sm">
             {product?.name}
           </div>
+          <ProductReviewBlock reviews={product.reviews ?? []} />
           {!disableVariants && (
             <div className="mt-2 flex items-center gap-1 md:mt-3">
               {product?.variants
