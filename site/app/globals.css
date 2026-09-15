@@ -53,7 +53,7 @@ input[type=number] {
   appearance: textfield;
 }
 
-form {
+/* form {
   .form-field {
     &:has(:required) {
       label {
@@ -65,7 +65,7 @@ form {
       }
     }
   }
-}
+} */
 
 .commercetools-checkout-embedded {
   [data-testid="checkout"] {

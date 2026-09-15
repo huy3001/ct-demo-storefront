@@ -55,36 +55,36 @@ const Checkbox: React.FC<CheckboxProps> = ({
     onMouseLeave?.(e);
   };
 
-  const containerClassNames = useClassNames(['flex items-center gap-12', containerClassName]);
+  const containerClassNames = useClassNames(['flex items-center gap-3', containerClassName]);
   const buttonClassName = useClassNames([
-    'h-20 w-20 min-w-[20px] rounded-sm relative cursor-pointer ',
+    'h-5 w-5 min-w-5 rounded-sm relative cursor-pointer ',
     isHovered ? 'outline-gray-600' : 'outline-neutral-400',
   ]);
 
   const inputClassName = useClassNames([
-    'absolute w-full h-full z-[2] checked:bg-none bg-transparent focus:border-gray-600 rounded-sm text-transparent border-neutral-400',
+    'absolute w-full h-full z-[2] accent-charcoal cursor-pointer checked:bg-none bg-transparent focus:border-gray-600 rounded-sm text-transparent border-neutral-400',
     className,
   ]);
 
   const iconClassName = useClassNames([
-    'absolute top-[50%] z-[1] left-[50%] h-16 w-16 translate-y-[-50%] translate-x-[-50%] stroke-[2px]',
+    'absolute top-[50%] z-[1] left-[50%] h-4 w-4 translate-y-[-50%] translate-x-[-50%] stroke-[2px]',
     isChecked || isHovered ? 'block' : 'hidden',
-    isChecked && !disableBackground ? 'text-white' : 'text-gray-600',
+    isChecked && !disableBackground ? 'text-white' : 'text-charcoal',
   ]);
 
-  const backgroundClassName = useClassNames(['absolute z-0 h-20 w-20 rounded-sm', { 'bg-gray-600': !!isChecked }]);
+  const backgroundClassName = useClassNames(['absolute z-0 h-5 w-5 rounded-sm', { 'bg-gray-600': !!isChecked }]);
 
   const LabelElement = (
-    <label id="input-label" className="text-14 text-gray-600">
+    <span id="input-label" className="text-sm text-charcoal">
       {label}
-    </label>
+    </span>
   );
 
   return (
-    <div className={containerClassNames} onClick={handleContainerClick}>
+    <label className={containerClassNames} onClick={handleContainerClick}>
       {label && labelPosition === 'on-left' && LabelElement}
 
-      <div className={buttonClassName}>
+      <span className={buttonClassName}>
         <input
           ref={checkboxRef}
           type="checkbox"
@@ -100,10 +100,10 @@ const Checkbox: React.FC<CheckboxProps> = ({
         <CheckIcon className={iconClassName} />
 
         {!disableBackground && <div className={backgroundClassName} />}
-      </div>
+      </span>
 
       {label && labelPosition === 'on-right' && LabelElement}
-    </div>
+    </label>
   );
 };
 

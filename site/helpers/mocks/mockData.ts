@@ -1169,7 +1169,12 @@ export const variant: Variant = {
   sku: 'M0E20000000DSDJ',
   price: { centAmount: 71820, currencyCode: 'EUR', fractionDigits: 2 },
   isOnStock: true,
-  attributes: { articleNumberManufacturer: '621540423 V0065', articleNumberMax: '78695', baseId: '78695', size: 'XXS' },
+  attributes: {
+    articleNumberManufacturer: '621540423 V0065',
+    articleNumberMax: '78695',
+    baseId: '78695',
+    size: 'XXS',
+  },
 };
 
 export const lineItemsOrderHistory: CartLineItem[] = [
@@ -1199,7 +1204,11 @@ export const lineItemsOrderHistory: CartLineItem[] = [
   },
 ];
 
-export const moneyMock: Required<Money> = { centAmount: 71820, currencyCode: 'EUR', fractionDigits: 2 };
+export const moneyMock: Required<Money> = {
+  centAmount: 71820,
+  currencyCode: 'EUR',
+  fractionDigits: 2,
+};
 
 export const shippingInfoMock: ShippingInfo = {
   shippingMethodId: 'shipping-method-mock-id',
@@ -1245,7 +1254,9 @@ const lineItems: LineItem[] = [
     type: 'Clothes',
     variant: {
       sku: 'SKU',
-      images: ['https://tailwindui.com/img/ecommerce-images/shopping-cart-page-01-product-01.jpg'],
+      images: [
+        'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-01-product-01.jpg',
+      ],
     },
   },
 ];
@@ -1300,7 +1311,9 @@ export const frontasticImage: ImageProps = {
   },
 };
 
-export const headerLogo = { media: 'https://cpmr-islands.org/wp-content/uploads/sites/4/2019/07/test.png' };
+export const headerLogo = {
+  media: 'https://cpmr-islands.org/wp-content/uploads/sites/4/2019/07/test.png',
+};
 
 export const headerButtonLink = {
   type: 'page-folder',
@@ -1347,3 +1360,13 @@ export const headerLinks = [
     },
   },
 ];
+
+export const notFoundImage = {
+  media: {
+    file: 'https://images.us-east-2.aws.commercetools.com/1a6aae69-17a8-469c-992e-fb6a71954696/not-found-O8fjAwno.png',
+    mediaId: '1a6aae69-17a8-469c-992e-fb6a71954696',
+    name: 'Not Found Image',
+    width: 1598,
+    height: 1352,
+  },
+};

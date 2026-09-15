@@ -38,14 +38,14 @@ const DefaultDropdown: FC<DropdownProps> = ({
   const containerClassNames = useClassNames(['grid', containerClassName]);
 
   const selectClassName = useClassNames([
-    'absolute font-body z-[1] h-40 text-14 border border-neutral-500 focus:ring-0 rounded-md w-full focus:border-gray-500 bg-transparent disabled:bg-neutral-200 bg-none font-regular leading-loose pl-12 pr-0 py-0',
+    'absolute appearance-none font-body z-1 h-10 text-sm border border-gray-300 focus:ring-0 focus:outline-none rounded-sm w-full focus:border-gray-400 bg-white disabled:bg-neutral-200 bg-none font-regular leading-loose pl-3 pr-0 py-0',
     className,
     {
       'border-red-500': error,
     },
   ]);
 
-  const labelClassNames = useClassNames(['mb-8 text-gray-600 leading-loose font-medium text-14', labelClassName]);
+  const labelClassNames = useClassNames(['mb-2 text-gray-600 leading-loose font-medium text-sm', labelClassName]);
 
   return (
     <div className={containerClassNames}>
@@ -53,7 +53,7 @@ const DefaultDropdown: FC<DropdownProps> = ({
         <label htmlFor={props.name} className={labelClassNames}>{`${label}${props.required ? ' *' : ''}`}</label>
       )}
 
-      <div className="relative h-40 min-w-64 overflow-hidden">
+      <div className="relative h-10 min-w-16 overflow-hidden">
         <select id={props.name} className={selectClassName} value={selectedValue} onChange={handleChange} {...props}>
           {items.map(({ label, value }, index) => (
             <option key={index} value={value}>
@@ -64,10 +64,10 @@ const DefaultDropdown: FC<DropdownProps> = ({
 
         <ChevronDownIcon
           data-testid="chevron-down-icon"
-          className="absolute right-5 top-1/2 z-0 h-20 w-30 -translate-y-1/2 stroke-1 text-gray-600"
+          className="absolute right-1 top-1/2 z-2 h-5 w-7.5 -translate-y-1/2 stroke-1 text-charcoal"
         />
       </div>
-      <p className="mt-2 text-12 font-medium text-red-500">{error && translate('common.fieldIsRequired')}</p>
+      <p className="mt-0.5 text-xs font-medium text-red-500">{error && translate('common.fieldIsRequired')}</p>
     </div>
   );
 };

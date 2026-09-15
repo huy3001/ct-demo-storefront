@@ -7,6 +7,10 @@ import type { BaseAddress } from '@commercetools/platform-sdk';
 import { useAccount } from '@/hooks/useAccount';
 import { customerPhone } from '@/lib/customer-profile';
 import { COUNTRY_CONFIG } from '@/lib/utils';
+import Button from '@/components/ui/atoms/button';
+import Checkbox from '@/components/ui/atoms/checkbox';
+import Dropdown from '@/components/ui/atoms/dropdown';
+import Input from '@/components/ui/atoms/input';
 
 type AddressFields = Pick<
   BaseAddress,
@@ -45,6 +49,12 @@ export default function AddressForm({
   const [status, setStatus] = useState<'idle' | 'saving' | 'error'>('idle');
   const [validationError, setValidationError] = useState('');
 
+  const dropdownItems = Object.entries(COUNTRY_CONFIG).map(([key, value]) => ({
+    id: key,
+    label: value.label,
+    value: value.country,
+  }));
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (![form.firstName, form.lastName, form.email, form.state].every((value) => value?.trim())) {
@@ -78,17 +88,12 @@ export default function AddressForm({
   return (
     <form
       onSubmit={onSubmit}
-      className="space-y-4"
+      className="space-y-6"
     >
-      <div className="flex gap-3">
+      <div className="flex gap-4">
         <div className="form-field w-1/2">
-          <label
-            htmlFor="firstName"
-            className="block text-sm mb-1"
-          >
-            First name
-          </label>
-          <input
+          <Input
+            label="First name"
             id="firstName"
             required
             placeholder="First name"
@@ -97,17 +102,11 @@ export default function AddressForm({
             onChange={(e) =>
               setForm((f) => ({ ...f, firstName: e.target.value }))
             }
-            className="w-full rounded-sm border border-border px-3 py-2 text-sm"
           />
         </div>
         <div className="form-field w-1/2">
-          <label
-            htmlFor="lastName"
-            className="block text-sm mb-1"
-          >
-            Last name
-          </label>
-          <input
+          <Input
+            label="Last name"
             id="lastName"
             required
             placeholder="Last name"
@@ -116,19 +115,13 @@ export default function AddressForm({
             onChange={(e) =>
               setForm((f) => ({ ...f, lastName: e.target.value }))
             }
-            className="w-full rounded-sm border border-border px-3 py-2 text-sm"
           />
         </div>
       </div>
-      <div className="flex gap-3">
+      <div className="flex gap-4">
         <div className="form-field w-1/2">
-          <label
-            htmlFor="email"
-            className="block text-sm mb-1"
-          >
-            Email
-          </label>
-          <input
+          <Input
+            label="Email"
             id="email"
             required
             type="email"
@@ -136,35 +129,23 @@ export default function AddressForm({
             autoComplete="email"
             value={form.email}
             onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-            className="w-full rounded-sm border border-border px-3 py-2 text-sm"
           />
         </div>
         <div className="form-field w-1/2">
-          <label
-            htmlFor="phone"
-            className="block text-sm mb-1"
-          >
-            Phone number
-          </label>
-          <input
+          <Input
+            label="Phone number"
             id="phone"
             type="tel"
             placeholder="Phone number (optional)"
             autoComplete="tel"
             value={form.phone}
             onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
-            className="w-full rounded-sm border border-border px-3 py-2 text-sm"
           />
         </div>
       </div>
       <div className="form-field w-full">
-        <label
-          htmlFor="streetName"
-          className="block text-sm mb-1"
-        >
-          Street address
-        </label>
-        <input
+        <Input
+          label="Street address"
           id="streetName"
           required
           placeholder="Street"
@@ -172,34 +153,22 @@ export default function AddressForm({
           onChange={(e) =>
             setForm((f) => ({ ...f, streetName: e.target.value }))
           }
-          className="w-full rounded-sm border border-border px-3 py-2 text-sm"
         />
       </div>
-      <div className="flex gap-3">
+      <div className="flex gap-4">
         <div className="form-field w-1/2">
-          <label
-            htmlFor="city"
-            className="block text-sm mb-1"
-          >
-            City
-          </label>
-          <input
+          <Input
+            label="City"
             id="city"
             required
             placeholder="City"
             value={form.city}
             onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
-            className="w-full rounded-sm border border-border px-3 py-2 text-sm"
           />
         </div>
         <div className="form-field w-1/2">
-          <label
-            htmlFor="postalCode"
-            className="block text-sm mb-1"
-          >
-            Postal code
-          </label>
-          <input
+          <Input
+            label="Postal code"
             id="postalCode"
             required
             placeholder="Postal code"
@@ -207,83 +176,58 @@ export default function AddressForm({
             onChange={(e) =>
               setForm((f) => ({ ...f, postalCode: e.target.value }))
             }
-            className="w-full rounded-sm border border-border px-3 py-2 text-sm"
           />
         </div>
       </div>
-      <div className="flex gap-3">
+      <div className="flex gap-4">
         <div className="form-field w-1/2">
-          <label
-            htmlFor="state"
-            className="block text-sm mb-1"
-          >
-            State
-          </label>
-          <input
+          <Input
+            label="State"
             id="state"
             required
             placeholder="State"
             autoComplete="address-level1"
             value={form.state}
             onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))}
-            className="w-full rounded-sm border border-border px-3 py-2 text-sm"
           />
         </div>
         <div className="form-field w-1/2">
-          <label
-            htmlFor="country"
-            className="block text-sm mb-1"
-          >
-            Country
-          </label>
-          <select
+          <Dropdown
+            label="Country"
             id="country"
             required
             value={form.country}
             onChange={(e) =>
               setForm((f) => ({ ...f, country: e.target.value.toUpperCase() }))
             }
-            className="w-full rounded-sm border border-border px-3 py-2 text-sm"
-          >
-            {Object.entries(COUNTRY_CONFIG).map(([countryCode, config]) => (
-              <option key={countryCode} value={config.country}>
-                {config.label}
-              </option>
-            ))}
-          </select>
+            items={dropdownItems}
+          />
         </div>
       </div>
-      <div className="space-y-3 text-sm">
-        <label className="flex cursor-pointer items-center gap-2">
-          <input
-            type="checkbox"
-            checked={defaultShipping}
-            onChange={(e) => setDefaultShipping(e.target.checked)}
-            className="h-4 w-4 accent-charcoal"
-          />
-          Set as default shipping address
-        </label>
-        <label className="flex cursor-pointer items-center gap-2">
-          <input
-            type="checkbox"
-            checked={defaultBilling}
-            onChange={(e) => setDefaultBilling(e.target.checked)}
-            className="h-4 w-4 accent-charcoal"
-          />
-          Set as default billing address
-        </label>
+      <div className="space-y-4 text-sm">
+        <Checkbox
+          label="Set as default shipping address"
+          checked={defaultShipping}
+          onChange={(e) => setDefaultShipping(e.checked)}
+          containerClassName="cursor-pointer"
+        />
+        <Checkbox
+          label="Set as default billing address"
+          checked={defaultBilling}
+          onChange={(e) => setDefaultBilling(e.checked)}
+          containerClassName="cursor-pointer"
+        />
       </div>
-      <button
+      <Button
         type="submit"
         disabled={status === 'saving'}
-        className="rounded-sm bg-charcoal px-5 py-2 text-sm text-white hover:bg-charcoal-light disabled:opacity-60"
       >
         {status === 'saving'
           ? 'Saving…'
           : addressId
             ? 'Save address'
             : 'Add address'}
-      </button>
+      </Button>
       {validationError && (
         <p className="text-sm text-red-600">{validationError}</p>
       )}

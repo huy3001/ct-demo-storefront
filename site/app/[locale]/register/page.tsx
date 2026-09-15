@@ -4,6 +4,9 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Link } from '@/i18n/routing';
 import { useAccount } from '@/hooks/useAccount';
+import Button from '@/components/ui/atoms/button';
+import Input from '@/components/ui/atoms/input';
+import PasswordInput from '@/components/ui/atoms/input-password';
 
 export default function RegisterPage() {
   const { locale } = useParams<{ locale: string }>();
@@ -36,85 +39,61 @@ export default function RegisterPage() {
       <h1 className="text-2xl font-semibold mb-8">Create an account</h1>
       <form
         onSubmit={onSubmit}
-        className="space-y-4"
+        className="space-y-6"
       >
         <div className="flex gap-3">
           <div className="form-field w-1/2">
-            <label
-              htmlFor="firstName"
-              className="block text-sm mb-1"
-            >
-              First name
-            </label>
-            <input
+            <Input
+              label="First name"
               id="firstName"
               required
               placeholder="First name"
               value={form.firstName}
               onChange={update('firstName')}
-              className="w-full border border-border rounded-sm px-3 py-2 text-sm"
             />
           </div>
           <div className="form-field w-1/2">
-            <label
-              htmlFor="lastName"
-              className="block text-sm mb-1"
-            >
-              Last name
-            </label>
-            <input
+            <Input
+              label="Last name"
               id="lastName"
               required
               placeholder="Last name"
               value={form.lastName}
               onChange={update('lastName')}
-              className="w-full border border-border rounded-sm px-3 py-2 text-sm"
             />
           </div>
         </div>
         <div className="form-field w-full">
-          <label
-            htmlFor="email"
-            className="block text-sm mb-1"
-          >
-            Email
-          </label>
-          <input
+          <Input
+            label="Email"
             id="email"
             type="email"
             required
             placeholder="Email"
             value={form.email}
             onChange={update('email')}
-            className="w-full border border-border rounded-sm px-3 py-2 text-sm"
           />
         </div>
         <div className="form-field w-full">
-          <label
-            htmlFor="password"
-            className="block text-sm mb-1"
-          >
-            Password
-          </label>
-          <input
+          <PasswordInput
+            label="Password"
             id="password"
-            type="password"
             required
             minLength={8}
             placeholder="Password"
             value={form.password}
             onChange={update('password')}
-            className="w-full border border-border rounded-sm px-3 py-2 text-sm"
           />
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
-        <button
+        <Button
           type="submit"
           disabled={loading}
-          className="w-full bg-charcoal text-white py-2.5 rounded-sm text-sm hover:bg-charcoal-light disabled:opacity-50"
+          size="full"
+          variant="primary"
         >
           {loading ? 'Creating account…' : 'Create account'}
-        </button>
+        </Button>
       </form>
       <p className="text-sm text-charcoal-light mt-6">
         <span>Already have an account? </span>

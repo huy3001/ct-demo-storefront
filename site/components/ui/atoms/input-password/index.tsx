@@ -11,12 +11,12 @@ const PasswordInput: FC<InputProps> = (props) => {
     setType(type === 'password' ? 'text' : 'password');
   };
 
-  const iconsClassName = 'w-15 h-15';
+  const iconsClassName = 'w-4 h-4';
 
   return (
     <div className="relative">
       <Input type={type} hideCheckIcon {...props}>
-        <span className="absolute right-12 top-20 z-10 -translate-y-1/2 hover:cursor-pointer" onClick={toggleHidden}>
+        <span className="absolute right-3 top-5 z-10 -translate-y-1/2 hover:cursor-pointer" onClick={toggleHidden}>
           {hidden ? (
             <EyeSlashIcon data-testid="show-password-icon" className={iconsClassName} />
           ) : (

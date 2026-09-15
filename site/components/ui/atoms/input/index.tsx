@@ -58,25 +58,25 @@ const Input: FC<InputProps> = ({
 
   const labelClassName = useClassNames([
     labelPosition ? 'leading-loose' : 'leading-normal',
-    labelPosition === 'top' ? 'text-14' : 'text-10',
+    labelPosition === 'top' ? 'text-sm' : 'text-xxs',
     'font-medium',
     { ['text-gray-600']: labelPosition === 'top' },
     { [isFocused && label ? 'opacity-1 scale-100' : 'scale-0 opacity-0']: labelPosition === 'inline' },
     {
-      ['absolute top-[6px] left-[12px] font-medium block transition duration-150 ease-out']: labelPosition === 'inline',
+      ['absolute top-1.5 left-3 font-medium block transition duration-150 ease-out']: labelPosition === 'inline',
     },
   ]);
 
   const labelContainerClassName = useClassNames([
     {
-      'mb-8': labelPosition === 'top',
+      'mb-2': labelPosition === 'top',
     },
   ]);
 
   const inputClassName = useClassNames([
-    'h-40 focus:border-gray-400 focus:ring-0 w-full rounded-md border border-gray-300 px-12 text-primary placeholder:text-14 placeholder:leading-normal placeholder:text-gray-600 focus:outline-none disabled:cursor-not-allowed disabled:bg-neutral-400',
+    'h-10 focus:border-gray-400 focus:ring-0 w-full rounded-sm border border-gray-300 px-3 text-charcoal text-sm placeholder:text-sm placeholder:leading-normal placeholder:text-gray-600 focus:outline-none disabled:cursor-not-allowed disabled:bg-neutral-400',
     bgClassName,
-    isFocused && label && labelPosition == 'inline' ? 'pt-[20px] pb-[4px]' : 'py-10',
+    isFocused && label && labelPosition == 'inline' ? 'pt-5 pb-1' : 'py-2.5',
     {
       'border-red-500 focus:border-red-500': !!error,
     },
@@ -109,13 +109,13 @@ const Input: FC<InputProps> = ({
         {isDirty && !error && !isFocused && !hideCheckIcon && (
           <CheckIcon
             data-testid="check-icon"
-            className="absolute right-12 top-1/2 size-16 -translate-y-1/2 text-green-500"
+            className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-green-500"
           />
         )}
         {children}
       </div>
       {error && (
-        <span className="text-12 font-medium leading-4 text-red-500" id={`${id}_input_error`}>
+        <span className="text-xs font-medium leading-4 text-red-500" id={`${id}_input_error`}>
           {error ?? errorMessage}
         </span>
       )}

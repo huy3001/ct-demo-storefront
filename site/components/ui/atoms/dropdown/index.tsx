@@ -13,7 +13,7 @@ export interface DropdownProps extends Omit<ComponentProps<'select'>, 'key'> {
   className?: string;
   containerClassName?: string;
   labelClassName?: string;
-  items?: Array<{ label: string; value: string }>;
+  items?: Array<{ id?: string; label: string; value: string }>;
   label?: string;
   value?: string;
   defaultValue?: string;

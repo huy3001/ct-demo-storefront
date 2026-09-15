@@ -46,7 +46,7 @@ const Select: React.FC<Props> = ({
   const buttonClassNames = useCallback(
     (open?: boolean) => {
       return `${error ? 'border-red-500' : 'border-gray-300'}
-        relative w-full flex h-[40px] items-center rounded-sm border py-6 px-12 text-left
+        relative w-full flex h-10 items-center rounded-sm border py-1.5 px-3 text-left
         w-full bg-white focus:border-gray-500 focus:ring-0 border  focus:outline-none active:border-gray-400
         ${open ? 'border-gray-400' : ''}
         ${selectButtonClassName}`;
@@ -58,7 +58,7 @@ const Select: React.FC<Props> = ({
     <>
       {label && (
         <div className="mb-8">
-          <label className={labelClassName || 'text-14 font-medium text-gray-600'}>
+          <label className={labelClassName || 'text-sm font-medium text-gray-600'}>
             {required ? `${label} *` : label}
           </label>
         </div>
@@ -71,12 +71,12 @@ const Select: React.FC<Props> = ({
               data-test-error={error ? '1' : '0'}
               suppressHydrationWarning
             >
-              <span className="text-14">{selected?.name}</span>
+              <span className="text-sm">{selected?.name}</span>
               <span
-                className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-8"
+                className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
                 aria-label={translate('common.caret-down')}
               >
-                <ChevronDownIcon data-testid="chevron-down-icon" className="size-20 text-gray-600" aria-hidden="true" />
+                <ChevronDownIcon data-testid="chevron-down-icon" className="size-5 text-gray-600" aria-hidden="true" />
               </span>
             </ListboxButton>
             <Transition
@@ -87,12 +87,12 @@ const Select: React.FC<Props> = ({
               leaveFrom="transform origin-top scale-y-150"
               leaveTo="transform origin-top scale-y-0"
             >
-              <ListboxOptions className="z-50 mt-3 max-h-100 overflow-y-auto rounded-sm border border-gray-400 bg-white px-3 py-8 focus:outline-none focus:ring-0">
+              <ListboxOptions className="z-50 mt-1 max-h-25 overflow-y-auto rounded-sm border border-gray-400 bg-white px-1 py-2 focus:outline-none focus:ring-0">
                 {options.map((option) => (
                   <ListboxOption
                     key={option.value}
                     className={({ focus }) =>
-                      `relative w-full cursor-pointer select-none py-4 pl-8 pr-4 text-14 hover:bg-neutral-200 ${
+                      `relative w-full cursor-pointer select-none py-1 pl-2 pr-1 text-sm hover:bg-neutral-200 ${
                         focus ? 'bg-neutral-200' : ''
                       }`
                     }
@@ -104,7 +104,7 @@ const Select: React.FC<Props> = ({
                           {option.name}
                         </span>
                         {selected ? (
-                          <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                          <span className="absolute inset-y-0 left-0 flex items-center pl-1">
                             <CheckIcon className="size-5" aria-hidden="true" />
                           </span>
                         ) : null}

@@ -5,6 +5,9 @@ import { useSWRConfig } from 'swr';
 import type { Customer } from '@commercetools/platform-sdk';
 import { useAccount } from '@/hooks/useAccount';
 import { customerPhone } from '@/lib/customer-profile';
+import Button from '@/components/ui/atoms/button';
+import Input from '@/components/ui/atoms/input';
+import PasswordInput from '@/components/ui/atoms/input-password';
 
 export default function AccountProfilePage() {
   const { customer } = useAccount();
@@ -74,17 +77,12 @@ function ProfileForm({ customer }: { customer: Customer }) {
         <h1 className="mb-6 text-xl font-semibold">Update profile</h1>
         <form
           onSubmit={onSubmit}
-          className="space-y-4"
+          className="space-y-6"
         >
           <div className="flex gap-3">
             <div className="form-field w-1/2">
-              <label
-                htmlFor="firstName"
-                className="block text-sm mb-1"
-              >
-                First name
-              </label>
-              <input
+              <Input
+                label="First name"
                 id="firstName"
                 required
                 placeholder="First name"
@@ -92,17 +90,11 @@ function ProfileForm({ customer }: { customer: Customer }) {
                 onChange={(e) =>
                   setForm((f) => ({ ...f, firstName: e.target.value }))
                 }
-                className="w-full rounded-sm border border-border px-3 py-2 text-sm"
               />
             </div>
             <div className="form-field w-1/2">
-              <label
-                htmlFor="lastName"
-                className="block text-sm mb-1"
-              >
-                Last name
-              </label>
-              <input
+              <Input
+                label="Last name"
                 id="lastName"
                 required
                 placeholder="Last name"
@@ -110,19 +102,13 @@ function ProfileForm({ customer }: { customer: Customer }) {
                 onChange={(e) =>
                   setForm((f) => ({ ...f, lastName: e.target.value }))
                 }
-                className="w-full rounded-sm border border-border px-3 py-2 text-sm"
               />
             </div>
           </div>
           <div className="flex gap-3">
             <div className="form-field w-1/2">
-              <label
-                htmlFor="email"
-                className="block text-sm mb-1"
-              >
-                Email
-              </label>
-              <input
+              <Input
+                label="Email"
                 id="email"
                 required
                 type="email"
@@ -130,17 +116,11 @@ function ProfileForm({ customer }: { customer: Customer }) {
                 onChange={(e) =>
                   setForm((f) => ({ ...f, email: e.target.value }))
                 }
-                className="w-full rounded-sm border border-border px-3 py-2 text-sm"
               />
             </div>
             <div className="form-field w-1/2">
-              <label
-                htmlFor="phone"
-                className="block text-sm mb-1"
-              >
-                Phone number
-              </label>
-              <input
+              <Input
+                label="Phone number"
                 id="phone"
                 type="tel"
                 autoComplete="tel"
@@ -149,17 +129,15 @@ function ProfileForm({ customer }: { customer: Customer }) {
                 onChange={(e) =>
                   setForm((f) => ({ ...f, phone: e.target.value }))
                 }
-                className="w-full rounded-sm border border-border px-3 py-2 text-sm"
               />
             </div>
           </div>
-          <button
+          <Button
             type="submit"
             disabled={status === 'saving'}
-            className="rounded-sm bg-charcoal px-5 py-2 text-sm text-white hover:bg-charcoal-light disabled:opacity-60"
           >
             {status === 'saving' ? 'Saving…' : 'Save changes'}
-          </button>
+          </Button>
           {status === 'saved' && <p className="text-sm text-sage">Saved.</p>}
           {status === 'error' && (
             <p className="text-sm text-red-600">Something went wrong.</p>
@@ -171,19 +149,13 @@ function ProfileForm({ customer }: { customer: Customer }) {
         <h2 className="mb-6 text-xl font-semibold">Change password</h2>
         <form
           onSubmit={onPasswordSubmit}
-          className="space-y-4"
+          className="space-y-6"
         >
           <div className="form-field w-full">
-            <label
-              htmlFor="currentPassword"
-              className="block text-sm mb-1"
-            >
-              Current password
-            </label>
-            <input
+            <PasswordInput
+              label="Current password"
               id="currentPassword"
               required
-              type="password"
               autoComplete="current-password"
               placeholder="Current password"
               value={passwords.currentPassword}
@@ -193,21 +165,14 @@ function ProfileForm({ customer }: { customer: Customer }) {
                   currentPassword: e.target.value,
                 }))
               }
-              className="w-full rounded-sm border border-border px-3 py-2 text-sm"
             />
           </div>
           <div className="flex gap-3">
             <div className="form-field w-1/2">
-              <label
-                htmlFor="newPassword"
-                className="block text-sm mb-1"
-              >
-                New password
-              </label>
-              <input
+              <PasswordInput
+                label="New password"
                 id="newPassword"
                 required
-                type="password"
                 autoComplete="new-password"
                 placeholder="New password"
                 value={passwords.newPassword}
@@ -217,20 +182,13 @@ function ProfileForm({ customer }: { customer: Customer }) {
                     newPassword: e.target.value,
                   }))
                 }
-                className="w-full rounded-sm border border-border px-3 py-2 text-sm"
               />
             </div>
             <div className="form-field w-1/2">
-              <label
-                htmlFor="confirmPassword"
-                className="block text-sm mb-1"
-              >
-                Confirm new password
-              </label>
-              <input
+              <PasswordInput
+                label="Confirm new password"
                 id="confirmPassword"
                 required
-                type="password"
                 autoComplete="new-password"
                 placeholder="Confirm new password"
                 value={passwords.confirmPassword}
@@ -240,17 +198,15 @@ function ProfileForm({ customer }: { customer: Customer }) {
                     confirmPassword: e.target.value,
                   }))
                 }
-                className="w-full rounded-sm border border-border px-3 py-2 text-sm"
               />
             </div>
           </div>
-          <button
+          <Button
             type="submit"
             disabled={passwordStatus === 'saving'}
-            className="rounded-sm bg-charcoal px-5 py-2 text-sm text-white hover:bg-charcoal-light disabled:opacity-60"
           >
             {passwordStatus === 'saving' ? 'Changing…' : 'Change password'}
-          </button>
+          </Button>
           {passwordStatus === 'saved' && (
             <p className="text-sm text-sage">Password changed.</p>
           )}

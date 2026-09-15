@@ -19,7 +19,7 @@ const Icon: React.FC<Props> = ({ className, totalCartItems = 0, counterClassName
         </span>
       </>
     )}
-    <ShoppingBagIcon className={className} stroke="#494949" />
+    <ShoppingBagIcon className={className} />
   </div>
 );
 

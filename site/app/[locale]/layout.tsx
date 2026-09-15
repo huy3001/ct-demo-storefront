@@ -8,7 +8,6 @@ import Footer from '@/components/layout/Footer';
 import Toaster from '@/components/ui/atoms/toaster';
 import BackToTopButton from '@/components/layout/BackToTopButton';
 import { getCategoryTree } from '@/lib/ct/category';
-import '../globals.css';
 
 export const metadata: Metadata = {
   title: 'Storefront',
@@ -33,25 +32,18 @@ export default async function LocaleLayout({
   ]);
 
   return (
-    <html
-      lang={locale}
-      className="h-full"
+    <NextIntlClientProvider
+      locale={locale}
+      messages={messages}
     >
-      <body className="min-h-full flex flex-col bg-cream text-charcoal">
-        <NextIntlClientProvider
-          locale={locale}
-          messages={messages}
-        >
-          <Header
-            locale={locale}
-            categoryTree={categoryTree}
-          />
-          <main className="flex-1">{children}</main>
-          <Footer locale={locale} />
-          <BackToTopButton />
-          <Toaster />
-        </NextIntlClientProvider>
-      </body>
-    </html>
+      <Header
+        locale={locale}
+        categoryTree={categoryTree}
+      />
+      <main className="flex-1">{children}</main>
+      <Footer locale={locale} />
+      <BackToTopButton />
+      <Toaster />
+    </NextIntlClientProvider>
   );
 }
