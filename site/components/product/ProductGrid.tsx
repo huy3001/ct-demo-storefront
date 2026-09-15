@@ -1,14 +1,15 @@
 import type { Product } from '@/lib/types';
 import ProductTile from '@/components/ui/molecules/product-tile';
 import { shippingMethods } from '@/helpers/mocks/mockCommonData';
-import { wishlist } from '@/helpers/mocks/mockData';
 
 export default function ProductGrid({
   products,
   // locale,
+  showWishlistSelector = true,
 }: {
   products: Product[];
   locale?: string;
+  showWishlistSelector?: boolean;
 }) {
   if (products.length === 0) {
     return (
@@ -24,8 +25,8 @@ export default function ProductGrid({
         <ProductTile
           key={product.id}
           product={product}
-          wishlist={wishlist}
           shippingMethods={shippingMethods}
+          showWishlistSelector={showWishlistSelector}
         />
       ))}
     </div>

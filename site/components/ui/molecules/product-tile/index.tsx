@@ -24,6 +24,7 @@ export interface ProductTileProps {
   disableQuickView?: boolean;
   disableWishlistButton?: boolean;
   disableVariants?: boolean;
+  showWishlistSelector?: boolean;
   selectedVariantIndex?: number;
   cart?: Cart;
   shippingMethods?: ShippingMethod[];
@@ -37,6 +38,7 @@ const ProductTile: FC<ProductTileProps> = ({
   disableQuickView = false,
   disableWishlistButton = false,
   disableVariants = false,
+  showWishlistSelector = true,
   selectedVariantIndex = 0,
   cart,
   shippingMethods,
@@ -84,9 +86,7 @@ const ProductTile: FC<ProductTileProps> = ({
     return `/product/${name}` + (isSearchResult ? '?sr=1' : '');
   }, [product, isSearchResult]);
 
-  const getVariantColorCode = (
-    attributes: Attribute[] | undefined,
-  ) => {
+  const getVariantColorCode = (attributes: Attribute[] | undefined) => {
     if (!attributes) return undefined;
 
     const attributeValues = Array.isArray(attributes)
@@ -156,6 +156,7 @@ const ProductTile: FC<ProductTileProps> = ({
               productId={product.id}
               variantId={selectedVariant.id}
               className="size-7 lg:size-8"
+              showWishlistSelector={showWishlistSelector}
             />
           )}
         </span>
@@ -168,13 +169,14 @@ const ProductTile: FC<ProductTileProps> = ({
               </span>
             </div>
           )}
-          {!selectedVariant?.availability?.isOnStock && (
-            <div className="w-full text-center">
-              <div className="mb-2 ml-2">
-                <OutOfStock />
+          {selectedVariant?.availability &&
+            !selectedVariant?.availability?.isOnStock && (
+              <div className="w-full text-center">
+                <div className="mb-2 ml-2">
+                  <OutOfStock />
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           <QuickView
             buttonIsEnabled={isDesktopSize && !disableQuickView}
@@ -205,32 +207,38 @@ const ProductTile: FC<ProductTileProps> = ({
                         (getVariantColorCode(variant.attributes) ?? ''),
                     ) === index,
                 )
-                .map((variant, index) => (
-                  <span
-                    key={index}
-                    data-testid="product-variant"
-                    className={`block cursor-pointer rounded-full border p-1.5 ${
-                      variant.sku !== selectedVariant.sku
-                        ? 'border-neutral-300'
-                        : 'border-neutral-500'
-                    }`}
-                    style={{
-                      backgroundColor: getVariantColorCode(variant.attributes),
-                    }}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setUserSelectedVariant(variant);
-                    }}
-                  ></span>
-                ))}
+                .map((variant, index) => {
+                  return variant.attributes.length > 0 ? (
+                    <span
+                      key={index}
+                      data-testid="product-variant"
+                      className={`block cursor-pointer rounded-full border p-1.5 ${
+                        variant.sku !== selectedVariant.sku
+                          ? 'border-neutral-300'
+                          : 'border-neutral-500'
+                      }`}
+                      style={{
+                        backgroundColor: getVariantColorCode(
+                          variant.attributes,
+                        ),
+                      }}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setUserSelectedVariant(variant);
+                      }}
+                    ></span>
+                  ) : null;
+                })}
             </div>
           )}
-          <div className="mt-2 md:mt-3">
-            <Prices
-              price={selectedVariant?.price}
-              discountedPrice={discountedPrice}
-            />
-          </div>
+          {selectedVariant?.price && (
+            <div className="mt-2 md:mt-3">
+              <Prices
+                price={selectedVariant?.price}
+                discountedPrice={discountedPrice}
+              />
+            </div>
+          )}
         </div>
       </Link>
     </div>

@@ -15,12 +15,14 @@ interface WishlistButtonProps {
   productId: string;
   variantId: number;
   className?: string;
+  showWishlistSelector?: boolean;
 }
 
 const WishlistButton: FC<WishlistButtonProps> = ({
   productId,
   variantId,
   className,
+  showWishlistSelector = true,
 }) => {
   const router = useRouter();
   const pathname = usePathname();
@@ -61,7 +63,11 @@ const WishlistButton: FC<WishlistButtonProps> = ({
       return;
     }
 
-    setIsModalOpen(true);
+    if (showWishlistSelector) {
+      setIsModalOpen(true);
+      return;
+    }
+
     setProcessing(true);
     setError(null);
     try {

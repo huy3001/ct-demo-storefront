@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { Link } from '@/i18n/routing';
 import { useWishlist } from '@/hooks/useWishlist';
 import ProductGrid from '@/components/product/ProductGrid';
+import Button from '@/components/ui/atoms/button';
 import type { Product } from '@/lib/types';
 
 export default function WishlistDetailPage({ locale, wishlistId }: { locale: string; wishlistId: string }) {
@@ -97,14 +98,13 @@ export default function WishlistDetailPage({ locale, wishlistId }: { locale: str
 
       <div className="mt-8 flex items-center gap-2">
         {wishlist.lineItems.length > 0 && (
-          <button
-            type="button"
+          <Button
             onClick={onRemoveAll}
             disabled={isRemovingAll}
-            className="rounded-sm border border-border px-3 py-2 text-sm text-terra hover:border-red-600 hover:text-red-600 disabled:opacity-60 disabled:pointer-events-none"
+            variant="secondary"
           >
             {isRemovingAll ? 'Removing…' : 'Remove all products'}
-          </button>
+          </Button>
         )}
       </div>
     </div>

@@ -73,16 +73,36 @@ const ProductInformation: FC<ProductInformationProps> = ({
           className="size-7 lg:size-8"
         />
       </div>
-      {discountPercentage ? (
-        <div className="flex flex-row justify-between">
-          <div className="flex items-center gap-2">
-            <p className={discountedPriceClassName}>
-              {formatMoney(
-                variant?.price?.centAmount ?? 0,
-                variant?.price?.currencyCode ?? 'USD',
-                locale,
-              )}
-            </p>
+      {variant?.price && (
+        <>
+          {discountPercentage ? (
+            <div className="flex flex-row justify-between">
+              <div className="flex items-center gap-2">
+                <p className={discountedPriceClassName}>
+                  {formatMoney(
+                    variant?.price?.centAmount ?? 0,
+                    variant?.price?.currencyCode ?? 'USD',
+                    locale,
+                  )}
+                </p>
+                <p className={priceClassName}>
+                  {formatMoney(
+                    variant?.price?.centAmount ?? 0,
+                    variant?.price?.currencyCode ?? 'USD',
+                    locale,
+                  )}
+                </p>
+              </div>
+
+              {
+                <span className="mb-2 ml-2 mt-2.5 flex h-6 w-11 items-center justify-center bg-red-500 text-xs text-white">
+                  {translate('common.percentage', {
+                    value: discountPercentage,
+                  })}
+                </span>
+              }
+            </div>
+          ) : (
             <p className={priceClassName}>
               {formatMoney(
                 variant?.price?.centAmount ?? 0,
@@ -90,22 +110,8 @@ const ProductInformation: FC<ProductInformationProps> = ({
                 locale,
               )}
             </p>
-          </div>
-
-          {
-            <span className="mb-2 ml-2 mt-2.5 flex h-6 w-11 items-center justify-center bg-red-500 text-xs text-white">
-              {translate('common.percentage', { value: discountPercentage })}
-            </span>
-          }
-        </div>
-      ) : (
-        <p className={priceClassName}>
-          {formatMoney(
-            variant?.price?.centAmount ?? 0,
-            variant?.price?.currencyCode ?? 'USD',
-            locale,
           )}
-        </p>
+        </>
       )}
       {attributesToDisplay.map((attribute) => {
         if (variant?.attributes?.some(({ name }) => name === attribute)) {

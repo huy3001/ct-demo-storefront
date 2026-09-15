@@ -92,19 +92,32 @@ const ProductDetails: FC<ProductDetailsProps> = ({
   return (
     <div className={wrapperClassName}>
       {category && !inModalVersion && (
-        <Breadcrumb Separator="/" className="col-span-12 mb-6 hidden w-fit lg:block">
-          <Link key={category.id} link={`/category/${category.slug}`} className="text-sm text-gray-700">
+        <Breadcrumb
+          Separator="/"
+          className="col-span-12 mb-6 hidden w-fit lg:block"
+        >
+          <Link
+            key={category.id}
+            link={`/category/${category.slug}`}
+            className="text-sm text-gray-700"
+          >
             <h2>{category.name}</h2>
           </Link>
 
-          <h2 key={product.slug} className="cursor-default text-sm text-gray-500">
+          <h2
+            key={product.slug}
+            className="cursor-default text-sm text-gray-500"
+          >
             {product.name}
           </h2>
         </Breadcrumb>
       )}
 
       <div className={galleryContainerClassName}>
-        <Gallery images={variant.images ?? []} inModalVersion={inModalVersion} />
+        <Gallery
+          images={variant.images ?? []}
+          inModalVersion={inModalVersion}
+        />
       </div>
 
       <div className={informationContainerClassName}>
@@ -116,33 +129,51 @@ const ProductDetails: FC<ProductDetailsProps> = ({
           inModalVersion={inModalVersion}
         />
 
-        {!variant?.availability?.isOnStock && (
-          <div className="pt-5">
-            <p className="font-medium text-red-500">{translate('product.outOfStock')}</p>
-          </div>
+        {variant?.availability && (
+          <>
+            {!variant?.availability?.isOnStock && (
+              <div className="pt-5">
+                <p className="font-medium text-red-500">
+                  {translate('product.outOfStock')}
+                </p>
+              </div>
+            )}
+
+            <div className="flex gap-2 pt-5">
+              <QuantitySelector
+                value={quantity}
+                minValue={
+                  inCartQuantity >=
+                  (variant?.availability?.availableQuantity ?? 0)
+                    ? 0
+                    : Number(variant?.availability?.isOnStock)
+                }
+                maxValue={
+                  (variant?.availability?.availableQuantity ?? Infinity) -
+                  inCartQuantity
+                }
+                disabled={!variant?.availability?.isOnStock}
+                onChange={setQuantity}
+              />
+              <Button
+                className="w-full rounded-sm text-sm font-medium"
+                variant="primary"
+                onClick={handleAddToCart}
+                loading={loading}
+                added={added}
+                disabled={!variant?.availability?.isOnStock}
+              >
+                {variant?.availability?.isOnStock
+                  ? translate('cart.cart-add')
+                  : translate('product.currently-unavailable')}
+              </Button>
+            </div>
+          </>
         )}
 
-        <div className="flex gap-2 pt-5">
-          <QuantitySelector
-            value={quantity}
-            minValue={inCartQuantity >= (variant?.availability?.availableQuantity ?? 0) ? 0 : Number(variant?.availability?.isOnStock)}
-            maxValue={(variant?.availability?.availableQuantity ?? Infinity) - inCartQuantity}
-            disabled={!variant?.availability?.isOnStock}
-            onChange={setQuantity}
-          />
-          <Button
-            className="w-full rounded-sm text-sm font-medium"
-            variant="primary"
-            onClick={handleAddToCart}
-            loading={loading}
-            added={added}
-            disabled={!variant?.availability?.isOnStock}
-          >
-            {variant?.availability?.isOnStock ? translate('cart.cart-add') : translate('product.currently-unavailable')}
-          </Button>
-        </div>
-
-        {!inModalVersion && <ShippingSection shippingMethods={shippingMethods} />}
+        {!inModalVersion && (
+          <ShippingSection shippingMethods={shippingMethods} />
+        )}
 
         {inModalVersion && (
           <Link
