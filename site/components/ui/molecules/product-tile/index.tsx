@@ -12,7 +12,6 @@ import useVariantWithDiscount from '@/hooks/useVariantWithDiscount';
 import { textToColor } from '@/helpers/textToColor/textToColor';
 import { desktop } from '@/helpers/utils/screensizes';
 import { Cart, ShippingMethod } from '@/types/entity/cart';
-import { LineItem, Wishlist } from '@/types/entity/wishlist';
 import Prices from './prices';
 import useTrack from './useTrack';
 import { ProductReviewBlock } from '@/components/product/ProductReviews';
@@ -26,12 +25,9 @@ export interface ProductTileProps {
   disableWishlistButton?: boolean;
   disableVariants?: boolean;
   selectedVariantIndex?: number;
-  wishlist?: Wishlist;
   cart?: Cart;
   shippingMethods?: ShippingMethod[];
   onClick?: () => void;
-  removeLineItem?: (item: LineItem) => Promise<void>;
-  addToWishlist?: (lineItem: LineItem, count: number) => Promise<void>;
   onAddToCart?: (variant: Variant, quantity: number) => Promise<void>;
 }
 
@@ -42,12 +38,9 @@ const ProductTile: FC<ProductTileProps> = ({
   disableWishlistButton = false,
   disableVariants = false,
   selectedVariantIndex = 0,
-  wishlist,
   cart,
   shippingMethods,
   onClick,
-  addToWishlist,
-  removeLineItem,
   onAddToCart,
 }) => {
   const [isDesktopSize] = useMediaQuery(desktop);
@@ -186,11 +179,8 @@ const ProductTile: FC<ProductTileProps> = ({
           <QuickView
             buttonIsEnabled={isDesktopSize && !disableQuickView}
             product={product}
-            wishlist={wishlist}
             cart={cart}
             shippingMethods={shippingMethods}
-            addToWishlist={addToWishlist}
-            removeFromWishlist={removeLineItem}
             onAddToCart={async (variant, quantity: number) => {
               await onAddToCart?.(variant, quantity);
             }}

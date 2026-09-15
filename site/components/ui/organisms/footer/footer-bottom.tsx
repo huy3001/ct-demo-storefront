@@ -8,7 +8,7 @@ import { COUNTRY_CONFIG } from '@/lib/utils';
 interface Props {
   logo?: ImageProps;
   socialMedia?: SocialMedia[];
-  locale: string;
+  locale?: string;
 }
 
 const FooterBottom: FC<Props> = ({ logo, socialMedia, locale }) => {

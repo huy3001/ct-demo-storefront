@@ -22,7 +22,7 @@ export interface SocialMedia {
   reference: Reference;
 }
 
-const Footer: React.FC<Props> = ({ columns, logo, socialMedia }) => {
+const Footer: React.FC<Props> = ({ columns, logo, socialMedia, locale }) => {
   return (
     <footer
       aria-labelledby="footer-heading"
@@ -73,6 +73,7 @@ const Footer: React.FC<Props> = ({ columns, logo, socialMedia }) => {
         <FooterBottom
           socialMedia={socialMedia}
           logo={logo}
+          locale={locale}
         />
       </div>
     </footer>

@@ -5,12 +5,11 @@ export const filterAttributeBasedVariants = (
   currentVariant: Variant,
   attribute: string,
 ) => {
-  const filteredVariants = variants?.filter(
-    ({ attributes }) =>
-      (attributes as unknown as Record<string, string>)?.[attribute] ===
-      (currentVariant.attributes as unknown as Record<string, string>)?.[
-        attribute
-      ],
+  const currentAttribute = currentVariant.attributes.find(
+    ({ name }) => name === attribute,
+  );
+  const filteredVariants = variants?.filter(({ attributes }) =>
+    attributes.some(({ name }) => name === currentAttribute?.name),
   );
   return filteredVariants;
 };

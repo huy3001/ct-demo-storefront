@@ -5,9 +5,6 @@ import { toUIColor } from '@/helpers/mappers/toUIColor';
 import { toUIProduct } from '@/helpers/mappers/toUIProduct';
 import { toUISize } from '@/helpers/mappers/toUIsize';
 import { Cart, ShippingMethod } from '@/types/entity/cart';
-// import { Category } from '@/types/entity/category';
-// import { Product, Variant } from '@/types/entity/product';
-import { LineItem, Wishlist } from '@/types/entity/wishlist';
 import ProductDetails, { ProductDetailsProps } from '..';
 import type { Category, Product, Variant } from '@/lib/types';
 
@@ -15,12 +12,9 @@ type ProductDetailsAdapterProps = {
   product: Product;
   inModalVersion?: ProductDetailsProps['inModalVersion'];
   categories: Category[];
-  wishlist?: Wishlist;
   cart?: Cart;
   shippingMethods?: ShippingMethod[];
   setIsOpen?: (value: boolean) => void;
-  removeLineItem?: (item: LineItem) => Promise<void>;
-  addToWishlist?: (lineItem: LineItem, count: number) => Promise<void>;
   onAddToCart?: (variant: Variant, quantity: number) => Promise<void>;
 };
 
@@ -28,13 +22,10 @@ const ProductDetailsAdapter: FC<ProductDetailsAdapterProps> = ({
   product,
   inModalVersion,
   categories,
-  wishlist,
   cart,
   shippingMethods,
   setIsOpen,
   onAddToCart,
-  removeLineItem,
-  addToWishlist,
 }) => {
   const { path } = usePath();
 
@@ -71,13 +62,10 @@ const ProductDetailsAdapter: FC<ProductDetailsAdapterProps> = ({
       category={category}
       url={`/product/${product.slug}`}
       inModalVersion={inModalVersion}
-      wishlist={wishlist}
       shippingMethods={shippingMethods}
       onChangeVariant={handleChangeVariant}
       setIsOpen={setIsOpen}
       onAddToCart={onAddToCart}
-      removeLineItem={removeLineItem}
-      addToWishlist={addToWishlist}
       inCartQuantity={inCartQuantity}
     />
   );

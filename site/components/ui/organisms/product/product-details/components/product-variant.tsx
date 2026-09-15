@@ -1,10 +1,13 @@
 import { FC, useCallback, useMemo } from 'react';
+import { useParams } from 'next/navigation';
 import { Variant as VariantType } from '@/lib/types';
 import { useTranslations } from 'use-intl';
 import useClassNames from '@/hooks/useClassNames';
 import { textToColor } from '@/helpers/textToColor/textToColor';
 import { discardRepeatedValues } from '../helpers/discardRepeatedValues';
 import { filterAttributeBasedVariants } from '../helpers/filterAttributeBasedVariants';
+import { getLocalizedString } from '@/lib/utils';
+import type { Attribute } from '@commercetools/platform-sdk';
 
 type ProductVariantProps = {
   className?: string;
@@ -14,8 +17,6 @@ type ProductVariantProps = {
   inModalVersion?: boolean;
   onClick?: (sku: string) => void;
 };
-
-type UnknownAttributes = Record<string, string>;
 
 const ProductVariant: FC<ProductVariantProps> = ({
   className,
@@ -27,14 +28,25 @@ const ProductVariant: FC<ProductVariantProps> = ({
 }) => {
   const translate = useTranslations();
 
+  const { locale } = useParams();
+
   const attributeString = attribute.toString();
 
   const attributeToFilterTo = attribute == 'size' ? 'color' : 'size';
 
+  const getCurrentAttribute = useCallback(
+    (attributes: Attribute[], attributeName?: string) => {
+      return attributes.find(
+        ({ name }) => name === (attributeName ?? attribute),
+      );
+    },
+    [attribute],
+  );
+
   const sortVariantsCmp = useCallback(
     (a: VariantType, b: VariantType) => {
-      const first = (a.attributes as unknown as UnknownAttributes)?.[attribute];
-      const second = (b.attributes as unknown as UnknownAttributes)?.[attribute];
+      const first = getCurrentAttribute(a.attributes)?.name;
+      const second = getCurrentAttribute(b.attributes)?.name;
 
       if (!first || !second) return 0;
 
@@ -42,11 +54,15 @@ const ProductVariant: FC<ProductVariantProps> = ({
       if (first < second) return -1;
       return 0;
     },
-    [attribute],
+    [getCurrentAttribute],
   );
   const variantsToUse: VariantType[] = useMemo(() => {
-    const result = (currentVariant.attributes as unknown as UnknownAttributes)?.['size']
-      ? filterAttributeBasedVariants(variants, currentVariant, attributeToFilterTo)
+    const result = currentVariant.attributes.find(({ name }) => name === 'size')
+      ? filterAttributeBasedVariants(
+          variants,
+          currentVariant,
+          attributeToFilterTo,
+        )
       : discardRepeatedValues(variants, attribute.toString());
 
     result.sort(sortVariantsCmp);
@@ -73,56 +89,74 @@ const ProductVariant: FC<ProductVariantProps> = ({
   const variantContainerClassName = useClassNames(['mt-4 flex', attribute == 'size' ? 'gap-3' : 'gap-6']);
 
   const getButtonDescriptiveTitle = useCallback(
-    (attributes: Record<string, string>) => {
+    (attributes: Attribute[]) => {
       switch (attribute) {
         case 'color':
-          return translate('product.switch-to-color', { color: attributes[attribute].split(':')[0] });
+          return translate('product.switch-to-color', {
+            color: getCurrentAttribute(attributes)?.value,
+          });
         case 'finish':
-          return translate('product.switch-to-finish', { color: attributes[attribute].split(':')[0] });
+          return translate('product.switch-to-finish', {
+            color: getCurrentAttribute(attributes)?.value,
+          });
         case 'size':
-          return translate('product.switch-to-size', { size: attributes[attribute] });
+          return translate('product.switch-to-size', {
+            size: getCurrentAttribute(attributes)?.value,
+          });
         default:
           return translate('product.switch-to', {
-            term: (attributes[attribute] as unknown as { label: string }).label ?? attributes[attribute],
+            term:
+              getCurrentAttribute(attributes)?.name ??
+              getCurrentAttribute(attributes)?.value,
           });
       }
     },
-    [attribute, translate],
+    [attribute, getCurrentAttribute, translate],
   );
 
   return (
     <div className={className}>
       <div className={attribute == 'color' ? 'mt-1 grid gap-1' : ''}>
         <h3 className={labelClassName}>
-          {
-            translate(`product.${attributeString}`)
-          }
+          {translate(`product.${attributeString}`)}
         </h3>
         <p className="text-sm leading-loose">
-          {(currentVariant?.attributes as unknown as UnknownAttributes)?.[`${attribute}label`] ??
-            textToColor((currentVariant?.attributes as unknown as UnknownAttributes)?.[attribute]).label}
+          {getLocalizedString(
+            getCurrentAttribute(currentVariant.attributes)?.value,
+            locale,
+          ) ??
+            textToColor(
+              getLocalizedString(
+                getCurrentAttribute(currentVariant.attributes)?.value,
+                locale ?? '',
+              ),
+            )}
         </p>
       </div>
 
       <div className={variantContainerClassName}>
         {(variantsToUse ?? []).map(({ attributes, id, sku }) => {
-          const attributeCodeLabel = attribute.split('-').length === 2 ? `${attribute.split('-')[0]}-code` : '';
+          const attributeCodeLabel =
+            attribute.split('-').length === 2
+              ? `${attribute.split('-')[0]}-code`
+              : '';
 
-          const backgroundColor = attributeCodeLabel
-            ? (attributes as unknown as UnknownAttributes)?.[attributeCodeLabel]
-            : textToColor((attributes as unknown as UnknownAttributes)?.[attribute]).code;
+          const attributeToUse = getCurrentAttribute(
+            attributes,
+            attributeCodeLabel,
+          );
+
+          const backgroundColor = attributeToUse?.value;
 
           return (
             <button
               key={id}
-              title={getButtonDescriptiveTitle(
-                attributes as unknown as UnknownAttributes,
-              )}
+              title={getButtonDescriptiveTitle(attributes as Attribute[])}
               onClick={() => onClick?.(sku)}
               className={getVariantClassName(id)}
               style={attribute !== 'size' ? { backgroundColor } : {}}
             >
-              {attribute == 'size' && (attributes as unknown as UnknownAttributes)?.[attribute]}
+              {attribute == 'size' && getCurrentAttribute(attributes)?.value}
             </button>
           );
         })}

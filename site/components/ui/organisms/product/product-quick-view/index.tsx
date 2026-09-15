@@ -1,39 +1,34 @@
 'use client';
 
-import { FC, useRef, useState } from 'react';
+import { FC, useRef, useState, useSyncExternalStore } from 'react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useTranslations } from 'use-intl';
 import Modal from '@/components/ui/organisms/modal';
 import useOnClickOutside from '@/hooks/useOnClickOutside';
 import useScrollBlock from '@/hooks/useScrollBlock';
 import { Cart, ShippingMethod } from '@/types/entity/cart';
-// import { Product, Variant } from '@/types/entity/product';
-import { Wishlist, LineItem } from '@/types/entity/wishlist';
 import ProductDetailsAdapter from '../product-details/helpers/adapter';
 import type { Product, Variant } from '@/lib/types';
+
+const subscribeToHydration = () => () => {};
 
 export type QuickViewProps = {
   buttonIsEnabled: boolean;
   product: Product;
-  wishlist?: Wishlist;
   cart?: Cart;
   shippingMethods?: ShippingMethod[];
-  addToWishlist?: (lineItem: LineItem, count: number) => Promise<void>;
-  removeFromWishlist?: (item: LineItem) => Promise<void>;
   onAddToCart?: (variant: Variant, quantity: number) => Promise<void>;
 };
 
 const QuickView: FC<QuickViewProps> = ({
-  wishlist,
   cart,
   shippingMethods,
   product,
-  addToWishlist,
-  removeFromWishlist,
   onAddToCart,
   buttonIsEnabled,
 }) => {
   const [modalIsOpen, setIsOpen] = useState(false);
+  const hasHydrated = useSyncExternalStore(subscribeToHydration, () => true, () => false);
 
   const { blockScroll } = useScrollBlock();
 
@@ -53,7 +48,7 @@ const QuickView: FC<QuickViewProps> = ({
 
   useOnClickOutside(ref, () => closeModal(true));
 
-  if (!buttonIsEnabled) {
+  if (!buttonIsEnabled || !hasHydrated) {
     return null;
   }
 
@@ -88,7 +83,6 @@ const QuickView: FC<QuickViewProps> = ({
 
           <ProductDetailsAdapter
             product={product}
-            wishlist={wishlist}
             cart={cart}
             shippingMethods={shippingMethods}
             categories={[]}
@@ -98,8 +92,6 @@ const QuickView: FC<QuickViewProps> = ({
               await onAddToCart?.(variant, quantity);
               closeModal(false);
             }}
-            addToWishlist={addToWishlist}
-            removeLineItem={removeFromWishlist}
           />
         </div>
       </Modal>

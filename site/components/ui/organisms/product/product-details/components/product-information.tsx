@@ -46,24 +46,24 @@ const ProductInformation: FC<ProductInformationProps> = ({
   };
 
   const titleClassName = useClassNames([
-    'break-normal mb-12',
-    { '2xl:text-18': !inModalVersion },
+    'break-normal mb-3',
+    { '2xl:text-lg': !inModalVersion },
   ]);
   const priceClassName = useClassNames([
     'block leading-loose',
     { 'line-through text-gray-500': !!discountPercentage },
-    { '2xl:text-20': !inModalVersion },
-    { 'text-14': !!inModalVersion && !discountPercentage },
-    { 'text-12': !!inModalVersion && !!discountPercentage },
+    { '2xl:text-xl': !inModalVersion },
+    { 'text-sm': !!inModalVersion && !discountPercentage },
+    { 'text-xs': !!inModalVersion && !!discountPercentage },
   ]);
   const discountedPriceClassName = useClassNames([
     'block font-regular leading-loose text-red-500',
-    { '2xl:text-18': !inModalVersion },
+    { '2xl:text-lg': !inModalVersion },
   ]);
 
   return (
     <div>
-      <div className="relative flex items-start justify-between pr-10">
+      <div className="relative flex items-start justify-between">
         <h1 className={`${titleClassName} font-medium leading-loose`}>
           {product?.name}
         </h1>
@@ -93,7 +93,7 @@ const ProductInformation: FC<ProductInformationProps> = ({
           </div>
 
           {
-            <span className="mb-2 ml-2 mt-2.5 flex h-6 w-11 items-center justify-center bg-red-500 text-11 text-white">
+            <span className="mb-2 ml-2 mt-2.5 flex h-6 w-11 items-center justify-center bg-red-500 text-xs text-white">
               {translate('common.percentage', { value: discountPercentage })}
             </span>
           }

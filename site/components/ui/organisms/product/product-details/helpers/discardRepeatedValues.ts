@@ -4,7 +4,9 @@ export const discardRepeatedValues = (variants: Variant[], attribute: string) =>
   const uniqueValues: { [key: string]: boolean } = {};
 
   const variantsToDisplay = variants?.filter((variant) => {
-    const value = (variant.attributes as unknown as Record<string, string>)?.[attribute];
+    const value = variant.attributes.find(
+      ({ name }) => name === attribute,
+    )?.value;
 
     if (!value || uniqueValues[value]) return false;
     else {
