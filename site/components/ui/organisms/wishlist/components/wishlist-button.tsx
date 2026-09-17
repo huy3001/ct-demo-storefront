@@ -40,7 +40,7 @@ const WishlistButton: FC<WishlistButtonProps> = ({
 
   const pathClassNames = useClassNames([
     'transition duration-150 ease-out hover:fill-red-500 hover:stroke-red-500',
-    saved ? 'fill-red-500 stroke-red-500' : '!fill-white !stroke-gray-600',
+    saved ? 'fill-red-500 stroke-red-500' : '!fill-white',
   ]);
 
   const buttonClassName = className || 'top-1 right-0 size-6';
@@ -122,7 +122,7 @@ const WishlistButton: FC<WishlistButtonProps> = ({
       >
         <HeartIcon
           className={buttonClassName + ' ' + pathClassNames}
-          strokeWidth={'0.75'}
+          strokeWidth={'1'}
           data-testid="heart-icon"
         />
       </button>

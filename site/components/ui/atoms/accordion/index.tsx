@@ -1,5 +1,12 @@
+'use client';
+
 import React, { ReactNode } from 'react';
-import { Disclosure, Transition, DisclosureButton, DisclosurePanel } from '@headlessui/react';
+import {
+  Disclosure,
+  Transition,
+  DisclosureButton,
+  DisclosurePanel,
+} from '@headlessui/react';
 import useClassNames from '@/hooks/useClassNames';
 import AccordionButton from './AccordionButton';
 
@@ -42,8 +49,15 @@ const Accordion = ({
   const panelClassNames = useClassNames([panelClassName]);
 
   return (
-    <div className={className} onClick={onClick} ref={ref}>
-      <Disclosure as="div" defaultOpen={defaultOpen}>
+    <div
+      className={className}
+      onClick={onClick}
+      ref={ref}
+    >
+      <Disclosure
+        as="div"
+        defaultOpen={defaultOpen}
+      >
         {({ open }) => (
           <>
             {(open && !customOpenButton) || (!open && !customClosedButton) ? (
@@ -72,7 +86,10 @@ const Accordion = ({
               leaveTo="transform scale-y-95 opacity-0"
               unmount={false}
             >
-              <DisclosurePanel className={panelClassNames} unmount={false}>
+              <DisclosurePanel
+                className={panelClassNames}
+                unmount={false}
+              >
                 {children}
               </DisclosurePanel>
             </Transition>

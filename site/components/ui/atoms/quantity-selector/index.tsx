@@ -15,8 +15,10 @@ const QuantitySelector = ({
   const [value, setValue] = useControllableState(valueProp, defaultValue);
 
   const className = useClassNames([
-    'flex w-fit items-center gap-3 rounded-sm border border-neutral-400 transition hover:border-neutral-800',
-    disabled ? 'cursor-not-allowed bg-neutral-200 text-gray-400' : 'cursor-pointer bg-white text-gray-600',
+    'flex w-fit items-center gap-3 rounded-sm border border-border transition hover:border-charcoal',
+    disabled
+      ? 'cursor-not-allowed bg-neutral-200 text-gray-400'
+      : 'cursor-pointer bg-white text-charcoal',
     classNameProp,
   ]);
 
@@ -42,15 +44,15 @@ const QuantitySelector = ({
       <button
         disabled={value <= minValue}
         onClick={() => handleChange(value - 1)}
-        className="w-9 cursor-[inherit] self-stretch border-r border-neutral-200 px-3 py-0.75 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-gray-400"
+        className="h-full w-10 cursor-[inherit] self-stretch border-r border-neutral-200 px-3 py-1 disabled:cursor-not-allowed! disabled:bg-neutral-200 disabled:text-gray-400"
       >
         {`-`}
       </button>
-      <span className="py-0.75 text-sm">{value}</span>
+      <span className="p-1 text-sm">{value}</span>
       <button
         disabled={value >= maxValue}
         onClick={() => handleChange(value + 1)}
-        className="w-9 cursor-[inherit] self-stretch border-l border-neutral-200 px-3 py-0.75 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-gray-400"
+        className="h-full w-10 cursor-[inherit] self-stretch border-l border-neutral-200 px-3 py-1 disabled:cursor-not-allowed! disabled:bg-neutral-200 disabled:text-gray-400"
       >
         {`+`}
       </button>

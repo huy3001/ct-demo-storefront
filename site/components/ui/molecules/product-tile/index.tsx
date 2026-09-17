@@ -9,14 +9,13 @@ import QuickView from '@/components/ui/organisms/product/product-quick-view';
 import WishlistButton from '@/components/ui/organisms/wishlist/components/wishlist-button';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import useVariantWithDiscount from '@/hooks/useVariantWithDiscount';
-import { textToColor } from '@/helpers/textToColor/textToColor';
 import { desktop } from '@/helpers/utils/screensizes';
 import { Cart, ShippingMethod } from '@/types/entity/cart';
 import Prices from './prices';
 import useTrack from './useTrack';
 import { ProductReviewBlock } from '@/components/product/ProductReviews';
+import { getVariantColorCode } from '@/lib/utils';
 import type { Product, Variant } from '@/lib/types';
-import type { Attribute } from '@commercetools/platform-sdk';
 
 export interface ProductTileProps {
   product: Product;
@@ -85,37 +84,6 @@ const ProductTile: FC<ProductTileProps> = ({
 
     return `/product/${name}` + (isSearchResult ? '?sr=1' : '');
   }, [product, isSearchResult]);
-
-  const getVariantColorCode = (attributes: Attribute[] | undefined) => {
-    if (!attributes) return undefined;
-
-    const attributeValues = Array.isArray(attributes)
-      ? Object.fromEntries(attributes.map(({ name, value }) => [name, value]))
-      : attributes;
-
-    const directCode =
-      attributeValues['color-code'] || attributeValues['finish-code'];
-    if (typeof directCode === 'string' && directCode) return directCode;
-
-    const getLabel = (value: unknown) => {
-      if (typeof value === 'string') return value;
-      if (typeof value === 'object' && value !== null && 'label' in value) {
-        const label = value.label;
-        return typeof label === 'string' ? label : undefined;
-      }
-      return undefined;
-    };
-
-    const labelOrText =
-      getLabel(attributeValues['color-label']) ||
-      getLabel(attributeValues['finish-label']) ||
-      getLabel(attributeValues.color) ||
-      getLabel(attributeValues.finish) ||
-      getLabel(attributeValues['search-color']) ||
-      getLabel(attributeValues['search-finish']);
-
-    return labelOrText ? textToColor(labelOrText).code : undefined;
-  };
 
   return (
     <div

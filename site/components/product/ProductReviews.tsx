@@ -10,6 +10,11 @@ import {
   useMemo,
   useState,
 } from 'react';
+import Accordion from '@/components/ui/atoms/accordion';
+import Button from '@/components/ui/atoms/button';
+import Input from '@/components/ui/atoms/input';
+import Modal from '@/components/ui/organisms/modal';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 import type { Review } from '@/lib/types';
 
 interface ReviewsContextValue {
@@ -163,117 +168,110 @@ export function ReviewsProvider({ productId, initialReviews, children }: {
     <ReviewsContext.Provider value={value}>
       {children}
       {isOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
-          role="presentation"
-          onMouseDown={(event) =>
-            event.target === event.currentTarget && !isSubmitting && setIsOpen(false)
+        <Modal
+          shouldCloseOnOverlayClick
+          isOpen={isOpen}
+          onRequestClose={(event) =>
+            event.target === event.currentTarget &&
+            !isSubmitting &&
+            setIsOpen(false)
           }
+          className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-sm bg-white p-6! shadow-sm"
         >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={titleId}
-            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-sm bg-white p-6 shadow-xl"
+          <div className="flex items-start justify-between gap-4">
+            <h2
+              id={titleId}
+              className="text-xl font-semibold text-charcoal"
+            >
+              Write a review
+            </h2>
+            <button
+              type="button"
+              onClick={() => setIsOpen(false)}
+              disabled={isSubmitting}
+              aria-label="Close"
+              className="text-xl text-charcoal-light hover:text-charcoal"
+            >
+              <XMarkIcon className="size-6" />
+            </button>
+          </div>
+          <form
+            onSubmit={submitReview}
+            className="mt-6 space-y-6"
           >
-            <div className="flex items-start justify-between gap-4">
-              <h2
-                id={titleId}
-                className="text-xl font-semibold text-charcoal"
+            <fieldset className="form-field w-full">
+              <legend className="mb-2 text-sm">Rating</legend>
+              <Stars
+                rating={rating}
+                interactive
+                onChange={setRating}
+              />
+              {rating === 0 && (
+                <span className="ml-3 text-xs text-charcoal-light">
+                  Select 1–5 stars
+                </span>
+              )}
+            </fieldset>
+            {[
+              { name: 'author', label: 'Author name' },
+              { name: 'title', label: 'Review title' },
+            ].map((field) => (
+              <div
+                className="form-field w-full"
+                key={field.name}
               >
-                Write a review
-              </h2>
-              <button
+                <Input
+                  label={field.label}
+                  id={field.name}
+                  name={field.name}
+                  required
+                />
+              </div>
+            ))}
+            <div className="form-field w-full">
+              <label
+                htmlFor="content"
+                className="block leading-loose text-sm text-gray-600 font-medium mb-2"
+              >
+                Review
+              </label>
+              <textarea
+                id="content"
+                name="content"
+                required
+                rows={5}
+                className="w-full resize-y rounded-sm border border-gray-300 px-3 py-2 outline-none focus:border-gray-400 focus:ring-0"
+              />
+            </div>
+            <div className="flex justify-end gap-3 pt-2">
+              {submitError && (
+                <p
+                  className="mr-auto self-center text-sm text-red-600"
+                  role="alert"
+                >
+                  {submitError}
+                </p>
+              )}
+              <Button
                 type="button"
+                size="xs"
+                variant="secondary"
                 onClick={() => setIsOpen(false)}
                 disabled={isSubmitting}
-                aria-label="Close"
-                className="text-xl text-charcoal-light hover:text-charcoal"
               >
-                ×
-              </button>
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="xs"
+                variant="primary"
+                disabled={rating === 0 || isSubmitting}
+              >
+                {isSubmitting ? 'Sending…' : 'Send review'}
+              </Button>
             </div>
-            <form
-              onSubmit={submitReview}
-              className="mt-6 space-y-4"
-            >
-              <fieldset className="form-field w-full">
-                <legend className="mb-2 text-sm">
-                  Rating
-                </legend>
-                <Stars
-                  rating={rating}
-                  interactive
-                  onChange={setRating}
-                />
-                {rating === 0 && (
-                  <span className="ml-3 text-xs text-charcoal-light">
-                    Select 1–5 stars
-                  </span>
-                )}
-              </fieldset>
-              {[
-                { name: 'author', label: 'Author name' },
-                { name: 'title', label: 'Review title' },
-              ].map((field) => (
-                <div
-                  className="form-field w-full"
-                  key={field.name}
-                >
-                  <label
-                    htmlFor={field.name}
-                    className="block text-sm mb-1"
-                  >
-                    {field.label}
-                  </label>
-                  <input
-                    id={field.name}
-                    name={field.name}
-                    required
-                    className="w-full rounded-sm border border-border px-3 py-2 outline-none focus:border-terra"
-                  />
-                </div>
-              ))}
-              <div className="form-field w-full">
-                <label
-                  htmlFor="content"
-                  className="block text-sm mb-1"
-                >
-                  Review
-                </label>
-                <textarea
-                  id="content"
-                  name="content"
-                  required
-                  rows={5}
-                  className="w-full resize-y rounded-sm border border-border px-3 py-2 outline-none focus:border-terra"
-                />
-              </div>
-              <div className="flex justify-end gap-3 pt-2">
-                {submitError && (
-                  <p className="mr-auto self-center text-sm text-red-600" role="alert">
-                    {submitError}
-                  </p>
-                )}
-                <button
-                  type="button"
-                  onClick={() => setIsOpen(false)}
-                  disabled={isSubmitting}
-                  className="rounded-sm border border-border px-4 py-2 text-sm text-charcoal hover:border-charcoal"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={rating === 0 || isSubmitting}
-                  className="rounded-sm bg-charcoal px-4 py-2 text-sm text-white hover:bg-terra disabled:pointer-events-none disabled:opacity-50"
-                >
-                  {isSubmitting ? 'Sending…' : 'Send review'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+          </form>
+        </Modal>
       )}
     </ReviewsContext.Provider>
   );
@@ -294,30 +292,49 @@ export function ProductReviewSummary({
 export function ProductReviewsAccordion() {
   const { reviews } = useReviews();
   return (
-    <details className="group border-b border-border">
-      <summary className="flex cursor-pointer list-none items-center justify-between py-5 font-medium text-charcoal marker:hidden">
-        <span>Reviews</span>
-        <span aria-hidden className="text-xl font-light transition-transform group-open:rotate-45">+</span>
-      </summary>
-      <div className="pb-5">
-        {reviews.length === 0 ? (
-          <p className="text-sm text-charcoal-light">No reviews yet. Be the first to review this product.</p>
-        ) : (
-          <ul className="divide-y divide-border border-t border-border">
-            {reviews.map((review) => (
-              <li key={review.id} className="py-5 first:pt-4">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <Stars rating={review.rating} />
-                  {review.createdAt && <time dateTime={review.createdAt} className="text-xs text-charcoal-light">{new Intl.DateTimeFormat(undefined, { dateStyle: 'medium' }).format(new Date(review.createdAt))}</time>}
-                </div>
-                <h3 className="mt-2 font-medium text-charcoal">{review.title}</h3>
-                <p className="mt-1 text-xs text-charcoal-light">By {review.author}</p>
-                <p className="mt-3 whitespace-pre-line text-sm leading-6 text-charcoal-light">{review.content}</p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-    </details>
+    <Accordion
+      variant="arrow"
+      closedSectionTitle="Reviews"
+      openSectionTitle="Reviews"
+      className="border-b border-border"
+      buttonClassName="font-medium text-charcoal py-5"
+      panelClassName="pb-5 text-sm text-charcoal-light"
+    >
+      {reviews.length === 0 ? (
+        <p className="text-sm text-charcoal-light">
+          No reviews yet. Be the first to review this product.
+        </p>
+      ) : (
+        <ul className="divide-y divide-border border-t border-border">
+          {reviews.map((review) => (
+            <li
+              key={review.id}
+              className="py-5 first:pt-4"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <Stars rating={review.rating} />
+                {review.createdAt && (
+                  <time
+                    dateTime={review.createdAt}
+                    className="text-xs text-charcoal-light"
+                  >
+                    {new Intl.DateTimeFormat(undefined, {
+                      dateStyle: 'medium',
+                    }).format(new Date(review.createdAt))}
+                  </time>
+                )}
+              </div>
+              <h3 className="mt-2 font-medium text-charcoal">{review.title}</h3>
+              <p className="mt-1 text-xs text-charcoal-light">
+                By {review.author}
+              </p>
+              <p className="mt-3 whitespace-pre-line text-sm text-charcoal-light">
+                {review.content}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Accordion>
   );
 }
