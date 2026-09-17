@@ -4,6 +4,7 @@ import Image, { ImageProps } from '@/components/ui/atoms/image';
 import Link from '@/components/ui/atoms/link';
 import { SocialMedia } from '.';
 import { COUNTRY_CONFIG } from '@/lib/utils';
+import Dropdown from '@/components/ui/atoms/dropdown';
 
 interface Props {
   logo?: ImageProps;
@@ -53,22 +54,16 @@ const FooterBottom: FC<Props> = ({ logo, socialMedia, locale }) => {
   const countrySelector = () => (
     <label className="flex items-center gap-2">
       <span className="text-sm text-neutral-500">Country</span>
-      <select
+      <Dropdown
         id="country-locale"
         value={locale}
         onChange={onLocaleChange}
-        className="rounded-sm border border-border bg-white px-2 py-1.5 text-sm text-charcoal"
-        aria-label="Select country and locale"
-      >
-        {Object.entries(COUNTRY_CONFIG).map(([localeKey, config]) => (
-          <option
-            key={localeKey}
-            value={localeKey}
-          >
-            {config.label}
-          </option>
-        ))}
-      </select>
+        containerClassName="min-w-35"
+        items={Object.entries(COUNTRY_CONFIG).map(([localeKey, config]) => ({
+          value: localeKey,
+          label: config.label,
+        }))}
+      />
     </label>
   );
 

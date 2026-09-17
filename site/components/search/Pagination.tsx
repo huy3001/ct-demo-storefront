@@ -1,6 +1,8 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
+import Button from '@/components/ui/atoms/button';
 
 export default function Pagination({ page, totalPages }: { page: number; totalPages: number }) {
   const router = useRouter();
@@ -17,23 +19,25 @@ export default function Pagination({ page, totalPages }: { page: number; totalPa
 
   return (
     <div className="flex items-center justify-center gap-4 mt-12 text-sm">
-      <button
+      <Button
         onClick={() => goTo(page - 1)}
         disabled={page <= 1}
-        className="px-3 py-1.5 border border-border rounded-sm disabled:opacity-40"
+        size="icon"
+        variant="secondary"
       >
-        Previous
-      </button>
+        <ArrowLeftIcon className="size-4" />
+      </Button>
       <span className="text-charcoal-light">
         Page {page} of {totalPages}
       </span>
-      <button
+      <Button
         onClick={() => goTo(page + 1)}
         disabled={page >= totalPages}
-        className="px-3 py-1.5 border border-border rounded-sm disabled:opacity-40"
+        size="icon"
+        variant="secondary"
       >
-        Next
-      </button>
+        <ArrowRightIcon className="size-4" />
+      </Button>
     </div>
   );
 }

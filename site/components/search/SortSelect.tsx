@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import Dropdown from '@/components/ui/atoms/dropdown';
 
 const OPTIONS = [
   { value: 'relevance', label: 'Relevance' },
@@ -25,21 +26,13 @@ export default function SortSelect() {
   return (
     <label className="flex items-center gap-2 text-sm text-charcoal-light">
       <span className="hidden md:inline">Sort by</span>
-      <select
-        defaultValue={searchParams.get('sort') ?? 'relevance'}
+      <Dropdown
+        name="sort-by"
+        value={searchParams.get('sort') ?? 'relevance'}
         onChange={onChange}
-        className="border border-border rounded-sm bg-white px-3 py-2 text-sm"
-        aria-label="Sort products"
-      >
-        {OPTIONS.map((opt) => (
-          <option
-            key={opt.value}
-            value={opt.value}
-          >
-            {opt.label}
-          </option>
-        ))}
-      </select>
+        items={OPTIONS}
+        containerClassName="min-w-41"
+      />
     </label>
   );
 }

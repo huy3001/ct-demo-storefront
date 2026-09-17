@@ -2,6 +2,10 @@
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { FunnelIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import Button from '@/components/ui/atoms/button';
+import Checkbox from '@/components/ui/atoms/checkbox';
+import Input from '@/components/ui/atoms/input';
 import type { Facet } from '@/lib/types';
 
 export default function FacetSidebar({
@@ -66,19 +70,23 @@ export default function FacetSidebar({
         const selected = searchParams.getAll(`f_${facet.key}`);
         return (
           <div key={facet.key}>
-            <h3 className="text-sm font-semibold text-charcoal mb-3">{facet.label}</h3>
+            <h3 className="text-sm font-semibold text-charcoal mb-3">
+              {facet.label}
+            </h3>
             <ul className="space-y-2">
               {facet.terms.map((term) => (
                 <li key={term.term}>
                   <label className="flex items-center gap-2 text-sm text-charcoal-light cursor-pointer">
-                    <input
+                    <Checkbox
                       type="checkbox"
                       checked={selected.includes(term.term)}
                       onChange={() => toggleValue(facet.key, term.term)}
-                      className="accent-terra"
+                      className="accent-charcoal"
                     />
                     <span>{term.label ?? term.term}</span>
-                    <span className="text-xs text-charcoal-light">({term.count})</span>
+                    <span className="text-xs text-charcoal-light">
+                      ({term.count})
+                    </span>
                   </label>
                 </li>
               ))}
@@ -88,36 +96,44 @@ export default function FacetSidebar({
       })}
       <div>
         <h3 className="text-sm font-semibold text-charcoal mb-3">Price</h3>
-        <form action={applyPriceRange} className="space-y-3">
+        <form
+          action={applyPriceRange}
+          className="space-y-3"
+        >
           <div className="grid grid-cols-2 gap-2">
             <label className="text-xs text-charcoal-light">
               Min
-              <input
+              <Input
                 type="number"
                 name="minPrice"
                 min="0"
                 step="0.01"
                 defaultValue={searchParams.get('minPrice') ?? ''}
-                className="mt-1 w-full rounded-sm border border-border bg-white px-2 py-1.5 text-sm text-charcoal"
+                className="-mt-1 w-full h-9!"
                 placeholder="0"
               />
             </label>
             <label className="text-xs text-charcoal-light">
               Max
-              <input
+              <Input
                 type="number"
                 name="maxPrice"
                 min="0"
                 step="0.01"
                 defaultValue={searchParams.get('maxPrice') ?? ''}
-                className="mt-1 w-full rounded-sm border border-border bg-white px-2 py-1.5 text-sm text-charcoal"
+                className="-mt-1 w-full h-9!"
                 placeholder="Any"
               />
             </label>
           </div>
-          <button type="submit" className="w-full rounded-sm bg-charcoal px-3 py-2 text-sm text-white hover:bg-terra">
+          <Button
+            type="submit"
+            size="xs"
+            variant="primary"
+            className="w-full"
+          >
             Apply price
-          </button>
+          </Button>
         </form>
       </div>
     </div>
@@ -126,39 +142,18 @@ export default function FacetSidebar({
   if (mobileOnly) {
     return (
       <div>
-        <button
+        <Button
           type="button"
+          variant="secondary"
           onClick={() => setMobileOpen(true)}
-          className="inline-flex items-center gap-2 rounded-sm border border-border bg-white px-4 py-2 text-sm font-medium text-charcoal"
+          className="h-10 border-border! px-4! py-2!"
           aria-haspopup="dialog"
           aria-expanded={mobileOpen}
+          iconPosition="left"
+          icon={<FunnelIcon className="size-5" />}
         >
-          <span aria-hidden>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="lucide lucide-sliders-horizontal-icon lucide-sliders-horizontal"
-            >
-              <path d="M10 5H3" />
-              <path d="M12 19H3" />
-              <path d="M14 3v4" />
-              <path d="M16 17v4" />
-              <path d="M21 12h-9" />
-              <path d="M21 19h-5" />
-              <path d="M21 5h-7" />
-              <path d="M8 10v4" />
-              <path d="M8 12H3" />
-            </svg>
-          </span>
           Filters
-        </button>
+        </Button>
 
         {mobileOpen && (
           <div
@@ -182,31 +177,18 @@ export default function FacetSidebar({
                   className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-white"
                   aria-label="Close filters"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="lucide lucide-x-icon lucide-x"
-                  >
-                    <path d="M18 6 6 18" />
-                    <path d="m6 6 12 12" />
-                  </svg>
+                  <XMarkIcon className="size-5" />
                 </button>
               </div>
               {filters}
-              <button
+              <Button
                 type="button"
+                size="full"
                 onClick={() => setMobileOpen(false)}
-                className="sticky bottom-0 mt-8 w-full rounded-sm bg-charcoal px-4 py-3 text-sm font-medium text-white"
+                className="sticky bottom-0 mt-8"
               >
                 View results
-              </button>
+              </Button>
             </aside>
           </div>
         )}
