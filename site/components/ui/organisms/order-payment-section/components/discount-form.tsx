@@ -5,14 +5,14 @@ import { useTranslations } from 'use-intl';
 import AccordionBtn, { AccordionProps } from '@/components/ui/atoms/accordion';
 import CloseIcon from '@/components/icons/close';
 import useClassNames from '@/hooks/useClassNames';
-// import { DiscountCode } from '@/types/entity/cart';
-import type { DiscountCodeInfo as DiscountCode } from '@commercetools/platform-sdk';
+import Button from '@/components/ui/atoms/button';
+import { useCart } from '@/hooks/useCart';
+import type { DiscountCode } from '@commercetools/platform-sdk';
 
 export interface Props {
   className?: string;
   accordionProps?: AccordionProps;
   discounts: DiscountCode[];
-  onApplyDiscountCode?: (code: string) => Promise<void>;
   onRemoveDiscountCode?: (discount: DiscountCode) => Promise<void>;
 }
 
@@ -24,10 +24,11 @@ const DiscountForm: React.FC<Props> = ({
   className,
   accordionProps,
   discounts,
-  onApplyDiscountCode,
   onRemoveDiscountCode,
 }) => {
   const translate = useTranslations();
+
+   const { applyDiscountCode } = useCart();
 
   const {
     register,
@@ -49,10 +50,10 @@ const DiscountForm: React.FC<Props> = ({
 
   const containerClassName = useClassNames(['py-4 border-t border-neutral-400 text-sm', className]);
 
-  const onApplyDiscount: SubmitHandler<UserInput> = ({ code }) => {
+  const onApplyDiscount: SubmitHandler<UserInput> = async ({ code }) => {
     if (isSubmitting || !code) return;
 
-    onApplyDiscountCode?.(code)
+    await applyDiscountCode(code.trim())
       .then(() => reset())
       .catch((err: Error) => {
         if (err.message.includes('MaxApplicationReached')) {
@@ -81,28 +82,45 @@ const DiscountForm: React.FC<Props> = ({
         {...accordionProps}
       >
         <div>
-          <form className="mt-6" onSubmit={handleSubmit(onApplyDiscount)}>
-            <div className="relative">
-              <input
-                className={inputClassName}
-                placeholder={translate('cart.cart-discount-enter')}
+          <form
+            className="mt-6"
+            onSubmit={handleSubmit(onApplyDiscount)}
+          >
+            <div className="flex items-center gap-2">
+              <div className="relative grow">
+                <input
+                  className={inputClassName}
+                  placeholder={translate('cart.cart-discount-enter')}
+                  disabled={isSubmitting}
+                  {...register('code')}
+                />
+
+                {errors.code && (
+                  <span
+                    className="absolute right-4 top-1/2 -translate-y-1/2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      reset();
+                    }}
+                  >
+                    <CloseIcon className="size-2.5 cursor-pointer" />
+                  </span>
+                )}
+              </div>
+
+              <Button
+                className="py-2.5!"
+                type="submit"
                 disabled={isSubmitting}
-                {...register('code')}
-              />
-              {errors.code && (
-                <span
-                  className="absolute right-4 top-1/2 -translate-y-1/2"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    reset();
-                  }}
-                >
-                  <CloseIcon className="size-2.5 cursor-pointer" />
-                </span>
-              )}
+              >
+                Apply
+              </Button>
             </div>
+
             {errors.code && (
-              <p className="mt-4 font-body text-xs font-medium leading-normal text-red-500">{errors.code?.message}</p>
+              <p className="mt-4 font-body text-xs font-medium leading-normal text-red-500">
+                {errors.code?.message}
+              </p>
             )}
           </form>
 
@@ -110,11 +128,16 @@ const DiscountForm: React.FC<Props> = ({
             <div className={discountsContainerClassName}>
               {discounts.map((discount) => (
                 <div
-                  key={discount.discountCodeId}
+                  key={discount.id}
                   className="mr-0.5 flex w-fit justify-between gap-2 rounded-sm border border-neutral-400 bg-white px-2 py-1"
                 >
-                  <label className="text-xs uppercase leading-4 text-gray-600">{discount.code}</label>
-                  <button type="button" onClick={() => handleRemove(discount)}>
+                  <label className="text-xs uppercase leading-4 text-gray-600">
+                    {discount.code}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => handleRemove(discount)}
+                  >
                     <XMarkIcon className="size-4 text-gray-600" />
                   </button>
                 </div>

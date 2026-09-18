@@ -24,6 +24,13 @@ const CartSlideout: FC<CartSlideoutProps> = ({
 
   const { cart } = useCart();
 
+  const discountCodes = cart?.discountCodes
+    ?.map((discount) => discount.discountCode?.obj)
+    .filter(
+      (discount): discount is NonNullable<typeof discount> =>
+        discount !== undefined,
+    );
+
   return (
     <>
       {isEmpty ? (
@@ -46,7 +53,7 @@ const CartSlideout: FC<CartSlideoutProps> = ({
         </div>
       )}
       <OrderPaymentSection
-        discounts={cart?.discountCodes ?? []}
+        discounts={discountCodes ?? []}
         onApplyDiscountCode={onApplyDiscountCode}
         onRemoveDiscountCode={onRemoveDiscountCode}
         isEmpty={isEmpty}

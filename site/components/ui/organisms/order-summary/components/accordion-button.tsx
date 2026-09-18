@@ -8,12 +8,13 @@ type AccordionButtonProps = {
   open: boolean;
   toggleAccordion: () => void;
   total: Required<Money>;
+  className?: string;
 };
 
-const AccordionButton: FC<AccordionButtonProps> = ({ open, toggleAccordion }) => {
+const AccordionButton: FC<AccordionButtonProps> = ({ open, toggleAccordion, className }) => {
   const translate = useTranslations();
 
-  const accordionContentClassNames = useClassNames(['flex w-full justify-between py-16']);
+  const accordionContentClassNames = useClassNames(['flex w-full justify-between py-4', className]);
 
   const arrowClassNames = useClassNames([open ? 'rotate-180 transform' : '', 'transition text-gray-600']);
 

@@ -1,7 +1,7 @@
 import { ImageProps } from '@/components/ui/atoms/image';
 import { Reference } from '@/types/reference';
 import type { Category } from '@/lib/types';
-import type { DiscountCodeInfo as DiscountCode } from '@commercetools/platform-sdk';
+import type { DiscountCode } from '@commercetools/platform-sdk';
 
 export interface Link {
   name: string;

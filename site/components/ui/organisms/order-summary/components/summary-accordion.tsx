@@ -2,13 +2,13 @@ import React, { FC, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Accordion from '@/components/ui/atoms/accordion';
 import Image from '@/components/ui/atoms/image';
-import { CurrencyHelpers } from '@/helpers/currencyHelpers';
 import useClassNames from '@/hooks/useClassNames';
 import useI18n from '@/hooks/useI18n';
 import mapCosts from '@/helpers/utils/mapCosts';
-import { Cart } from '@/types/entity/cart';
 import { Order } from '@/types/entity/order';
 import AccordionButton from './accordion-button';
+import { formatMoney, getLocalizedString } from '@/lib/utils';
+import type { Cart } from '@commercetools/platform-sdk';
 
 export interface Props {
   className?: string;
@@ -30,8 +30,8 @@ const SummaryAccordion: FC<Props> = ({ className, order, cart }) => {
 
   const lineItemClassNames = (index: number) => {
     return `
-      flex justify-between items-center py-16
-      ${data?.lineItems && index === data.lineItems.length - 1 ? '' : 'border-b'}`;
+      flex justify-between items-center py-4
+      ${data?.lineItems && index === data.lineItems.length - 1 ? '' : 'border-b border-neutral-400'}`;
   };
 
   const total = useMemo(
@@ -43,34 +43,30 @@ const SummaryAccordion: FC<Props> = ({ className, order, cart }) => {
     <Accordion
       className={accordionClassNames}
       buttonClassName="w-full"
-      customClosedButton={<AccordionButton open={open} toggleAccordion={toggleAccordion} total={total} />}
+      customClosedButton={<AccordionButton open={open} toggleAccordion={toggleAccordion} total={total} className="text-sm" />}
     >
-      <div className="grid max-h-400 w-full grid-cols-1 overflow-auto">
+      <div className="grid max-h-100 w-full grid-cols-1 overflow-auto">
         {data?.lineItems?.map((lineItem, index) => (
-          <div key={lineItem.lineItemId} className={lineItemClassNames(index)}>
+          <div key={lineItem.id} className={lineItemClassNames(index)}>
             <div className="flex items-center justify-start">
               {lineItem.variant?.images?.[0] && (
-                <div className="relative h-104 w-88 shrink-0">
+                <div className="relative h-20 w-20 shrink-0">
                   <Image
                     fill
-                    src={lineItem.variant.images[0]}
+                    src={lineItem.variant.images[0].url}
                     style={{ objectFit: 'contain' }}
-                    alt={lineItem.name ?? ''}
+                    alt={getLocalizedString(lineItem?.name, locale) ?? ''}
                   />
                 </div>
               )}
-              <div className="flex flex-col justify-center gap-8 pl-16">
-                <p className="text-14 font-semibold text-gray-700">{lineItem?.name}</p>
-                <p className="text-gray-600 md:hidden">
-                  {CurrencyHelpers.formatForCurrency(lineItem?.price as number, locale)}
+              <div className="flex flex-col justify-center gap-2 pl-4">
+                <p className="text-sm font-semibold text-gray-700">{getLocalizedString(lineItem?.name, locale)}</p>
+                <p className="text-sm text-gray-600">
+                  {formatMoney(lineItem?.price?.value?.centAmount ?? 0, lineItem?.price?.value?.currencyCode ?? 'USD', locale)}
                 </p>
-                <p className="text-14 text-gray-400">{`x ${lineItem?.count}`}</p>
+                <p className="text-sm text-gray-400">{`x ${lineItem?.quantity}`}</p>
               </div>
             </div>
-
-            <p className="hidden text-gray-600 md:block">
-              {CurrencyHelpers.formatForCurrency(lineItem?.price as number, locale)}
-            </p>
           </div>
         ))}
       </div>

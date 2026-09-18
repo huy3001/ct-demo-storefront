@@ -7,7 +7,7 @@ import Slideout, { MenuState } from '@/components/ui/organisms/header/utility-se
 import CartIcon from '@/components/icons/cart';
 import WishlistIcon from '@/components/icons/wishlist';
 import AccountButton from './components/account-button';
-import type { DiscountCodeInfo as DiscountCode } from '@commercetools/platform-sdk';
+import type { DiscountCode } from '@commercetools/platform-sdk';
 
 export interface Props {
   isEmpty?: boolean;

@@ -11,6 +11,7 @@ type Props = {
   subtitle: string;
   categories: CategoryLink[];
   className?: string;
+  imageClassName?: string;
   handleCategoryClick?: () => void;
 };
 
@@ -21,14 +22,17 @@ export const EmptyState: React.FC<Props> = ({
   categories,
   handleCategoryClick,
   className = '',
+  imageClassName = '',
 }: Props) => {
   const titleClassNames = useClassNames(['py-9 text-center overflow-auto', className]);
+  
+  const imageClassNames = useClassNames(['relative h-23 w-49.25 px-2.5 text-center md:mb-8 md:mt-13.75', imageClassName]);
 
   return (
     <div className={titleClassNames}>
       <h6 className="text-center">{title}</h6>
       <div className="hidden w-full justify-center md:flex">
-        <div className="relative h-23 w-49.25 px-2.5 text-center md:mb-8 md:mt-13.75">
+        <div className={imageClassNames}>
           <Image
             media={image?.media}
             src={image?.media?.file}

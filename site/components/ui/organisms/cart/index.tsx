@@ -11,6 +11,7 @@ import { ExclamationTriangleIcon } from '@heroicons/react/24/solid';
 import { classnames } from '@/helpers/utils/classnames';
 
 const Cart = ({
+  cart,
   isEmpty,
   hasOutOfStockItems,
   onApplyDiscountCode,
@@ -40,14 +41,23 @@ const Cart = ({
   const removeAllSoldOutItems = async () => {
     setIsProcessing(true);
 
-    const soldOutItems = (props?.cart?.lineItems ?? []).filter((lineItem) => !lineItem.variant?.isOnStock);
+    const soldOutItems = (cart?.lineItems ?? []).filter(
+      (lineItem) => !lineItem.variant?.availability?.isOnStock,
+    );
 
     for (const item of soldOutItems) {
-      await props.onRemoveItem(item.lineItemId ?? '');
+      await props.onRemoveItem(item.id ?? '');
     }
 
     setIsProcessing(false);
   };
+
+  const discountCodes = cart?.discountCodes
+    ?.map((discount) => discount.discountCode?.obj)
+    .filter(
+      (discount): discount is NonNullable<typeof discount> =>
+        discount !== undefined,
+    );
 
   return (
     <div className="relative bg-neutral-200 p-20 md:p-24 lg:p-48">
@@ -57,9 +67,14 @@ const Cart = ({
             <div className="flex items-start gap-8">
               <ExclamationTriangleIcon className="size-20 shrink-0 text-yellow-600" />
               <div className="flex flex-col items-start gap-8 lg:flex-row lg:items-center">
-                <p className="text-gray-600">{translate('cart.items-out-of-stock')}</p>
+                <p className="text-gray-600">
+                  {translate('cart.items-out-of-stock')}
+                </p>
                 <p
-                  className={classnames('cursor-pointer font-semibold underline', { 'text-gray-300': isProcessing })}
+                  className={classnames(
+                    'cursor-pointer font-semibold underline',
+                    { 'text-gray-300': isProcessing },
+                  )}
                   onClick={removeAllSoldOutItems}
                 >
                   {translate('cart.remove-unavailable-items')}
@@ -70,15 +85,24 @@ const Cart = ({
         </div>
       )}
       <div className="flex flex-col lg:flex-row lg:items-start lg:gap-26">
-        <CartContent className="bg-white p-20 md:p-24 lg:w-[70%] lg:rounded-md" isEmpty={isEmpty} {...props} />
+        <CartContent
+          className="bg-white p-20 md:p-24 lg:w-[70%] lg:rounded-md"
+          isEmpty={isEmpty}
+          {...props}
+        />
 
         <OrderSummary
           className="bg-white lg:mt-0 lg:w-[30%] lg:rounded-md"
           title={translate('cart.order-summary')}
           includeLoginSuggestion
           paymentMethods={paymentMethods}
-          button={<CheckoutButton className="hidden md:block" {...defaultCheckoutButtonProps} />}
-          discounts={props.cart?.discountCodes ?? []}
+          button={
+            <CheckoutButton
+              className="hidden md:block"
+              {...defaultCheckoutButtonProps}
+            />
+          }
+          discounts={discountCodes ?? []}
           onApplyDiscountCode={onApplyDiscountCode}
           onRemoveDiscountCode={onRemoveDiscountCode}
           login={login}

@@ -1,9 +1,13 @@
 import { FrontasticImage } from '@/components/ui/atoms/image';
 import { Account } from '@/types/entity/account';
-import { Cart, DiscountCode, LineItem as CartLineItem } from '@/types/entity/cart';
 import { Category } from '@/types/entity/category';
 import { Reference } from '@/types/reference';
 import { PaymentMethod } from '../order-payment-section/types';
+import type {
+  Cart,
+  DiscountCode,
+  LineItem as CartLineItem,
+} from '@commercetools/platform-sdk';
 
 export interface CartProps {
   cart?: Cart;

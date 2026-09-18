@@ -1,4 +1,4 @@
-import { Cart } from './cart';
+import type { Cart } from '@commercetools/platform-sdk';
 
 export interface ReturnLineItem {
   returnLineItemId?: string;
@@ -30,8 +30,7 @@ export interface Order extends Cart {
   orderId?: string;
   orderVersion?: string;
   orderNumber?: string;
-  orderState?: string;
-  createdAt?: Date;
+  orderState?: OrderState;
   returnInfo?: ReturnInfo[];
   purchaseOrderNumber?: string;
   shipmentState?: ShipmentState;

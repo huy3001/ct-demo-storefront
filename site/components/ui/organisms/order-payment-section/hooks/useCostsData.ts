@@ -3,7 +3,6 @@ import { useTranslations } from 'use-intl';
 import useI18n from '@/hooks/useI18n';
 import mapCosts from '@/helpers/utils/mapCosts';
 import { Money } from '@/types/entity/product';
-import useCart from '@/frontastic/hooks/useCart';
 import { CostsProps, CostRef } from '../types';
 
 export type UseCostsData = (props: Pick<CostsProps, 'dataReference' | 'order'>) => {
@@ -13,11 +12,15 @@ export type UseCostsData = (props: Pick<CostsProps, 'dataReference' | 'order'>) 
 };
 
 const useCostsData: UseCostsData = ({ dataReference = 'cart', order }) => {
-  const { transaction } = useCart();
   const { currency } = useI18n();
   const translate = useTranslations();
 
   const [loading, setLoading] = useState(true);
+
+  const transaction = useMemo(
+    () => mapCosts({ cart: order, currency }),
+    [order, currency],
+  );
 
   const skeletonMoney: Money = useMemo(() => {
     return { fractionDigits: 2, centAmount: 999, currencyCode: 'USD' };
@@ -71,6 +74,7 @@ const useCostsData: UseCostsData = ({ dataReference = 'cart', order }) => {
   }, [currency, dataReference, order, skeletonCosts, transaction]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (costsToRender.length) setLoading(false);
   }, [costsToRender]);
 

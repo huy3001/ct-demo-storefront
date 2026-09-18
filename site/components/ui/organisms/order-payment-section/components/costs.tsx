@@ -1,6 +1,5 @@
 import React, { FC } from 'react';
 import { useParams } from 'next/navigation';
-import { CurrencyHelpers } from '@/helpers/currencyHelpers';
 import useClassNames from '@/hooks/useClassNames';
 import useCostsData from '../hooks/useCostsData';
 import { CostsProps } from '../types';
@@ -26,7 +25,7 @@ const Costs: FC<CostsProps> = ({
 
   const subCostsContainerClassNames = useClassNames(['grid gap-2', subCostsContainerClassName]);
   const subCostsClassNames = useClassNames([
-    'flex items-center justify-between capitalize text-gray-600 ',
+    'flex items-center justify-between capitalize text-gray-600 text-sm',
     subCostClassName,
   ]);
 
@@ -42,7 +41,14 @@ const Costs: FC<CostsProps> = ({
                 className={subCostsClassNames}
               >
                 <p>{label}</p>
-                <p>{CurrencyHelpers.formatForCurrency(value, locale)}</p>
+                <p>
+                  {key === 'discount' && '-'}
+                  {formatMoney(
+                    value.centAmount ?? 0,
+                    value.currencyCode ?? 'USD',
+                    locale,
+                  )}
+                </p>
               </div>
             ),
         )}
@@ -56,7 +62,11 @@ const Costs: FC<CostsProps> = ({
                 cart.totalPrice.currencyCode,
                 locale,
               )
-            : CurrencyHelpers.formatForCurrency(total.value, locale)}
+            : formatMoney(
+                total.value.centAmount ?? 0,
+                total.value.currencyCode ?? 'USD',
+                locale,
+              )}
         </p>
       </div>
     </div>

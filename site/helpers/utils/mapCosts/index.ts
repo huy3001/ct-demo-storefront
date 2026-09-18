@@ -1,10 +1,10 @@
-import { Cart } from '@/types/entity/cart';
 import { UseCartReturn } from '@/types/cart/Cart';
+import type { Cart } from '@commercetools/platform-sdk';
 
 type MapCosts = (props: { cart?: Partial<Cart>; currency?: string }) => UseCartReturn['transaction'];
 
 const mapCosts: MapCosts = ({ cart: data, currency = 'USD' }) => {
-  if (!data?.sum?.centAmount) {
+  if (!data?.totalPrice?.centAmount) {
     return {
       subtotal: { centAmount: 0, currencyCode: currency, fractionDigits: 2 },
       discount: { centAmount: 0, currencyCode: currency, fractionDigits: 2 },
@@ -14,46 +14,49 @@ const mapCosts: MapCosts = ({ cart: data, currency = 'USD' }) => {
     };
   }
 
-  const currencyCode = data.sum?.currencyCode ?? currency;
-  const fractionDigits = data.sum?.fractionDigits ?? 2;
+  const currencyCode = data.totalPrice?.currencyCode ?? currency;
+  const fractionDigits = data.totalPrice?.fractionDigits ?? 2;
 
-  const totalAmount = data.sum?.centAmount as number;
+  const totalAmount = data.totalPrice?.centAmount as number;
   const subTotalAmount = (data.lineItems ?? []).reduce((acc, curr) => {
-    if (curr.isGift) {
-      return acc;
-    }
+    // if (curr.isGift) {
+    //   return acc;
+    // }
 
     return (
       acc +
-      (curr.price?.centAmount || 0) * (curr.count as number) -
-      (curr.taxRate?.includedInPrice ? curr.taxed?.taxAmount?.centAmount || 0 : 0)
+      (curr.price?.value?.centAmount || 0) * (curr.quantity as number) -
+      (curr.taxRate?.includedInPrice
+        ? curr.taxedPrice?.totalTax?.centAmount || 0
+        : 0)
     );
   }, 0);
 
   const discountedAmount =
     (data.discountOnTotalPrice?.discountedAmount?.centAmount || 0) +
     (data.lineItems ?? []).reduce((acc, curr) => {
-      if (curr.isGift) {
-        return acc;
-      }
+      // if (curr.isGift) {
+      //   return acc;
+      // }
 
-      return acc + ((curr.price?.centAmount || 0) * (curr.count as number) - (curr.totalPrice?.centAmount || 0));
+      return acc + ((curr.price?.value?.centAmount || 0) * (curr.quantity as number) - (curr.totalPrice?.centAmount || 0));
     }, 0);
 
   const excludedTaxes =
     (data.lineItems ?? [])
       .filter((item) => !item.taxRate?.includedInPrice)
-      .reduce((acc, curr) => acc + (curr.taxed?.taxAmount?.centAmount ?? 0), 0) +
-    (!data.shippingInfo?.taxRate?.includedInPrice ? (data.shippingInfo?.taxed?.taxAmount?.centAmount ?? 0) : 0);
+      .reduce((acc, curr) => acc + (curr.taxedPrice?.totalTax?.centAmount ?? 0), 0) +
+    (!data.shippingInfo?.taxRate?.includedInPrice ? (data.shippingInfo?.taxedPrice?.totalTax?.centAmount ?? 0) : 0);
 
-  const totalTax = totalAmount > 0 ? (data.taxed?.taxAmount?.centAmount ?? 0) : 0;
+  const totalTax =
+    totalAmount > 0 ? (data.taxedPrice?.totalTax?.centAmount ?? 0) : 0;
 
   const totalShipping =
     totalAmount > 0
       ? (data.shippingInfo?.price?.centAmount || 0) -
-          (data.shippingInfo?.taxRate?.includedInPrice ? data.shippingInfo.taxed?.taxAmount?.centAmount || 0 : 0) ||
-        data.availableShippingMethods?.[0]?.rates?.[0]?.price?.centAmount ||
-        0
+          (data.shippingInfo?.taxRate?.includedInPrice
+            ? data.shippingInfo?.taxedPrice?.totalTax?.centAmount || 0
+            : 0)
       : 0;
 
   const isEstimatedShipping = !data.shippingInfo;

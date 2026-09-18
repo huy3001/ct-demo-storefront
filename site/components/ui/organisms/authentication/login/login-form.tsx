@@ -125,13 +125,13 @@ const LoginForm: FC<Props> = ({ login, requestConfirmationEmail, requestPassword
 
   return (
     <>
-      <h3 className="mb-16 text-16 md:mb-24 md:text-20 lg:text-24">
+      <h3 className="mb-4 text-base md:mb-6 md:text-xl lg:text-2xl">
         {resendPasswordReset ? translate('account.password-reset-headline') : translate('account.welcome-back')}
       </h3>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate method="post">
         <Feedback success={success} error={errors.root?.message as string} />
-        <div className="flex flex-col gap-16 md:gap-20">
+        <div className="flex flex-col gap-4 md:gap-5">
           <Input
             id="email"
             type="email"
@@ -162,15 +162,15 @@ const LoginForm: FC<Props> = ({ login, requestConfirmationEmail, requestPassword
 
           {subModal ? (
             <div>
-              <ArrowLeftIcon className="w-4 cursor-pointer" onClick={backToLogin} />
+              <ArrowLeftIcon className="size-4 cursor-pointer" onClick={backToLogin} />
             </div>
           ) : (
-            <div className="mb-30 flex items-center justify-between">
+            <div className="mb-7.5 flex items-center justify-between">
               <Checkbox id="remember-me" label={translate('common.rememberMe')} onChange={handleCheckboxChange} />
 
               <button
                 type="button"
-                className="cursor-pointer text-12 text-gray-600 hover:underline md:text-14"
+                className="cursor-pointer text-xs text-gray-600 hover:underline md:text-sm"
                 onClick={toResendPassword}
               >
                 {translate('account.password-forgot')}
@@ -182,7 +182,7 @@ const LoginForm: FC<Props> = ({ login, requestConfirmationEmail, requestPassword
         <Button
           size="full"
           type="submit"
-          className="mb-16 text-16 font-medium leading-tight md:mb-20"
+          className="mb-4 text-base font-medium leading-tight md:mb-5"
           disabled={isSubmitting}
         >
           {resendPasswordReset ? translate('account.account-reset-link') : translate('account.sign-in')}
@@ -191,7 +191,7 @@ const LoginForm: FC<Props> = ({ login, requestConfirmationEmail, requestPassword
         {resendPasswordReset && (
           <Link
             variant="menu-item"
-            className="mx-auto block w-fit cursor-pointer text-14"
+            className="mx-auto block w-fit cursor-pointer text-sm"
             link=""
             onClick={backToLogin}
           >

@@ -10,7 +10,6 @@ import { Link } from '@/i18n/routing';
 import Button from '@/components/ui/atoms/button';
 import ProductTile from '@/components/ui/molecules/product-tile';
 import { shippingMethods } from '@/helpers/mocks/mockCommonData';
-import { wishlist } from '@/helpers/mocks/mockData';
 
 import 'swiper/css';
 
@@ -107,7 +106,6 @@ export default function RelatedProductsSlider({
             >
               <ProductTile
                 product={product}
-                wishlist={wishlist}
                 shippingMethods={shippingMethods}
               />
             </SwiperSlide>

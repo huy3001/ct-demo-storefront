@@ -8,9 +8,7 @@ import { Link } from '@/components/ui/organisms/header/types';
 import Wishlist from '@/components/ui/organisms/wishlist';
 import CartIcon from '@/components/icons/cart';
 import useClassNames from '@/hooks/useClassNames';
-import type {
-  DiscountCodeInfo as DiscountCode
-} from '@commercetools/platform-sdk';
+import type { DiscountCode } from '@commercetools/platform-sdk';
 
 export type MenuState = 'wishlist' | 'cart';
 

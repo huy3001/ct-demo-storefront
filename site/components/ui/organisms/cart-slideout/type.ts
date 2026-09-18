@@ -1,6 +1,6 @@
 import { ImageProps } from '@/components/ui/atoms/image';
 import { Link } from '../header/types';
-import type { DiscountCodeInfo as DiscountCode } from '@commercetools/platform-sdk';
+import type { DiscountCode } from '@commercetools/platform-sdk';
 
 export interface CartSlideoutProps {
   isEmpty?: boolean;

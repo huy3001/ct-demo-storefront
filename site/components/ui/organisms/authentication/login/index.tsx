@@ -38,7 +38,7 @@ const Login: React.FC<LoginProps> = ({ login, requestConfirmationEmail, requestP
 
   return (
     <>
-      <div className="m-auto grid max-w-screen-sm px-16">
+      <div className="m-auto grid max-w-screen-sm px-4">
         <LoginForm
           login={login}
           requestConfirmationEmail={requestConfirmationEmail}

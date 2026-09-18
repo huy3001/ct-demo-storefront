@@ -24,11 +24,11 @@ const LoginSuggestion = ({ login, requestConfirmationEmail, requestPasswordReset
 
   return (
     <>
-      <p className="mt-18 border-t border-neutral-400 pt-16 text-14 leading-[20px] text-gray-600 md:text-16 lg:border-none">
+      <p className="mt-4 border-t border-neutral-400 pt-4 text-sm leading-5 text-gray-600 md:text-base lg:border-none">
         {translate('cart.order-summary-login')}
       </p>
       <Button
-        className="mt-18 py-12 text-14 font-medium md:text-16"
+        className="mt-4"
         onClick={openLoginModal}
         size="full"
         variant="secondary"
@@ -44,10 +44,10 @@ const LoginSuggestion = ({ login, requestConfirmationEmail, requestPasswordReset
         closeTimeoutMS={200}
       >
         <CloseIcon
-          className="absolute right-20 top-20 size-24 cursor-pointer text-gray-600"
+          className="absolute right-5 top-5 size-6 cursor-pointer text-gray-600"
           onClick={closeLoginModal}
         />
-        <div className="p-1 pb-48 pt-72">
+        <div className="p-px pb-12 pt-18">
           <Login
             login={async (email, password, rememberMe) => {
               const res = await login?.(email, password, rememberMe);
