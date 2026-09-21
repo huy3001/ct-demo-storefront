@@ -17,14 +17,23 @@ export default function ShopByBrand({
       aria-labelledby="shop-by-brand-heading"
     >
       <div className="mx-auto max-w-7xl px-4 py-16">
-        <h2
-          id="shop-by-brand-heading"
-          className="mb-8 text-xl font-semibold"
-        >
-          Shop by brand
-        </h2>
+        <div className="mb-8 flex items-center justify-between gap-4">
+          <h2
+            id="shop-by-brand-heading"
+            className="text-xl font-semibold"
+          >
+            Shop by brand
+          </h2>
+          <Link
+            href="/brands"
+            locale={locale}
+            className="flex items-center gap-2 text-sm font-medium text-charcoal underline-offset-4 hover:underline"
+          >
+            View all
+          </Link>
+        </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {brands.map((brand) => {
+          {brands.slice(0, 4).map((brand) => {
             const searchQuery = new URLSearchParams({
               q: brand.name,
               f_productBrand: brand.name,

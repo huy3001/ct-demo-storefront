@@ -88,31 +88,43 @@ export async function getFeaturedProducts(locale: string, limit = 8): Promise<Pr
 export async function getProductBrands(locale: string): Promise<ProductBrand[]> {
   const apiRoot: ByProjectKeyRequestBuilder = getCatalogApiRoot();
   const { currency, country } = COUNTRY_CONFIG[locale] ?? COUNTRY_CONFIG['en-US'];
-
-  const { body } = await apiRoot
-    .productProjections()
-    .get({
-      queryArgs: {
-        priceCurrency: currency,
-        priceCountry: country,
-        limit: 500,
-      },
-    })
-    .execute();
-
   const brands = new Map<string, ProductBrand>();
-  for (const projection of body.results) {
-    const product = mapProductProjection(projection, locale);
-    if (!product.brand) continue;
+  const limit = 500;
+  let offset = 0;
 
-    const key = product.brand.toLocaleLowerCase(locale);
-    const existing = brands.get(key);
-    if (!existing || (!existing.logo && product.brandLogo)) {
-      brands.set(key, { name: product.brand, logo: product.brandLogo });
+  while (true) {
+    const { body } = await apiRoot
+      .productProjections()
+      .get({
+        queryArgs: {
+          priceCurrency: currency,
+          priceCountry: country,
+          limit,
+          offset,
+        },
+      })
+      .execute();
+
+    for (const projection of body.results) {
+      const product = mapProductProjection(projection, locale);
+      if (!product.brand) continue;
+
+      const key = product.brand.toLocaleLowerCase(locale);
+      const existing = brands.get(key);
+      if (!existing || (!existing.logo && product.brandLogo)) {
+        brands.set(key, { name: product.brand, logo: product.brandLogo });
+      }
     }
+
+    if (body.results.length < limit) break;
+    offset += body.results.length;
   }
 
-  return [...brands.values()].sort((a, b) => a.name.localeCompare(b.name, locale));
+  return [...brands.values()].sort((a, b) =>
+    a.name.localeCompare(b.name, locale, {
+      sensitivity: 'base',
+    }),
+  );
 }
 
 export async function getProductsByCategorySlug(

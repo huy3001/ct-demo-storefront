@@ -101,6 +101,7 @@ const Input: FC<InputProps> = ({
           className={inputClassName}
           ref={ref}
           id={id}
+          name={name}
           {...(error && { 'aria-describedby': `${id}_input_error` })}
           onFocus={handleFocus}
           onBlur={handleBlur}
