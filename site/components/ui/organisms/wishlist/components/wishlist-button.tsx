@@ -63,7 +63,7 @@ const WishlistButton: FC<WishlistButtonProps> = ({
       return;
     }
 
-    if (showWishlistSelector) {
+    if (!saved && showWishlistSelector) {
       setIsModalOpen(true);
       return;
     }
@@ -71,7 +71,9 @@ const WishlistButton: FC<WishlistButtonProps> = ({
     setProcessing(true);
     setError(null);
     try {
-      await toggleSaved(productId, variantId, locale);
+      await toggleSaved(productId, variantId, locale).then(() => {
+        toast.success('Wishlist updated');
+      });
     } catch (err) {
       setError(
         err instanceof Error ? err.message : 'Unable to update wishlist',
@@ -88,7 +90,11 @@ const WishlistButton: FC<WishlistButtonProps> = ({
     setProcessing(true);
     setError(null);
     try {
-      await addToWishlist(productId, variantId, locale, 1, wishlistId);
+      await addToWishlist(productId, variantId, locale, 1, wishlistId).then(
+        () => {
+          toast.success('Product added to wishlist');
+        },
+      );
       setIsModalOpen(false);
     } catch (err) {
       setError(

@@ -1,12 +1,14 @@
 'use client';
 
 import { FC, useMemo, useState } from 'react';
+import { useParams } from 'next/navigation';
 import { useTranslations } from 'use-intl';
 import Image from '@/components/ui/atoms/image';
 import Link from '@/components/ui/atoms/link';
 import OutOfStock from '@/components/ui/atoms/out-of-stock';
 import QuickView from '@/components/ui/organisms/product/product-quick-view';
 import WishlistButton from '@/components/ui/organisms/wishlist/components/wishlist-button';
+import CompareButton from '@/components/product/CompareButton';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import useVariantWithDiscount from '@/hooks/useVariantWithDiscount';
 import { desktop } from '@/helpers/utils/screensizes';
@@ -44,6 +46,7 @@ const ProductTile: FC<ProductTileProps> = ({
   onClick,
   onAddToCart,
 }) => {
+  const { locale } = useParams<{ locale: string }>();
   const [isDesktopSize] = useMediaQuery(desktop);
 
   const { ref } = useTrack({ product });
@@ -115,15 +118,19 @@ const ProductTile: FC<ProductTileProps> = ({
           </div>
         </Link>
 
-        <span
-          className="absolute right-0 top-0 z-10 flex size-8 cursor-pointer items-center justify-center md:size-12"
-          onClick={(e) => e.preventDefault()}
-        >
+        <span className="absolute left-2 top-2 z-10 flex items-center">
+          <CompareButton
+            product={product}
+            locale={locale}
+          />
+        </span>
+
+        <span className="absolute right-2 top-2 z-10 flex items-center">
           {!disableWishlistButton && (
             <WishlistButton
               productId={product.id}
               variantId={selectedVariant.id}
-              className="size-7 lg:size-8"
+              className="size-6 lg:size-8"
               showWishlistSelector={showWishlistSelector}
             />
           )}

@@ -16,6 +16,7 @@ import {
 } from '@/components/product/ProductReviews';
 import Breadcrumb from '@/components/ui/molecules/breadcrumb';
 import WishlistButton from '@/components/ui/organisms/wishlist/components/wishlist-button';
+import CompareButton from '@/components/product/CompareButton';
 import Accordion from '@/components/ui/atoms/accordion';
 import ShippingSection from '@/components/ui/organisms/product/product-details/components/shipping-section';
 import { ShippingMethod } from '@/types/cart/ShippingMethod';
@@ -110,13 +111,19 @@ export default async function ProductDetailPage({
                   </h1>
                   <ProductReviewSummary />
                 </div>
-                {defaultVariant && (
-                  <WishlistButton
-                    productId={product.id}
-                    variantId={defaultVariant.id}
-                    className="size-7 lg:size-8"
+                <div className="flex items-center gap-2">
+                  {defaultVariant && (
+                    <WishlistButton
+                      productId={product.id}
+                      variantId={defaultVariant.id}
+                      className="size-6 lg:size-8"
+                    />
+                  )}
+                  <CompareButton
+                    product={product}
+                    locale={locale}
                   />
-                )}
+                </div>
               </div>
 
               {product.description && (
@@ -156,7 +163,7 @@ export default async function ProductDetailPage({
                   />
                 </div>
               )}
-              
+
               <ProductReviewsAccordion />
             </section>
           </ReviewsProvider>

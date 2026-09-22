@@ -70,7 +70,7 @@ const ProductInformation: FC<ProductInformationProps> = ({
         <WishlistButton
           productId={product?.id ?? ''}
           variantId={variant?.id ?? 0}
-          className="size-7 lg:size-8"
+          className="size-6 lg:size-8"
         />
       </div>
       {variant?.price && (

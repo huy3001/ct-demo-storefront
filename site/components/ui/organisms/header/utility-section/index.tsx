@@ -6,6 +6,7 @@ import { Link } from '@/components/ui/organisms/header/types';
 import Slideout, { MenuState } from '@/components/ui/organisms/header/utility-section/components/slide-out';
 import CartIcon from '@/components/icons/cart';
 import WishlistIcon from '@/components/icons/wishlist';
+import CompareHeaderLink from '@/components/compare/CompareHeaderLink';
 import AccountButton from './components/account-button';
 import type { DiscountCode } from '@commercetools/platform-sdk';
 
@@ -59,6 +60,10 @@ const UtilitySection: React.FC<Props> = ({
     <div className="mt-3 flex h-10 items-center">
       <div className="flex justify-between gap-x-2 lg:gap-x-4">
         <AccountButton />
+
+        <div className="h-10 w-fit">
+          <CompareHeaderLink />
+        </div>
 
         <div className="h-10 w-fit">
           <button
