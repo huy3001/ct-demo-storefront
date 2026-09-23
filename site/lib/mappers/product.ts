@@ -1,5 +1,5 @@
 import type { ProductProjection, ProductVariant, Price as CtPrice } from '@commercetools/platform-sdk';
-import type { Product, Review, Variant, Price } from '@/lib/types';
+import type { Product, Review, ReviewMedia, Variant, Price } from '@/lib/types';
 import { getLocalizedString } from '@/lib/utils';
 
 function mapPrice(price?: CtPrice): Price | undefined {
@@ -74,6 +74,27 @@ export function mapReviews(value: unknown): Review[] {
     const title = typeof review.title === 'string' ? review.title : '';
     const content = typeof review.content === 'string' ? review.content : '';
     if (!Number.isInteger(rating) || rating < 1 || rating > 5 || !author || !title || !content) return [];
+    const status = review.status;
+    if (status !== undefined && status !== 'pending' && status !== 'approved' && status !== 'rejected') {
+      return [];
+    }
+
+    const media = Array.isArray(review.media)
+      ? review.media.flatMap((item): ReviewMedia[] => {
+        if (!item || typeof item !== 'object') return [];
+        const value = item as Record<string, unknown>;
+        const type = value.type;
+        const url = value.url;
+        if ((type !== 'image' && type !== 'video') || typeof url !== 'string' || !url) {
+          return [];
+        }
+        return [{
+          type,
+          url,
+          name: typeof value.name === 'string' ? value.name : undefined,
+        }];
+      })
+      : undefined;
 
     return [{
       id: typeof review.id === 'string' ? review.id : `existing-review-${index}`,
@@ -82,6 +103,8 @@ export function mapReviews(value: unknown): Review[] {
       title,
       content,
       createdAt: typeof review.createdAt === 'string' ? review.createdAt : '',
+      status: status ?? 'approved',
+      ...(media?.length ? { media } : {}),
     }];
   });
 }

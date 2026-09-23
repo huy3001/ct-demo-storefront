@@ -89,17 +89,17 @@ export default async function ProductDetailPage({
         product={product}
         locale={locale}
       >
-        <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(360px,0.8fr)] lg:gap-16">
-          <ProductImageGallery
-            productName={product.name}
-            brand={product.brand}
-            brandLogo={product.brandLogo}
-          />
+        <ReviewsProvider
+          productId={product.id}
+          initialReviews={product.reviews}
+        >
+          <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(360px,0.8fr)] lg:gap-16">
+            <ProductImageGallery
+              productName={product.name}
+              brand={product.brand}
+              brandLogo={product.brandLogo}
+            />
 
-          <ReviewsProvider
-            productId={product.id}
-            initialReviews={product.reviews}
-          >
             <section>
               <div className="flex items-start justify-between gap-4">
                 <div>
@@ -141,39 +141,42 @@ export default async function ProductDetailPage({
 
                 <ShippingSection shippingMethods={shippingMethods} />
               </div>
-
-              {product.description && (
-                <Accordion
-                  variant="arrow"
-                  closedSectionTitle="Product description"
-                  openSectionTitle="Product description"
-                  className="mt-8 border-t border-border"
-                  buttonClassName="font-medium text-charcoal py-5"
-                  panelClassName="whitespace-pre-line pb-5 text-sm text-charcoal-light"
-                >
-                  {product.description}
-                </Accordion>
-              )}
-
-              {defaultVariant && (
-                <div className={product.description ? '' : 'mt-8'}>
-                  <ProductSpecifications
-                    locale={locale}
-                    labels={attributeLabels}
-                  />
-                </div>
-              )}
-
-              <ProductReviewsAccordion />
             </section>
-          </ReviewsProvider>
-        </div>
+          </div>
+
+          <div className="mt-16">
+            {product.description && (
+              <Accordion
+                variant="arrow"
+                closedSectionTitle="Product description"
+                openSectionTitle="Product description"
+                className="border-t border-border"
+                buttonClassName="font-medium text-charcoal py-5"
+                panelClassName="whitespace-pre-line pb-5 text-sm text-charcoal-light"
+              >
+                {product.description}
+              </Accordion>
+            )}
+
+            {defaultVariant && (
+              <div className={product.description ? '' : 'mt-8'}>
+                <ProductSpecifications
+                  locale={locale}
+                  labels={attributeLabels}
+                />
+              </div>
+            )}
+
+            <ProductReviewsAccordion />
+          </div>
+        </ReviewsProvider>
       </ProductVariantProvider>
 
       {relatedProducts.length > 0 && (
         <RelatedProductsSlider
           products={relatedProducts}
           locale={locale}
+          showBorder={false}
         />
       )}
     </div>

@@ -185,7 +185,7 @@ export async function getRelatedProducts(
 
 export async function createProductReview(
   productId: string,
-  input: Pick<Review, 'rating' | 'author' | 'title' | 'content'>,
+  input: Pick<Review, 'rating' | 'author' | 'title' | 'content' | 'media'>,
 ): Promise<Review> {
   const apiRoot = getCatalogApiRoot();
   const { body: product } = await apiRoot
@@ -202,6 +202,7 @@ export async function createProductReview(
     ...input,
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
+    status: 'pending',
   };
 
   await apiRoot

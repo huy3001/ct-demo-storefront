@@ -39,6 +39,14 @@ export interface Review {
   title: string;
   content: string;
   createdAt: string;
+  status: 'pending' | 'approved' | 'rejected';
+  media?: ReviewMedia[];
+}
+
+export interface ReviewMedia {
+  type: 'image' | 'video';
+  url: string;
+  name?: string;
 }
 
 export interface ProductBrand {
