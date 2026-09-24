@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { useCart } from '@/hooks/useCart';
 import { formatMoney } from '@/lib/utils';
@@ -25,6 +25,20 @@ export default function AddToCartForm({
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
   const [selectedVariant, setSelectedVariant] = useState<Variant | undefined>(
     undefined,
+  );
+  const colorVariants = useMemo(
+    () =>
+      product.variants
+        .filter((variant) => Boolean(getVariantColorCode(variant.attributes)))
+        .filter(
+          (variant, index, variants) =>
+            variants.findIndex(
+              (candidate) =>
+                getVariantColorCode(candidate.attributes) ===
+                getVariantColorCode(variant.attributes),
+            ) === index,
+        ),
+    [product.variants],
   );
 
   const isUnavailable = matchingVariant?.availability?.isOnStock === false || !matchingVariant?.price;
@@ -94,25 +108,16 @@ export default function AddToCartForm({
         </div>
       )}
 
-      {product?.variants.length > 0 && (
+      {colorVariants.length > 0 && (
         <>
           <label className="mb-2 block text-sm font-medium text-charcoal">
             Color
           </label>
           <div className="flex items-center gap-2">
-            {product?.variants
-              .filter(
-                (variant, index, arr) =>
-                  arr.findIndex(
-                    (v) =>
-                      (getVariantColorCode(v.attributes) ?? '') ===
-                      (getVariantColorCode(variant.attributes) ?? ''),
-                  ) === index,
-              )
-              .map((variant, index) => {
+            {colorVariants.map((variant) => {
                 return variant.attributes.length > 0 ? (
                   <button
-                    key={index}
+                    key={variant.id}
                     type="button"
                     data-testid="product-variant"
                     className={`flex items-center justify-center cursor-pointer rounded-full border size-6 ${

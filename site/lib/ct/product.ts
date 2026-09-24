@@ -1,12 +1,35 @@
 import type {
   AttributeDefinitionDraft,
   ByProjectKeyRequestBuilder,
+  ProductProjection,
 } from '@commercetools/platform-sdk';
 import type { Product, ProductBrand, Review } from '@/lib/types';
 import { COUNTRY_CONFIG } from '@/lib/utils';
 import { mapProductProjection } from '@/lib/mappers/product';
 import { mapReviews } from '@/lib/mappers/product';
 import { getCatalogApiRoot } from './client';
+import { getStandalonePricesBySku } from './standalone-prices';
+import { getStorePriceChannel } from './store-channel';
+
+async function mapProducts(
+  apiRoot: ByProjectKeyRequestBuilder,
+  products: ProductProjection[],
+  locale: string,
+  currency: string,
+  country: string,
+  priceChannel?: string,
+): Promise<Product[]> {
+  const standalonePricesBySku = await getStandalonePricesBySku(
+    apiRoot,
+    products,
+    currency,
+    country,
+    priceChannel,
+  );
+  return products.map((product) =>
+    mapProductProjection(product, locale, standalonePricesBySku),
+  );
+}
 
 const REVIEWS_ATTRIBUTE: AttributeDefinitionDraft = {
   name: 'reviews',
@@ -48,6 +71,7 @@ async function ensureReviewsAttribute(
 export async function getProductBySlug(slug: string, locale: string): Promise<Product | null> {
   const apiRoot: ByProjectKeyRequestBuilder = getCatalogApiRoot();
   const { currency, country } = COUNTRY_CONFIG[locale] ?? COUNTRY_CONFIG['en-US'];
+  const priceChannel = await getStorePriceChannel(apiRoot, locale);
 
   const { body } = await apiRoot
     .productProjections()
@@ -56,6 +80,7 @@ export async function getProductBySlug(slug: string, locale: string): Promise<Pr
         where: `slug(${locale}="${slug}")`,
         priceCurrency: currency,
         priceCountry: country,
+        ...(priceChannel ? { priceChannel } : {}),
         limit: 1,
       },
     })
@@ -63,12 +88,22 @@ export async function getProductBySlug(slug: string, locale: string): Promise<Pr
 
   const projection = body.results[0];
   if (!projection) return null;
-  return mapProductProjection(projection, locale);
+  return (
+    await mapProducts(
+      apiRoot,
+      [projection],
+      locale,
+      currency,
+      country,
+      priceChannel,
+    )
+  )[0];
 }
 
 export async function getFeaturedProducts(locale: string, limit = 8): Promise<Product[]> {
   const apiRoot: ByProjectKeyRequestBuilder = getCatalogApiRoot();
   const { currency, country } = COUNTRY_CONFIG[locale] ?? COUNTRY_CONFIG['en-US'];
+  const priceChannel = await getStorePriceChannel(apiRoot, locale);
 
   const { body } = await apiRoot
     .productProjections()
@@ -76,18 +111,27 @@ export async function getFeaturedProducts(locale: string, limit = 8): Promise<Pr
       queryArgs: {
         priceCurrency: currency,
         priceCountry: country,
+        ...(priceChannel ? { priceChannel } : {}),
         limit,
         sort: 'createdAt desc',
       },
     })
     .execute();
 
-  return body.results.map((p) => mapProductProjection(p, locale));
+  return mapProducts(
+    apiRoot,
+    body.results,
+    locale,
+    currency,
+    country,
+    priceChannel,
+  );
 }
 
 export async function getProductBrands(locale: string): Promise<ProductBrand[]> {
   const apiRoot: ByProjectKeyRequestBuilder = getCatalogApiRoot();
   const { currency, country } = COUNTRY_CONFIG[locale] ?? COUNTRY_CONFIG['en-US'];
+  const priceChannel = await getStorePriceChannel(apiRoot, locale);
   const brands = new Map<string, ProductBrand>();
   const limit = 500;
   let offset = 0;
@@ -99,6 +143,7 @@ export async function getProductBrands(locale: string): Promise<ProductBrand[]> 
         queryArgs: {
           priceCurrency: currency,
           priceCountry: country,
+          ...(priceChannel ? { priceChannel } : {}),
           limit,
           offset,
         },
@@ -134,6 +179,7 @@ export async function getProductsByCategorySlug(
 ): Promise<Product[]> {
   const apiRoot: ByProjectKeyRequestBuilder = getCatalogApiRoot();
   const { currency, country } = COUNTRY_CONFIG[locale] ?? COUNTRY_CONFIG['en-US'];
+  const priceChannel = await getStorePriceChannel(apiRoot, locale);
   const categoryResponse = await apiRoot
     .categories()
     .get({ queryArgs: { where: `slug(${locale}="${categorySlug}")`, limit: 1 } })
@@ -149,13 +195,21 @@ export async function getProductsByCategorySlug(
         where: `categories(id="${category.id}")`,
         priceCurrency: currency,
         priceCountry: country,
+        ...(priceChannel ? { priceChannel } : {}),
         limit,
         sort: 'createdAt desc',
       },
     })
     .execute();
 
-  return body.results.map((product) => mapProductProjection(product, locale));
+  return mapProducts(
+    apiRoot,
+    body.results,
+    locale,
+    currency,
+    country,
+    priceChannel,
+  );
 }
 
 export async function getRelatedProducts(
@@ -166,6 +220,7 @@ export async function getRelatedProducts(
 ): Promise<Product[]> {
   const apiRoot: ByProjectKeyRequestBuilder = getCatalogApiRoot();
   const { currency, country } = COUNTRY_CONFIG[locale] ?? COUNTRY_CONFIG['en-US'];
+  const priceChannel = await getStorePriceChannel(apiRoot, locale);
 
   const { body } = await apiRoot
     .productProjections()
@@ -174,13 +229,21 @@ export async function getRelatedProducts(
         where: `categories(id="${categoryId}") and id != "${currentProductId}"`,
         priceCurrency: currency,
         priceCountry: country,
+        ...(priceChannel ? { priceChannel } : {}),
         limit,
         sort: 'createdAt desc',
       },
     })
     .execute();
 
-  return body.results.map((product) => mapProductProjection(product, locale));
+  return mapProducts(
+    apiRoot,
+    body.results,
+    locale,
+    currency,
+    country,
+    priceChannel,
+  );
 }
 
 export async function createProductReview(

@@ -1,4 +1,10 @@
-import type { ProductProjection, ProductVariant, Price as CtPrice } from '@commercetools/platform-sdk';
+import type {
+  ProductProjection,
+  ProductVariant,
+  Price as CtPrice,
+  ScopedPrice,
+  StandalonePrice,
+} from '@commercetools/platform-sdk';
 import type { Product, Review, ReviewMedia, Variant, Price } from '@/lib/types';
 import { getLocalizedString } from '@/lib/utils';
 
@@ -13,12 +19,53 @@ function mapPrice(price?: CtPrice): Price | undefined {
   };
 }
 
-function mapVariant(variant: ProductVariant): Variant {
+function mapScopedPrice(price?: ScopedPrice): Price | undefined {
+  if (!price) return undefined;
+
+  const discounted = price.discounted?.value ?? (
+    price.currentValue.centAmount !== price.value.centAmount
+      ? price.currentValue
+      : undefined
+  );
+
+  return {
+    centAmount: price.value.centAmount,
+    currencyCode: price.value.currencyCode,
+    discounted: discounted
+      ? {
+          centAmount: discounted.centAmount,
+          currencyCode: discounted.currencyCode,
+        }
+      : undefined,
+  };
+}
+
+function mapStandalonePrice(price?: StandalonePrice): Price | undefined {
+  if (!price) return undefined;
+  return {
+    centAmount: price.value.centAmount,
+    currencyCode: price.value.currencyCode,
+    discounted: price.discounted
+      ? {
+          centAmount: price.discounted.value.centAmount,
+          currencyCode: price.discounted.value.currencyCode,
+        }
+      : undefined,
+  };
+}
+
+function mapVariant(
+  variant: ProductVariant,
+  standalonePricesBySku?: ReadonlyMap<string, StandalonePrice>,
+): Variant {
   return {
     id: variant.id,
     sku: variant.sku ?? '',
     images: (variant.images ?? []).map((img) => img.url),
-    price: mapPrice(variant.price),
+    price:
+      mapScopedPrice(variant.scopedPrice) ??
+      mapPrice(variant.price) ??
+      mapStandalonePrice(standalonePricesBySku?.get(variant.sku ?? '')),
     prices: (variant.prices ?? []).map((p) => mapPrice(p)!).filter(Boolean),
     attributes: (variant.attributes ?? []).map((a) => ({ name: a.name, value: a.value })),
     availability: { isOnStock: variant.availability?.isOnStock },
@@ -109,8 +156,14 @@ export function mapReviews(value: unknown): Review[] {
   });
 }
 
-export function mapProductProjection(product: ProductProjection, locale: string): Product {
-  const variants = [product.masterVariant, ...(product.variants ?? [])].map(mapVariant);
+export function mapProductProjection(
+  product: ProductProjection,
+  locale: string,
+  standalonePricesBySku?: ReadonlyMap<string, StandalonePrice>,
+): Product {
+  const variants = [product.masterVariant, ...(product.variants ?? [])].map((variant) =>
+    mapVariant(variant, standalonePricesBySku),
+  );
   const brandLogoAsset = product.masterVariant.assets?.find(
     (asset) => asset.key === 'brand-logo' || asset.tags?.includes('brand-logo'),
   );

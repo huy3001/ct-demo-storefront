@@ -23,6 +23,7 @@ export interface PriceRangeSelection {
 
 export interface ProductSearchParams {
   locale: string;
+  priceChannel?: string;
   text?: string;
   categoryId?: string;
   discountedOnly?: boolean;
@@ -285,6 +286,7 @@ async function partialMatchFallbackSearch(
           withTotal: true,
           priceCurrency: currency,
           priceCountry: country,
+          ...(params.priceChannel ? { priceChannel: params.priceChannel } : {}),
           localeProjection: locales,
         },
       })
@@ -356,6 +358,7 @@ export async function searchProducts(
       productProjectionParameters: {
         priceCurrency: currency,
         priceCountry: country,
+        ...(params.priceChannel ? { priceChannel: params.priceChannel } : {}),
         localeProjection: locales,
       },
     };

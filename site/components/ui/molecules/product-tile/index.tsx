@@ -174,6 +174,7 @@ const ProductTile: FC<ProductTileProps> = ({
           {!disableVariants && (
             <div className="mt-2 flex items-center gap-1 md:mt-3">
               {product?.variants
+                .filter((variant) => Boolean(getVariantColorCode(variant.attributes)))
                 .filter(
                   (variant, index, arr) =>
                     arr.findIndex(

@@ -78,13 +78,17 @@ export function getVariantColorCode(attributes: Attribute[] | undefined) {
     attributeValues['color-code'] || attributeValues['finish-code'];
   if (typeof directCode === 'string' && directCode) return directCode;
 
-  const getLabel = (value: unknown) => {
+  const getLabel = (value: unknown): string | undefined => {
     if (typeof value === 'string') return value;
-    if (typeof value === 'object' && value !== null && 'label' in value) {
-      const label = value.label;
-      return typeof label === 'string' ? label : undefined;
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return undefined;
+
+    const record = value as Record<string, unknown>;
+    if (typeof record.label === 'string') return record.label;
+    if (record.label && typeof record.label === 'object' && !Array.isArray(record.label)) {
+      return getLocalizedString(record.label as Record<string, string>, DEFAULT_LOCALE.locale);
     }
-    return undefined;
+
+    return getLocalizedString(record as Record<string, string>, DEFAULT_LOCALE.locale) || undefined;
   };
 
   const labelOrText =

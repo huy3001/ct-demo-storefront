@@ -128,7 +128,7 @@ const Banner = ({
             {description && (
               <p
                 className={classnames(
-                  'mt-4 max-w-xl',
+                  'mt-4 max-w-xl mx-auto',
                   descriptionClassName(`variant.${variant}`).toString(),
                 )}
               >

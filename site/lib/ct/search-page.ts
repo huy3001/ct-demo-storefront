@@ -2,6 +2,9 @@ import { getCatalogApiRoot } from './client';
 import { searchProducts, type ProductSearchParams } from './product-search';
 import { mapProductProjection } from '@/lib/mappers/product';
 import type { SearchResult } from '@/lib/types';
+import { COUNTRY_CONFIG } from '@/lib/utils';
+import { getStandalonePricesBySku } from './standalone-prices';
+import { getStorePriceChannel } from './store-channel';
 
 export interface RunSearchParams extends ProductSearchParams {
   page: number;
@@ -10,12 +13,24 @@ export interface RunSearchParams extends ProductSearchParams {
 
 export async function runProductSearch(params: RunSearchParams): Promise<SearchResult> {
   const apiRoot = getCatalogApiRoot();
-  const response = await searchProducts(apiRoot, params);
+  const priceChannel = await getStorePriceChannel(apiRoot, params.locale);
+  const response = await searchProducts(apiRoot, { ...params, priceChannel });
+  const projections = response.results
+    .map((result) => result.productProjection)
+    .filter((product): product is NonNullable<typeof product> => Boolean(product));
+  const { currency, country } =
+    COUNTRY_CONFIG[params.locale] ?? COUNTRY_CONFIG['en-US'];
+  const standalonePricesBySku = await getStandalonePricesBySku(
+    apiRoot,
+    projections,
+    currency,
+    country,
+    priceChannel,
+  );
 
-  const products = response.results
-    .map((r) => r.productProjection)
-    .filter((p): p is NonNullable<typeof p> => Boolean(p))
-    .map((p) => mapProductProjection(p, params.locale));
+  const products = projections.map((product) =>
+    mapProductProjection(product, params.locale, standalonePricesBySku),
+  );
 
   const facets = response.facets
     .map((facetResult) => {
