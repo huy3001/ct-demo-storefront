@@ -3,11 +3,11 @@ import { Category } from '@/types/entity/category';
 
 export const logo = {
   media: {
-    file: 'https://res.cloudinary.com/dlwdq84ig/image/upload/v1705066753/kp6wm6i2n15ofmuwlxu7.png',
+    file: process.env.LOGO,
     mediaId: 'kp6wm6i2n15ofmuwlxu7',
     name: 'B2C Retail Store',
-    width: 4975,
-    height: 481,
+    width: 1600,
+    height: 400,
   },
 };
 

@@ -33,6 +33,10 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   // const Search = enableAlgoliaSearch ? AlgoliaSearch : CommercetoolsSearch;
 
+  const validNavLinks = navLinks.filter(
+    (link) => Boolean(link.slug) && link.showInNavigation,
+  );
+
   return (
     <header>
       <div className="pt-29 md:pt-35 xl:pt-32.5" />
@@ -47,7 +51,7 @@ const Header: React.FC<HeaderProps> = ({
           >
             <HeaderNavigationMobile
               logo={logoMobile}
-              links={navLinks}
+              links={validNavLinks}
               logoLink={logoLinkMobile}
             />
 
@@ -85,7 +89,7 @@ const Header: React.FC<HeaderProps> = ({
           </div>
 
           <HeaderNavigationDesktop
-            links={navLinks}
+            links={validNavLinks}
             tiles={tiles ?? []}
           />
         </div>

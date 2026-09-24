@@ -160,8 +160,8 @@ export function ProductReviewBlock({
     <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
       <Stars rating={averageRating} />
       <span className="text-charcoal-light">
-        {averageRating.toFixed(1)} · {reviews.length}{' '}
-        {reviews.length === 1 ? 'review' : 'reviews'}
+        {reviews.length}
+        {reviews.length === 1 ? ' review' : ' reviews'}
       </span>
       {onWriteReview && (
         <button
