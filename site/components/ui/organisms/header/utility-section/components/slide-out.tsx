@@ -14,7 +14,6 @@ export type MenuState = 'wishlist' | 'cart';
 
 export interface SlideOutProps {
   isEmpty?: boolean;
-  onApplyDiscountCode?: (code: string) => Promise<void>;
   onRemoveDiscountCode?: (discount: DiscountCode) => Promise<void>;
   totalCartItems?: number;
   totalWishlistItems?: number;
@@ -36,7 +35,6 @@ export interface SlideOutProps {
 const Slideout: React.FC<SlideOutProps> = ({
   isEmpty,
   totalCartItems = 0,
-  onApplyDiscountCode,
   onRemoveDiscountCode,
   totalWishlistItems = 0,
   state,
@@ -83,7 +81,6 @@ const Slideout: React.FC<SlideOutProps> = ({
         cart: (
           <Cart
             isEmpty={isEmpty}
-            onApplyDiscountCode={onApplyDiscountCode}
             onRemoveDiscountCode={onRemoveDiscountCode}
             emptyStateImage={emptyCartImage}
             emptyStateTitle={emptyCartTitle}
@@ -104,7 +101,6 @@ const Slideout: React.FC<SlideOutProps> = ({
       })[state as MenuState] ?? <></>,
     [
       isEmpty,
-      onApplyDiscountCode,
       onRemoveDiscountCode,
       emptyCartCategories,
       emptyCartImage,

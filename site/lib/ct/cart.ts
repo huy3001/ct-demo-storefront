@@ -73,7 +73,8 @@ export async function addLineItem(
   cart: Cart,
   productId: string,
   variantId: number,
-  quantity: number
+  quantity: number,
+  distributionChannelId?: string,
 ): Promise<Cart> {
   const { body } = await apiRoot
     .carts()
@@ -81,7 +82,20 @@ export async function addLineItem(
     .post({
       body: {
         version: cart.version,
-        actions: [{ action: 'addLineItem', productId, variantId, quantity }],
+        actions: [{
+          action: 'addLineItem',
+          productId,
+          variantId,
+          quantity,
+          ...(distributionChannelId
+            ? {
+                distributionChannel: {
+                  typeId: 'channel',
+                  id: distributionChannelId,
+                },
+              }
+            : {}),
+        }],
       },
     })
     .execute();

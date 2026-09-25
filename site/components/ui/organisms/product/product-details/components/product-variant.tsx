@@ -90,24 +90,27 @@ const ProductVariant: FC<ProductVariantProps> = ({
 
   const getButtonDescriptiveTitle = useCallback(
     (attributes: Attribute[]) => {
+      const value =
+        typeof getCurrentAttribute(attributes)?.value === 'string'
+          ? getCurrentAttribute(attributes)?.value
+          : (getCurrentAttribute(attributes)?.value?.key ?? '');
+
       switch (attribute) {
         case 'color':
           return translate('product.switch-to-color', {
-            color: getCurrentAttribute(attributes)?.value,
+            color: value,
           });
         case 'finish':
           return translate('product.switch-to-finish', {
-            color: getCurrentAttribute(attributes)?.value,
+            color: value,
           });
         case 'size':
           return translate('product.switch-to-size', {
-            size: getCurrentAttribute(attributes)?.value,
+            size: value,
           });
         default:
           return translate('product.switch-to', {
-            term:
-              getCurrentAttribute(attributes)?.name ??
-              getCurrentAttribute(attributes)?.value,
+            term: getCurrentAttribute(attributes)?.name ?? value,
           });
       }
     },
@@ -146,7 +149,12 @@ const ProductVariant: FC<ProductVariantProps> = ({
             attributeCodeLabel,
           );
 
-          const backgroundColor = attributeToUse?.value;
+          const backgroundColor = attributeToUse
+            ? attributeToUse?.value
+            : getLocalizedString(
+                getCurrentAttribute(currentVariant.attributes)?.value,
+                locale,
+              );
 
           return (
             <button

@@ -87,6 +87,12 @@ const CartItem: React.FC<CartItemProps> = ({
 
   const url = `/product/${slug}`;
 
+  const channels = Object.values(item.variant?.availability?.channels ?? {});
+
+  const isOutOfStock = channels?.every(
+    (channel) => channel.isOnStock === false,
+  );
+
   return (
     <div className="flex max-w-full items-stretch justify-start gap-2.5 py-4.5 md:gap-3.75">
       <div className="h-30 w-30 shrink-0 bg-white p-3">
@@ -126,7 +132,7 @@ const CartItem: React.FC<CartItemProps> = ({
             />
           </button>
         </div>
-        {!item.variant?.availability?.isOnStock && (
+        {isOutOfStock && (
           <div className="mt-2">
             <OutOfStock />
           </div>

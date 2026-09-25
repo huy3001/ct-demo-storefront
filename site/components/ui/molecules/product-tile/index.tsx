@@ -64,7 +64,11 @@ const ProductTile: FC<ProductTileProps> = ({
     userSelectedVariant ??
     variantWithDiscount ??
     product?.variants[selectedVariantIndex];
-
+  
+  const isOutOfStock =
+    selectedVariant?.availability?.isOnStock === false ||
+    !selectedVariant?.price;
+  
   const hasDiscount =
     selectedVariant?.price?.centAmount &&
     selectedVariant?.price?.discounted?.centAmount &&
@@ -144,14 +148,13 @@ const ProductTile: FC<ProductTileProps> = ({
               </span>
             </div>
           )}
-          {selectedVariant?.availability &&
-            !selectedVariant?.availability?.isOnStock && (
-              <div className="w-full text-center">
-                <div className="mb-2 ml-2">
-                  <OutOfStock />
-                </div>
+          {isOutOfStock && (
+            <div className="w-full text-center">
+              <div className="mb-2 ml-2">
+                <OutOfStock />
               </div>
-            )}
+            </div>
+          )}
 
           <QuickView
             buttonIsEnabled={isDesktopSize && !disableQuickView}
@@ -174,7 +177,9 @@ const ProductTile: FC<ProductTileProps> = ({
           {!disableVariants && (
             <div className="mt-2 flex items-center gap-1 md:mt-3">
               {product?.variants
-                .filter((variant) => Boolean(getVariantColorCode(variant.attributes)))
+                .filter((variant) =>
+                  Boolean(getVariantColorCode(variant.attributes)),
+                )
                 .filter(
                   (variant, index, arr) =>
                     arr.findIndex(

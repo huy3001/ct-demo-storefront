@@ -104,7 +104,7 @@ export default async function ProductDetailPage({
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-terra">
-                    {product.brand || 'Deco Store collection'}
+                    {product.brand || 'Demo Store collection'}
                   </p>
                   <h1 className="text-3xl font-semibold leading-tight tracking-tight text-charcoal md:text-4xl">
                     {product.name}

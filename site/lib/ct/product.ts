@@ -267,6 +267,7 @@ export async function createProductReview(
     createdAt: new Date().toISOString(),
     status: 'pending',
   };
+  const reviews = JSON.stringify([...existingReviews, review]);
 
   await apiRoot
     .products()
@@ -275,10 +276,9 @@ export async function createProductReview(
       body: {
         version: product.version,
         actions: [{
-          action: 'setAttribute',
-          variantId: product.masterData.current.masterVariant.id,
+          action: 'setAttributeInAllVariants',
           name: 'reviews',
-          value: JSON.stringify([...existingReviews, review]),
+          value: reviews,
           staged: false,
         }],
       },

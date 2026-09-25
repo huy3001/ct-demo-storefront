@@ -89,6 +89,10 @@ const ProductDetails: FC<ProductDetailsProps> = ({
     'mt-6 md:mt-0',
   ]);
 
+  const isOutOfStock =
+    variant?.availability?.isOnStock === false ||
+    !variant?.price;
+
   return (
     <div className={wrapperClassName}>
       {category && !inModalVersion && (
@@ -131,7 +135,7 @@ const ProductDetails: FC<ProductDetailsProps> = ({
 
         {variant?.availability && (
           <>
-            {!variant?.availability?.isOnStock && (
+            {isOutOfStock && (
               <div className="pt-5">
                 <p className="font-medium text-red-500">
                   {translate('product.outOfStock')}
@@ -146,13 +150,13 @@ const ProductDetails: FC<ProductDetailsProps> = ({
                   inCartQuantity >=
                   (variant?.availability?.availableQuantity ?? 0)
                     ? 0
-                    : Number(variant?.availability?.isOnStock)
+                    : Number(!isOutOfStock)
                 }
                 maxValue={
                   (variant?.availability?.availableQuantity ?? Infinity) -
                   inCartQuantity
                 }
-                disabled={!variant?.availability?.isOnStock}
+                disabled={isOutOfStock}
                 onChange={setQuantity}
               />
               <Button
@@ -161,9 +165,9 @@ const ProductDetails: FC<ProductDetailsProps> = ({
                 onClick={handleAddToCart}
                 loading={loading}
                 added={added}
-                disabled={!variant?.availability?.isOnStock}
+                disabled={isOutOfStock}
               >
-                {variant?.availability?.isOnStock
+                {!isOutOfStock
                   ? translate('cart.cart-add')
                   : translate('product.currently-unavailable')}
               </Button>

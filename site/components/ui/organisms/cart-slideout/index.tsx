@@ -10,7 +10,6 @@ import { useCart } from '@/hooks/useCart';
 
 const CartSlideout: FC<CartSlideoutProps> = ({
   isEmpty,
-  onApplyDiscountCode,
   onRemoveDiscountCode,
   emptyStateImage,
   emptyStateTitle,
@@ -54,7 +53,6 @@ const CartSlideout: FC<CartSlideoutProps> = ({
       )}
       <OrderPaymentSection
         discounts={discountCodes ?? []}
-        onApplyDiscountCode={onApplyDiscountCode}
         onRemoveDiscountCode={onRemoveDiscountCode}
         isEmpty={isEmpty}
         classNames={{
