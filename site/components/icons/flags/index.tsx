@@ -6,7 +6,7 @@ type Props = {
 };
 
 const Icon: React.FC<Props> = ({ className, flagName }: Props) => {
-  const iconClassNames = `fi fi-${flagName.toLowerCase()} h-14 w-21 ${className}`;
+  const iconClassNames = `fi fi-${flagName.toLowerCase()} h-3.5 w-5 ${className}`;
   return <span className={iconClassNames} />;
 };
 

@@ -1,44 +1,38 @@
-import userEvent from '@testing-library/user-event';
 import { act, render, screen } from '@/__test__/utils';
+import userEvent from '@testing-library/user-event';
 import Radio from '.';
 
 describe('[Component] Radio', () => {
-  it('Renders correctly', () => {
-    const result = render(<Radio>Label</Radio>);
+  it('Is selected correctly', async () => {
+    const onSelected = jest.fn();
 
-    expect(result.baseElement.querySelector('label')?.textContent).toBe('Label');
-    expect((screen.getByRole('radio') as HTMLInputElement).checked).toBe(false);
+    const tree = render(<Radio onSelected={onSelected} />);
+
+    await act(async () => userEvent.click(tree.baseElement.querySelector('label') as HTMLLabelElement));
+
+    expect(onSelected).toHaveBeenCalled();
+    expect((screen.getByRole('radio') as HTMLInputElement).checked).toBeTruthy();
   });
 
-  it('Adapts default checked correctly', () => {
-    render(<Radio defaultChecked />);
+  it('Renders label correctly', () => {
+    render(<Radio label="Label" />);
 
-    expect((screen.getByRole('radio') as HTMLInputElement).checked).toBe(true);
+    expect(screen.getByText('Label')).toBeDefined();
   });
 
-  it('Functions correctly', async () => {
-    const onChange = jest.fn();
-    const onChecked = jest.fn();
+  it('Works within the controlled state correctly', async () => {
+    const tree = render(<Radio checked={false} />);
 
-    const result = render(<Radio onChange={onChange} onChecked={onChecked} />);
+    await act(async () => userEvent.click(tree.baseElement.querySelector('label') as HTMLLabelElement));
 
-    expect((screen.getByRole('radio') as HTMLInputElement).checked).toBe(false);
-
-    await act(async () => userEvent.click(result.baseElement.querySelector('label') as HTMLLabelElement));
-
-    expect((screen.getByRole('radio') as HTMLInputElement).checked).toBe(true);
-
-    expect(onChange.mock.calls[0][0].target.checked).toBe(true);
-    expect(onChecked).toHaveBeenCalled();
+    expect((screen.getByRole('radio') as HTMLInputElement).checked).toBeFalsy();
   });
 
-  it('Functions within controlled state correctly', async () => {
-    const result = render(<Radio checked={false} />);
+  it('Works within the disabled state correctly', async () => {
+    const tree = render(<Radio disabled />);
 
-    expect((screen.getByRole('radio') as HTMLInputElement).checked).toBe(false);
+    await act(async () => userEvent.click(tree.baseElement.querySelector('label') as HTMLLabelElement));
 
-    await act(async () => userEvent.click(result.baseElement.querySelector('label') as HTMLLabelElement));
-
-    expect((screen.getByRole('radio') as HTMLInputElement).checked).toBe(false);
+    expect((screen.getByRole('radio') as HTMLInputElement).checked).toBeFalsy();
   });
 });

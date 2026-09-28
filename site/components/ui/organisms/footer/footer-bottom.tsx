@@ -1,10 +1,8 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { useTranslations } from 'use-intl';
 import Image, { ImageProps } from '@/components/ui/atoms/image';
 import Link from '@/components/ui/atoms/link';
 import { SocialMedia } from '.';
-import { COUNTRY_CONFIG } from '@/lib/utils';
-import Dropdown from '@/components/ui/atoms/dropdown';
 
 interface Props {
   logo?: ImageProps;
@@ -12,22 +10,8 @@ interface Props {
   locale?: string;
 }
 
-const FooterBottom: FC<Props> = ({ logo, socialMedia, locale }) => {
+const FooterBottom: FC<Props> = ({ socialMedia }) => {
   const translate = useTranslations();
-
-  const onLocaleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const nextLocale = e.target.value;
-    document.cookie = `your-shop-country-locale=${nextLocale}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
-
-    const pathWithoutLocale = window.location.pathname
-      .split('/')
-      .slice(2)
-      .join('/');
-    const nextPath = `/${nextLocale}/${pathWithoutLocale}`;
-    window.location.assign(
-      `${nextPath}${window.location.search}${window.location.hash}`,
-    );
-  };
 
   const socialLinks = () => (
     <ul className="flex flex-row gap-5 self-center">
@@ -51,22 +35,6 @@ const FooterBottom: FC<Props> = ({ logo, socialMedia, locale }) => {
     </ul>
   );
 
-  const countrySelector = () => (
-    <label className="flex items-center gap-2">
-      <span className="text-sm text-neutral-500">Country</span>
-      <Dropdown
-        id="country-locale"
-        value={locale}
-        onChange={onLocaleChange}
-        containerClassName="min-w-35"
-        items={Object.entries(COUNTRY_CONFIG).map(([localeKey, config]) => ({
-          value: localeKey,
-          label: config.label,
-        }))}
-      />
-    </label>
-  );
-
   const copyright = () => (
     <p className="text-sm text-neutral-500 text-center">
       <span className="block md:inline-block md:mr-1">© {new Date().getFullYear()} Storefront. All rights reserved.</span>
@@ -87,12 +55,10 @@ const FooterBottom: FC<Props> = ({ logo, socialMedia, locale }) => {
           </div>
         )} */}
 
-        <div className="flex items-center justify-between gap-20 xl:basis-[47%]">
+        <div className="flex items-center justify-between gap-20 grow">
+          {copyright()}
           {socialLinks()}
-          {countrySelector()}
         </div>
-
-        {copyright()}
       </div>
 
       <div className="flex flex-col items-center gap-5 py-8 md:hidden">
@@ -107,8 +73,6 @@ const FooterBottom: FC<Props> = ({ logo, socialMedia, locale }) => {
         )} */}
 
         {socialLinks()}
-
-        {countrySelector()}
 
         {copyright()}
       </div>

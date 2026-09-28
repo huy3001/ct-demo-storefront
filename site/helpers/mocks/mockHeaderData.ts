@@ -3,7 +3,9 @@ import { Category } from '@/types/entity/category';
 
 export const logo = {
   media: {
-    file: process.env.LOGO,
+    file:
+      process.env.LOGO ??
+      'https://images.us-east-2.aws.commercetools.com/f8057d5f-514c-4c2b-9351-cee0d7b32271/B2C-logo-abxgywiB.png',
     mediaId: 'kp6wm6i2n15ofmuwlxu7',
     name: 'B2C Retail Store',
     width: 1600,

@@ -8,10 +8,10 @@ export interface DropdownProps extends ComponentProps<'select'> {
   className?: string;
   containerClassName?: string;
   labelClassName?: string;
-  items: Array<{ label: string; value: string }>;
+  items: Array<{ label: string; value: string | number }>;
   label?: string;
-  value?: string;
-  defaultValue?: string;
+  value?: string | number;
+  defaultValue?: string | number;
   error?: boolean;
 }
 
@@ -26,7 +26,7 @@ const DefaultDropdown: FC<DropdownProps> = ({
   error,
   ...props
 }) => {
-  const [selectedValue, setSelectedValue] = useControllableState(value);
+  const [selectedValue, setSelectedValue] = useControllableState<string | number | undefined>(value);
   const translate = useTranslations();
 
   const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {

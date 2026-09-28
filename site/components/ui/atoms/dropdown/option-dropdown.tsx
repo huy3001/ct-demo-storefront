@@ -46,7 +46,7 @@ const Select: React.FC<Props> = ({
   const buttonClassNames = useCallback(
     (open?: boolean) => {
       return `${error ? 'border-red-500' : 'border-gray-300'}
-        relative w-full flex h-10 items-center rounded-sm border py-1.5 px-3 text-left
+        relative w-full flex h-10 items-center rounded-sm border py-3 px-4 text-left
         w-full bg-white focus:border-gray-500 focus:ring-0 border  focus:outline-none active:border-gray-400
         ${open ? 'border-gray-400' : ''}
         ${selectButtonClassName}`;
@@ -73,7 +73,7 @@ const Select: React.FC<Props> = ({
             >
               <span className="text-sm">{selected?.name}</span>
               <span
-                className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2"
+                className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4"
                 aria-label={translate('common.caret-down')}
               >
                 <ChevronDownIcon data-testid="chevron-down-icon" className="size-5 text-gray-600" aria-hidden="true" />
@@ -100,7 +100,7 @@ const Select: React.FC<Props> = ({
                   >
                     {({ selected }) => (
                       <>
-                        <span className={`block truncate text-sm ${selected ? 'font-medium' : 'font-normal'}`}>
+                        <span className={`block truncate text-sm ${selected ? 'font-medium pl-6' : 'font-normal'}`}>
                           {option.name}
                         </span>
                         {selected ? (

@@ -24,6 +24,7 @@
     "@heroicons/react": "^2.2.0",
     "@hookform/resolvers": "^5.9.1",
     "dompurify": "^3.4.14",
+    "flag-icons": "^7.5.0",
     "jose": "^6.2.7",
     "js-cookie": "^3.0.8",
     "markdown": "^0.5.0",

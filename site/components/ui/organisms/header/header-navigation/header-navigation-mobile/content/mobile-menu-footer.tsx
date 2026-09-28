@@ -1,10 +1,10 @@
-import { FC, useLayoutEffect, useRef, useState } from 'react';
+import { FC } from 'react';
 import { useTranslations } from 'use-intl';
 import Button from '@/components/ui/atoms/button';
 import Link from '@/components/ui/atoms/link';
-import MarketButtonMobile from '@/components/ui/organisms/market-button/market-button-mobile';
 import { useRouter } from '@/i18n/routing';
 import MobileMenuNavButton from '../atoms/menu-nav-button';
+import ShippingAndLanguageSectionMobile from '@/components/ui/organisms/shipping-and-language/ship-and-language-mobile';
 import { useAccount } from '@/hooks/useAccount';
 import type { Category } from '@/lib/types';
 
@@ -14,12 +14,10 @@ export interface Props {
   hideHeaderMenu: () => void;
 }
 
-const MobileMenuFooter: FC<Props> = ({ showMenu, hideHeaderMenu, insertCategory }) => {
+const MobileMenuFooter: FC<Props> = ({ hideHeaderMenu, insertCategory }) => {
   const router = useRouter();
   const translate = useTranslations();
-  const marketButtonRef = useRef<HTMLDivElement>(null);
   const { isSignedIn, logout } = useAccount();
-  const [languageMenuTop, setLanguageMenuTop] = useState(false);
 
   const tabs = [
     { name: translate('account.my-account'), href: '/account' },
@@ -50,13 +48,6 @@ const MobileMenuFooter: FC<Props> = ({ showMenu, hideHeaderMenu, insertCategory 
     logout().then(() => router.push('/login'));
     hideHeaderMenu();
   };
-
-  useLayoutEffect(() => {
-    if (marketButtonRef.current) {
-      if (window.innerHeight - marketButtonRef.current.getBoundingClientRect().bottom < 100) setLanguageMenuTop(true);
-      else setLanguageMenuTop(false);
-    }
-  }, [showMenu]);
 
   return (
     <>
@@ -109,11 +100,8 @@ const MobileMenuFooter: FC<Props> = ({ showMenu, hideHeaderMenu, insertCategory 
           </Link>
         )}
       </div>
-      <div
-        className="p-4"
-        ref={marketButtonRef}
-      >
-        <MarketButtonMobile menuTop={languageMenuTop} />
+      <div className="p-4">
+        <ShippingAndLanguageSectionMobile />
       </div>
     </>
   );

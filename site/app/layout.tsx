@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import 'flag-icons/css/flag-icons.min.css';
 import './globals.css';
 
 export default function RootLayout({ children }: { children: ReactNode }) {

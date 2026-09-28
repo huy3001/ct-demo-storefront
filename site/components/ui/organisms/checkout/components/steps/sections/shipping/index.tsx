@@ -54,20 +54,34 @@ const Shipping: React.FC<Props> = ({ goToNextStep }) => {
           >
             <div className="flex items-center gap-16">
               <Radio
+                label={
+                  <div>
+                    <label
+                      htmlFor={StringHelpers.convertToKebabCase(
+                        shippingMethod.name,
+                      )}
+                      className="text-14 font-medium"
+                    >
+                      {shippingMethod.name}
+                    </label>
+                    <p className="mt-4 text-14 text-gray-600">
+                      {shippingMethod.description}
+                    </p>
+                  </div>
+                }
                 id={StringHelpers.convertToKebabCase(shippingMethod.name)}
                 name="checkout-shipping-method"
-                checked={shippingMethod.shippingMethodId === effectiveSelectedId}
+                checked={
+                  shippingMethod.shippingMethodId === effectiveSelectedId
+                }
               />
-              <div>
-                <label htmlFor={StringHelpers.convertToKebabCase(shippingMethod.name)} className="text-14 font-medium">
-                  {shippingMethod.name}
-                </label>
-                <p className="mt-4 text-14 text-gray-600">{shippingMethod.description}</p>
-              </div>
             </div>
 
             <span className="text-14 font-medium">
-              {CurrencyHelpers.formatForCurrency(shippingMethod.rates?.[0]?.price ?? {}, locale)}
+              {CurrencyHelpers.formatForCurrency(
+                shippingMethod.rates?.[0]?.price ?? {},
+                locale,
+              )}
             </span>
           </button>
         ))}

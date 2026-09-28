@@ -30,6 +30,7 @@ const Payment: React.FC<Props> = ({ goToNextStep }) => {
   }, [getPaymentMethods]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchPaymentMethods();
   }, [fetchPaymentMethods]);
 
@@ -68,12 +69,18 @@ const Payment: React.FC<Props> = ({ goToNextStep }) => {
             <div className="flex items-center justify-between lg:justify-start lg:gap-64">
               <div>
                 <div className="flex items-center gap-16">
-                  <Radio name="checkout-shipping-method" checked={type === selectedType} />
-                  <p className="text-14 font-medium">{name}</p>
+                  <Radio
+                    label={name}
+                    name="checkout-shipping-method"
+                    checked={type === selectedType}
+                  />
                 </div>
               </div>
               {/* eslint-disable-next-line */}
-              <img src={image.src} className="h-[20px] lg:h-[24px]" />
+              <img
+                src={image.src}
+                className="h-5 lg:h-6"
+              />
             </div>
             {type === selectedType && getComponent(type)}
           </div>

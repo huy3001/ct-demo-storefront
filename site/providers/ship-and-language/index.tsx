@@ -1,3 +1,5 @@
+'use client';
+
 import React, { createContext, useContext, useState } from 'react';
 import Cookies from 'js-cookie';
 import { useParams } from 'next/navigation';
@@ -5,6 +7,7 @@ import { ProjectSettings } from '@/types/ProjectSettings';
 import { Category } from '@/types/entity/category';
 import { ContextShape, Option, Location } from './types';
 import usePath from '@/hooks/usePath';
+import useProjectSettings from '@/hooks/useProjectSettings';
 import { mapCountry } from '@/helpers/utils/mapCountry';
 import { Country } from '@/types/entity/country';
 
@@ -20,12 +23,23 @@ const ShipAndLanguageProvider = ({
   children,
   projectSettings,
   categories = [],
-}: React.PropsWithChildren<{ projectSettings?: ProjectSettings; categories?: Category[] }>) => {
+}: React.PropsWithChildren<{
+  projectSettings?: ProjectSettings;
+  categories?: Category[];
+}>) => {
   const { path } = usePath();
 
-  const countries = (projectSettings?.countries ?? []).map(mapCountry).filter((value): value is Country => {
-    return value !== null && value !== undefined;
-  });
+  const { projectSettings: defaultProjectSettings } = useProjectSettings();
+
+  const countries = (
+    projectSettings?.countries ??
+    defaultProjectSettings?.countries ??
+    []
+  )
+    .map(mapCountry)
+    .filter((value): value is Country => {
+      return value !== null && value !== undefined;
+    });
 
   const locations = countries.map(
     ({ name, code, currencies, locales }) =>
@@ -41,21 +55,32 @@ const ShipAndLanguageProvider = ({
 
   const { locale } = useParams();
 
-  const [selectedLocationValue, setSelectedLocationValue] = useState(
-    countries.find((country) => country.locales.find((l) => l.locale === locale))?.code.toLowerCase(),
+  const [userSelectedLocationValue, setSelectedLocationValue] =
+    useState<string>();
+  
+  const defaultLocationValue =
+    locations.find((location) =>
+      location.languages.some((language) => language.value === locale),
+    )?.value ?? locations[0]?.value;
+  
+  const selectedLocationValue =
+    userSelectedLocationValue ?? defaultLocationValue;
+
+  const selectedLocation = locations.find(
+    (location) => location.value === selectedLocationValue,
   );
 
-  const selectedLocation = locations.find((location) => location.value === selectedLocationValue);
   const selectedLanguage =
-    selectedLocation?.languages.find((language) => language.value === locale) ?? selectedLocation?.languages[0];
-
+    selectedLocation?.languages.find((language) => language.value === locale) ??
+    selectedLocation?.languages[0];
+  
   const onLanguageSelect = (language: string) => {
     let pathToGo = path;
 
     // Check whether the localized url for this plp is correct (Only for PLP pages)
-    const correctPath = categories.find((c) => Object.values(c._urls ?? {}).includes(path.slice(0, -1)))?._urls?.[
-      language
-    ];
+    const correctPath = categories.find((c) =>
+      Object.values(c._urls ?? {}).includes(path.slice(0, -1)),
+    )?._urls?.[language];
 
     if (correctPath && path !== correctPath) pathToGo = correctPath;
 
@@ -71,7 +96,9 @@ const ShipAndLanguageProvider = ({
 
     setSelectedLocationValue(location);
 
-    if (!locationObject?.languages.find((language) => language.value === locale)) {
+    if (
+      !locationObject?.languages.find((language) => language.value === locale)
+    ) {
       onLanguageSelect(locationObject?.defaultLanguage ?? '');
     }
   };

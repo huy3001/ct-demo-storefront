@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Link from '@/components/ui/atoms/link';
-import MarketButton from '@/components/ui/organisms/market-button/market-button';
+import ShippingAndLanguageSection from '@/components/ui/organisms/shipping-and-language';
 import { Reference } from '@/types/reference';
 
 export interface Props {
@@ -30,25 +30,32 @@ const AnnouncementBar: React.FC<Props> = ({ text, highlightedSubstring, target }
   }, [text, highlightedSubstring]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     processHighlighting();
   }, [processHighlighting]);
 
   return (
-    <div className="relative h-32 w-full bg-neutral-800 md:h-40 lg:h-44">
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-        <p className="whitespace-nowrap text-center text-12 leading-loose text-white">
-          {previewText.prefix}
-          <Link link={target} className="underline underline-offset-2">
-            {previewText.middle}
-          </Link>
-          {previewText.suffix}
-        </p>
-      </div>
+    <div className="relative w-full bg-charcoal">
+      <div className="w-full h-8 mx-auto max-w-7xl px-4 md:h-10">
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <p className="whitespace-nowrap text-center text-xs leading-loose text-white">
+            {previewText.prefix}
+            <Link
+              link={target}
+              className="underline underline-offset-2"
+            >
+              {previewText.middle}
+            </Link>
+            {previewText.suffix}
+          </p>
+        </div>
 
-      <div className="flex size-full items-center justify-end pr-20 xl:pr-48">
-        <MarketButton />
+        <div className="flex size-full items-center justify-end">
+          <ShippingAndLanguageSection desktopDirection="right" />
+        </div>
       </div>
     </div>
   );
 };
+
 export default AnnouncementBar;

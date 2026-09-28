@@ -13,10 +13,10 @@ export interface DropdownProps extends Omit<ComponentProps<'select'>, 'key'> {
   className?: string;
   containerClassName?: string;
   labelClassName?: string;
-  items?: Array<{ id?: string; label: string; value: number | string }>;
+  items?: Array<{ id?: string; label: string; value: string | number }>;
   label?: string;
-  value?: string;
-  defaultValue?: string;
+  value?: string | number;
+  defaultValue?: string | number;
   customButtonElement?: JSX.Element;
   customButtonClassNames?: (open?: boolean) => string | string;
   customMenuClassNames?: (open?: boolean) => string;

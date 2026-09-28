@@ -1,49 +1,37 @@
-import React from 'react';
-import useClassNames from '@/hooks/useClassNames';
+'use client';
+
+import { useCallback } from 'react';
 import useControllableState from '@/hooks/useControllableState';
+import { classnames } from '@/helpers/utils/classnames';
+import { RadioProps } from './types';
+import useClassNames from './hooks/useClassNames';
 
-interface Props extends Omit<React.ComponentProps<'input'>, 'key'> {
-  className?: string;
-  inputClassName?: string;
-  onChecked?: () => void;
-}
+const Radio = ({ label, checked: checkedProp, onSelected, disabled, className, size = 'lg', ...props }: RadioProps) => {
+  const [checked, setChecked] = useControllableState(checkedProp, false);
 
-const Radio: React.FC<Props> = ({
-  className = '',
-  inputClassName = '',
-  onChecked,
-  children,
-  checked: checkedProp,
-  defaultChecked = false,
-  onChange,
-  ...props
-}) => {
-  const [checked, setChecked] = useControllableState(checkedProp, defaultChecked);
+  const { radioClassName, labelClassName, dotClassName } = useClassNames({ checked, disabled, size });
 
-  const labelClassName = useClassNames([
-    'grid place-content-center w-20 h-20 border border-gray-600 rounded-full',
-    className,
-  ]);
+  const handleChange = useCallback(() => {
+    if (disabled) return;
 
-  const inputClassNames = useClassNames(['h-12 w-12 border-0 text-gray-600', inputClassName]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange?.(e);
-    onChecked?.();
     setChecked(true);
-  };
+    onSelected?.();
+  }, [setChecked, onSelected, disabled]);
 
   return (
-    <label className={labelClassName} htmlFor={props.id}>
-      <input
-        style={{ background: checked ? '#494949' : 'white' }}
-        className={inputClassNames}
-        type="radio"
-        checked={checked}
-        onChange={(e) => handleChange(e)}
-        {...props}
-      />
-      {children}
+    <label aria-label={props['aria-label']} className="flex w-fit items-center gap-2">
+      <div className="relative w-fit">
+        <input
+          type="radio"
+          className={classnames(radioClassName, className)}
+          disabled={disabled}
+          checked={checked}
+          onChange={handleChange}
+          {...props}
+        />
+        <span className={dotClassName}></span>
+      </div>
+      {label && <span className={labelClassName}>{label}</span>}
     </label>
   );
 };

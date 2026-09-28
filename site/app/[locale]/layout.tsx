@@ -7,6 +7,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import Toaster from '@/components/ui/atoms/toaster';
 import BackToTopButton from '@/components/layout/BackToTopButton';
+import ShipAndLanguageProvider from '@/providers/ship-and-language';
 import { getCategoryTree } from '@/lib/ct/category';
 
 export const metadata: Metadata = {
@@ -36,14 +37,16 @@ export default async function LocaleLayout({
       locale={locale}
       messages={messages}
     >
-      <Header
-        locale={locale}
-        categoryTree={categoryTree}
-      />
-      <main className="flex-1">{children}</main>
-      <Footer locale={locale} />
-      <BackToTopButton />
-      <Toaster />
+      <ShipAndLanguageProvider>
+        <Header
+          locale={locale}
+          categoryTree={categoryTree}
+        />
+        <main className="flex-1">{children}</main>
+        <Footer locale={locale} />
+        <BackToTopButton />
+        <Toaster />
+      </ShipAndLanguageProvider>
     </NextIntlClientProvider>
   );
 }

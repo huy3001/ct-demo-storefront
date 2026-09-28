@@ -5,6 +5,7 @@ import HeaderNavigationDesktop from '@/components/ui/organisms/header/header-nav
 import HeaderNavigationMobile from '@/components/ui/organisms/header/header-navigation/header-navigation-mobile';
 import { HeaderProps } from '@/components/ui/organisms/header/types';
 import UtilitySection from '@/components/ui/organisms/header/utility-section';
+import AnnouncementBar from '@/components/ui/organisms/announcement-bar';
 
 // const AlgoliaSearch = dynamic(() => import('@/components/ui/atoms/search-algolia'));
 const CommercetoolsSearch = dynamic(() => import('@/components/ui/atoms/search'));
@@ -39,11 +40,17 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <header>
-      <div className="pt-29 md:pt-35 xl:pt-32.5" />
+      <div className="pt-37 md:pt-45 xl:pt-42" />
       <div
         id="header-container"
         className="fixed top-0 z-50 w-full"
       >
+        <AnnouncementBar
+          text="EXPLORE THIS SEASON'S COLLECTION"
+          highlightedSubstring="COLLECTION"
+          target={{ type: 'link', link: '/category/all' }}
+        />
+
         <div className="relative h-fit w-full border-b-[1.5px] border-neutral-400 bg-white">
           <div
             aria-label="Top"
