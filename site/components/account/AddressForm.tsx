@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useSWRConfig } from 'swr';
+import { useTranslations } from 'use-intl';
 import type { BaseAddress } from '@commercetools/platform-sdk';
 import { useAccount } from '@/hooks/useAccount';
 import { customerPhone } from '@/lib/customer-profile';
@@ -14,7 +15,15 @@ import Input from '@/components/ui/atoms/input';
 
 type AddressFields = Pick<
   BaseAddress,
-  'firstName' | 'lastName' | 'email' | 'phone' | 'country' | 'state' | 'city' | 'streetName' | 'postalCode'
+  | 'firstName'
+  | 'lastName'
+  | 'email'
+  | 'phone'
+  | 'country'
+  | 'state'
+  | 'city'
+  | 'streetName'
+  | 'postalCode'
 >;
 
 export default function AddressForm({
@@ -31,6 +40,7 @@ export default function AddressForm({
   const { locale } = useParams<{ locale: string }>();
   const country = locale.split('-')[1] ?? 'US';
   const router = useRouter();
+  const translate = useTranslations();
   const { mutate } = useSWRConfig();
   const { customer } = useAccount();
   const [form, setForm] = useState<AddressFields>({
@@ -44,7 +54,9 @@ export default function AddressForm({
     streetName: initialAddress?.streetName ?? '',
     postalCode: initialAddress?.postalCode ?? '',
   });
-  const [defaultShipping, setDefaultShipping] = useState(initialDefaultShipping);
+  const [defaultShipping, setDefaultShipping] = useState(
+    initialDefaultShipping,
+  );
   const [defaultBilling, setDefaultBilling] = useState(initialDefaultBilling);
   const [status, setStatus] = useState<'idle' | 'saving' | 'error'>('idle');
   const [validationError, setValidationError] = useState('');
@@ -57,8 +69,12 @@ export default function AddressForm({
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (![form.firstName, form.lastName, form.email, form.state].every((value) => value?.trim())) {
-      setValidationError('First name, last name, email address, and state are required.');
+    if (
+      ![form.firstName, form.lastName, form.email, form.state].every((value) =>
+        value?.trim(),
+      )
+    ) {
+      setValidationError(translate('address.required-fields'));
       return;
     }
 
@@ -93,10 +109,10 @@ export default function AddressForm({
       <div className="flex gap-4">
         <div className="form-field w-1/2">
           <Input
-            label="First name"
+            label={translate('common.firstName')}
             id="firstName"
             required
-            placeholder="First name"
+            placeholder={translate('common.firstName')}
             autoComplete="given-name"
             value={form.firstName}
             onChange={(e) =>
@@ -106,10 +122,10 @@ export default function AddressForm({
         </div>
         <div className="form-field w-1/2">
           <Input
-            label="Last name"
+            label={translate('common.lastName')}
             id="lastName"
             required
-            placeholder="Last name"
+            placeholder={translate('common.lastName')}
             autoComplete="family-name"
             value={form.lastName}
             onChange={(e) =>
@@ -121,11 +137,11 @@ export default function AddressForm({
       <div className="flex gap-4">
         <div className="form-field w-1/2">
           <Input
-            label="Email"
+            label={translate('common.email')}
             id="email"
             required
             type="email"
-            placeholder="Email"
+            placeholder={translate('common.email')}
             autoComplete="email"
             value={form.email}
             onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
@@ -133,10 +149,10 @@ export default function AddressForm({
         </div>
         <div className="form-field w-1/2">
           <Input
-            label="Phone number"
+            label={translate('common.phone')}
             id="phone"
             type="tel"
-            placeholder="Phone number (optional)"
+            placeholder={translate('common.phone')}
             autoComplete="tel"
             value={form.phone}
             onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
@@ -145,10 +161,10 @@ export default function AddressForm({
       </div>
       <div className="form-field w-full">
         <Input
-          label="Street address"
+          label={translate('address.street-address')}
           id="streetName"
           required
-          placeholder="Street"
+          placeholder={translate('address.street-address')}
           value={form.streetName}
           onChange={(e) =>
             setForm((f) => ({ ...f, streetName: e.target.value }))
@@ -158,20 +174,20 @@ export default function AddressForm({
       <div className="flex gap-4">
         <div className="form-field w-1/2">
           <Input
-            label="City"
+            label={translate('common.city')}
             id="city"
             required
-            placeholder="City"
+            placeholder={translate('common.city')}
             value={form.city}
             onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))}
           />
         </div>
         <div className="form-field w-1/2">
           <Input
-            label="Postal code"
+            label={translate('common.zipCode')}
             id="postalCode"
             required
-            placeholder="Postal code"
+            placeholder={translate('common.zipCode')}
             value={form.postalCode}
             onChange={(e) =>
               setForm((f) => ({ ...f, postalCode: e.target.value }))
@@ -182,10 +198,10 @@ export default function AddressForm({
       <div className="flex gap-4">
         <div className="form-field w-1/2">
           <Input
-            label="State"
+            label={translate('common.state')}
             id="state"
             required
-            placeholder="State"
+            placeholder={translate('common.state')}
             autoComplete="address-level1"
             value={form.state}
             onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))}
@@ -193,7 +209,7 @@ export default function AddressForm({
         </div>
         <div className="form-field w-1/2">
           <Dropdown
-            label="Country"
+            label={translate('common.country')}
             id="country"
             required
             value={form.country}
@@ -206,13 +222,13 @@ export default function AddressForm({
       </div>
       <div className="space-y-4 text-sm">
         <Checkbox
-          label="Set as default shipping address"
+          label={translate('address.set-default-shipping')}
           checked={defaultShipping}
           onChange={(e) => setDefaultShipping(e.checked)}
           containerClassName="cursor-pointer"
         />
         <Checkbox
-          label="Set as default billing address"
+          label={translate('address.set-default-billing')}
           checked={defaultBilling}
           onChange={(e) => setDefaultBilling(e.checked)}
           containerClassName="cursor-pointer"
@@ -223,16 +239,16 @@ export default function AddressForm({
         disabled={status === 'saving'}
       >
         {status === 'saving'
-          ? 'Saving…'
+          ? translate('account.saving')
           : addressId
-            ? 'Save address'
-            : 'Add address'}
+            ? translate('account.save-address')
+            : translate('account.address-add')}
       </Button>
       {validationError && (
         <p className="text-sm text-red-600">{validationError}</p>
       )}
       {status === 'error' && (
-        <p className="text-sm text-red-600">Something went wrong.</p>
+        <p className="text-sm text-red-600">{translate('error.wentWrong')}</p>
       )}
     </form>
   );

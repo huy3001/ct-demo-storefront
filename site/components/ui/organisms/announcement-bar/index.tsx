@@ -38,7 +38,7 @@ const AnnouncementBar: React.FC<Props> = ({ text, highlightedSubstring, target }
     <div className="relative w-full bg-charcoal">
       <div className="w-full h-8 mx-auto max-w-7xl px-4 md:h-10">
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <p className="whitespace-nowrap text-center text-xs leading-loose text-white">
+          <p className="whitespace-nowrap text-center text-xs leading-loose text-white uppercase">
             {previewText.prefix}
             <Link
               link={target}

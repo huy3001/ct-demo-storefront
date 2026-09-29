@@ -5,7 +5,14 @@ import { classnames } from '@/helpers/utils/classnames';
 import { Props } from './types';
 
 const Popover = ({ isOpen, direction, onClose, buttonElement, children }: React.PropsWithChildren<Props>) => {
-  const popoverPanelClassNames = classnames(direction === 'left' ? 'left-0' : 'right-0', 'absolute top-10 z-[999]');
+  const popoverPanelClassNames = classnames(
+    direction === 'center'
+      ? 'left-1/2 -translate-x-1/2'
+      : direction === 'left'
+        ? 'left-0'
+        : 'right-0',
+    'absolute top-10 z-[999]',
+  );
 
   return (
     <>

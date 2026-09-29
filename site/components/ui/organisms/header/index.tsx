@@ -1,5 +1,6 @@
 import React from 'react';
 import dynamic from 'next/dynamic';
+import { useTranslations } from 'use-intl';
 import HeaderLogo from '@/components/ui/organisms/header/header-logo';
 import HeaderNavigationDesktop from '@/components/ui/organisms/header/header-navigation/header-navigation-desktop';
 import HeaderNavigationMobile from '@/components/ui/organisms/header/header-navigation/header-navigation-mobile';
@@ -32,6 +33,8 @@ const Header: React.FC<HeaderProps> = ({
   emptyWishlistCategories,
   // enableAlgoliaSearch = false,
 }) => {
+  const translate = useTranslations();
+
   // const Search = enableAlgoliaSearch ? AlgoliaSearch : CommercetoolsSearch;
 
   const validNavLinks = navLinks.filter(
@@ -46,8 +49,8 @@ const Header: React.FC<HeaderProps> = ({
         className="fixed top-0 z-50 w-full"
       >
         <AnnouncementBar
-          text="EXPLORE THIS SEASON'S COLLECTION"
-          highlightedSubstring="COLLECTION"
+          text={translate('announcement.explore-collection')}
+          highlightedSubstring={translate('announcement.collection')}
           target={{ type: 'link', link: '/category/all' }}
         />
 

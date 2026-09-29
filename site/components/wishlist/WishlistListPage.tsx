@@ -2,15 +2,22 @@
 
 import Image from 'next/image';
 import { FormEvent, useEffect, useState } from 'react';
+import { useTranslations } from 'use-intl';
+import Button from '@/components/ui/atoms/button';
+import Input from '@/components/ui/atoms/input';
 import { Link } from '@/i18n/routing';
 import { useWishlist } from '@/hooks/useWishlist';
 
 export default function WishlistListPage({ locale }: { locale: string }) {
-  const { wishlists, isLoading, createWishlist, deleteWishlist } = useWishlist();
+  const translate = useTranslations();
+  const { wishlists, isLoading, createWishlist, deleteWishlist } =
+    useWishlist();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [name, setName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
-  const [removingWishlistId, setRemovingWishlistId] = useState<string | null>(null);
+  const [removingWishlistId, setRemovingWishlistId] = useState<string | null>(
+    null,
+  );
   const [removeError, setRemoveError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,11 +46,17 @@ export default function WishlistListPage({ locale }: { locale: string }) {
     event.preventDefault();
     const normalizedName = name.trim();
     if (!normalizedName) {
-      setError('Wishlist name is required');
+      setError(translate('wishlist.wishlist-required'));
       return;
     }
-    if (wishlists.some((wishlist) => wishlist.name.trim().toLocaleLowerCase() === normalizedName.toLocaleLowerCase())) {
-      setError('A wishlist with this name already exists');
+    if (
+      wishlists.some(
+        (wishlist) =>
+          wishlist.name.trim().toLocaleLowerCase() ===
+          normalizedName.toLocaleLowerCase(),
+      )
+    ) {
+      setError(translate('wishlist.wishlist-already-exists'));
       return;
     }
 
@@ -53,14 +66,22 @@ export default function WishlistListPage({ locale }: { locale: string }) {
       await createWishlist(normalizedName, locale);
       setIsModalOpen(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create wishlist');
+      setError(
+        err instanceof Error
+          ? err.message
+          : translate('wishlist.wishlist-create-failed'),
+      );
     } finally {
       setIsCreating(false);
     }
   }
 
   async function onRemove(wishlistId: string, wishlistName: string) {
-    if (!window.confirm(`Remove "${wishlistName}"? Products saved only in this wishlist will no longer be marked as saved.`)) {
+    if (
+      !window.confirm(
+        `${translate('common.remove')} "${wishlistName}"? ${translate('wishlist.wishlist-products-no-longer-saved')}.`,
+      )
+    ) {
       return;
     }
 
@@ -69,37 +90,53 @@ export default function WishlistListPage({ locale }: { locale: string }) {
     try {
       await deleteWishlist(wishlistId, locale);
     } catch (err) {
-      setRemoveError(err instanceof Error ? err.message : 'Failed to remove wishlist');
+      setRemoveError(
+        err instanceof Error
+          ? err.message
+          : translate('wishlist.wishlist-remove-failed'),
+      );
     } finally {
       setRemovingWishlistId(null);
     }
   }
 
   if (isLoading) {
-    return <div className="text-charcoal-light">Loading wishlists…</div>;
+    return (
+      <div className="text-charcoal-light">
+        {translate('wishlist.wishlist-loading')}
+      </div>
+    );
   }
 
   return (
     <div>
       <div className="mb-8 flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold text-charcoal">Wishlists</h1>
+        <h1 className="text-2xl font-semibold text-charcoal">
+          {translate('account.wishlists')}
+        </h1>
         <button
           type="button"
           onClick={openModal}
           className="rounded-sm bg-charcoal px-4 py-2 text-sm text-white hover:bg-terra"
         >
-          Create new wishlist
+          {translate('wishlist.new-wishlist')}
         </button>
       </div>
 
-      {removeError && <p className="mb-4 text-sm text-red-600">{removeError}</p>}
+      {removeError && (
+        <p className="mb-4 text-sm text-red-600">{removeError}</p>
+      )}
 
       <div className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-3 xl:grid-cols-4">
         {wishlists.map((wishlist) => {
           const preview = wishlist.lineItems.slice(0, 3);
-          const isDefault = wishlist.name.trim().toLocaleLowerCase() === 'my wishlist';
+          const isDefault =
+            wishlist.name.trim().toLocaleLowerCase() === 'my wishlist';
           return (
-            <div key={wishlist.id} className="flex min-h-32 flex-col rounded-sm border border-border bg-white p-4 transition-colors hover:border-terra">
+            <div
+              key={wishlist.id}
+              className="flex min-h-32 flex-col rounded-sm border border-border bg-white p-4 transition-colors hover:border-terra"
+            >
               <Link
                 href={`/account/wishlists/${wishlist.id}`}
                 locale={locale}
@@ -110,7 +147,9 @@ export default function WishlistListPage({ locale }: { locale: string }) {
                 </h2>
                 <span className="text-sm text-charcoal-light">
                   {wishlist.lineItems.length}
-                  {wishlist.lineItems.length === 1 ? ' item' : ' items'}
+                  {wishlist.lineItems.length === 1
+                    ? ` ${translate('cart.item')}`
+                    : ` ${translate('product.items')}`}
                 </span>
                 <div className="mt-4 flex gap-2">
                   {preview.length > 0 &&
@@ -144,7 +183,9 @@ export default function WishlistListPage({ locale }: { locale: string }) {
                   disabled={removingWishlistId !== null}
                   className="mt-4 self-start text-sm text-terra hover:text-red-600 disabled:opacity-60"
                 >
-                  {removingWishlistId === wishlist.id ? 'Removing…' : 'Remove'}
+                  {removingWishlistId === wishlist.id
+                    ? translate('wishlist.removing')
+                    : translate('common.remove')}
                 </button>
               )}
             </div>
@@ -171,7 +212,7 @@ export default function WishlistListPage({ locale }: { locale: string }) {
                 id="create-wishlist-title"
                 className="text-xl font-semibold text-charcoal"
               >
-                Create new wishlist
+                {translate('wishlist.new-wishlist')}
               </h2>
               <button
                 type="button"
@@ -187,13 +228,8 @@ export default function WishlistListPage({ locale }: { locale: string }) {
               onSubmit={onSubmit}
               className="mt-6"
             >
-              <label
-                htmlFor="wishlist-name"
-                className="block text-sm font-medium text-charcoal"
-              >
-                Wishlist name
-              </label>
-              <input
+              <Input
+                label={translate('wishlist.wishlist-name')}
                 id="wishlist-name"
                 name="wishlistName"
                 type="text"
@@ -202,7 +238,6 @@ export default function WishlistListPage({ locale }: { locale: string }) {
                 required
                 autoFocus
                 aria-describedby={error ? 'wishlist-name-error' : undefined}
-                className="mt-2 w-full rounded-sm border border-border px-3 py-2 text-charcoal outline-none focus:border-terra"
               />
               {error && (
                 <p
@@ -213,21 +248,23 @@ export default function WishlistListPage({ locale }: { locale: string }) {
                 </p>
               )}
               <div className="mt-6 flex justify-end gap-3">
-                <button
-                  type="button"
+                <Button
+                  variant="secondary"
                   onClick={closeModal}
                   disabled={isCreating}
-                  className="rounded-sm border border-border px-4 py-2 text-sm text-charcoal hover:border-charcoal disabled:opacity-60"
+                  className="leading-3.5"
                 >
-                  Cancel
-                </button>
-                <button
+                  {translate('common.cancel')}
+                </Button>
+                <Button
                   type="submit"
                   disabled={isCreating}
-                  className="rounded-sm bg-charcoal px-4 py-2 text-sm text-white hover:bg-terra disabled:opacity-60"
+                  className="leading-3.5"
                 >
-                  {isCreating ? 'Creating…' : 'Create wishlist'}
-                </button>
+                  {isCreating
+                    ? translate('wishlist.creating')
+                    : translate('wishlist.create-wishlist')}
+                </Button>
               </div>
             </form>
           </div>

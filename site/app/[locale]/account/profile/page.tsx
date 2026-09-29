@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useSWRConfig } from 'swr';
+import { useTranslations } from 'use-intl';
 import type { Customer } from '@commercetools/platform-sdk';
 import { useAccount } from '@/hooks/useAccount';
 import { customerPhone } from '@/lib/customer-profile';
@@ -11,11 +12,25 @@ import PasswordInput from '@/components/ui/atoms/input-password';
 
 export default function AccountProfilePage() {
   const { customer } = useAccount();
-  if (!customer) return <p className="text-sm text-charcoal-light">Loading…</p>;
-  return <ProfileForm key={`${customer.id}-${customer.version}`} customer={customer} />;
+  const translate = useTranslations();
+
+  if (!customer)
+    return (
+      <p className="text-sm text-charcoal-light">
+        {translate('common.loading')}
+      </p>
+    );
+
+  return (
+    <ProfileForm
+      key={`${customer.id}-${customer.version}`}
+      customer={customer}
+    />
+  );
 }
 
 function ProfileForm({ customer }: { customer: Customer }) {
+  const translate = useTranslations();
   const { mutate } = useSWRConfig();
   const [form, setForm] = useState({
     firstName: customer.firstName ?? '',
@@ -23,16 +38,28 @@ function ProfileForm({ customer }: { customer: Customer }) {
     email: customer.email,
     phone: customerPhone(customer),
   });
-  const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
-  const [passwordStatus, setPasswordStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [status, setStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>(
+    'idle',
+  );
+  const [passwords, setPasswords] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [passwordStatus, setPasswordStatus] = useState<
+    'idle' | 'saving' | 'saved' | 'error'
+  >('idle');
   const [passwordError, setPasswordError] = useState('');
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setStatus('saving');
     try {
-      const res = await fetch('/api/account', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
+      const res = await fetch('/api/account', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
       if (!res.ok) throw new Error();
       const updatedCustomer = await res.json();
       await mutate('/api/account', updatedCustomer, { revalidate: false });
@@ -48,7 +75,7 @@ function ProfileForm({ customer }: { customer: Customer }) {
 
     if (passwords.newPassword !== passwords.confirmPassword) {
       setPasswordStatus('error');
-      setPasswordError('New passwords do not match.');
+      setPasswordError(translate('error.password-noMatch'));
       return;
     }
 
@@ -57,24 +84,39 @@ function ProfileForm({ customer }: { customer: Customer }) {
       const res = await fetch('/api/account/password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ currentPassword: passwords.currentPassword, newPassword: passwords.newPassword }),
+        body: JSON.stringify({
+          currentPassword: passwords.currentPassword,
+          newPassword: passwords.newPassword,
+        }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body.message ?? 'Unable to change password.');
+        throw new Error(
+          body.message ?? translate('error.password-unable-change'),
+        );
       }
-      setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setPasswords({
+        currentPassword: '',
+        newPassword: '',
+        confirmPassword: '',
+      });
       setPasswordStatus('saved');
     } catch (error) {
       setPasswordStatus('error');
-      setPasswordError(error instanceof Error ? error.message : 'Unable to change password.');
+      setPasswordError(
+        error instanceof Error
+          ? error.message
+          : translate('error.password-unable-change'),
+      );
     }
   }
 
   return (
     <div className="space-y-10">
       <section>
-        <h1 className="mb-6 text-xl font-semibold">Update profile</h1>
+        <h1 className="mb-6 text-xl font-semibold">
+          {translate('account.update-profile')}
+        </h1>
         <form
           onSubmit={onSubmit}
           className="space-y-6"
@@ -82,10 +124,10 @@ function ProfileForm({ customer }: { customer: Customer }) {
           <div className="flex gap-3">
             <div className="form-field w-1/2">
               <Input
-                label="First name"
+                label={translate('common.firstName')}
                 id="firstName"
                 required
-                placeholder="First name"
+                placeholder={translate('common.firstName')}
                 value={form.firstName}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, firstName: e.target.value }))
@@ -94,10 +136,10 @@ function ProfileForm({ customer }: { customer: Customer }) {
             </div>
             <div className="form-field w-1/2">
               <Input
-                label="Last name"
+                label={translate('common.lastName')}
                 id="lastName"
                 required
-                placeholder="Last name"
+                placeholder={translate('common.lastName')}
                 value={form.lastName}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, lastName: e.target.value }))
@@ -108,7 +150,7 @@ function ProfileForm({ customer }: { customer: Customer }) {
           <div className="flex gap-3">
             <div className="form-field w-1/2">
               <Input
-                label="Email"
+                label={translate('common.email')}
                 id="email"
                 required
                 type="email"
@@ -120,11 +162,11 @@ function ProfileForm({ customer }: { customer: Customer }) {
             </div>
             <div className="form-field w-1/2">
               <Input
-                label="Phone number"
+                label={translate('common.phone')}
                 id="phone"
                 type="tel"
                 autoComplete="tel"
-                placeholder="Phone number (optional)"
+                placeholder={translate('common.phone')}
                 value={form.phone}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, phone: e.target.value }))
@@ -136,28 +178,36 @@ function ProfileForm({ customer }: { customer: Customer }) {
             type="submit"
             disabled={status === 'saving'}
           >
-            {status === 'saving' ? 'Saving…' : 'Save changes'}
+            {status === 'saving'
+              ? translate('account.saving')
+              : translate('account.save-changes')}
           </Button>
-          {status === 'saved' && <p className="text-sm text-sage">Saved.</p>}
+          {status === 'saved' && (
+            <p className="text-sm text-sage">{translate('account.saved')}</p>
+          )}
           {status === 'error' && (
-            <p className="text-sm text-red-600">Something went wrong.</p>
+            <p className="text-sm text-red-600">
+              {translate('error.wentWrong')}
+            </p>
           )}
         </form>
       </section>
 
       <section>
-        <h2 className="mb-6 text-xl font-semibold">Change password</h2>
+        <h2 className="mb-6 text-xl font-semibold">
+          {translate('account.password-change')}
+        </h2>
         <form
           onSubmit={onPasswordSubmit}
           className="space-y-6"
         >
           <div className="form-field w-full">
             <PasswordInput
-              label="Current password"
+              label={translate('account.password-current')}
               id="currentPassword"
               required
               autoComplete="current-password"
-              placeholder="Current password"
+              placeholder={translate('account.password-current')}
               value={passwords.currentPassword}
               onChange={(e) =>
                 setPasswords((value) => ({
@@ -170,11 +220,11 @@ function ProfileForm({ customer }: { customer: Customer }) {
           <div className="flex gap-3">
             <div className="form-field w-1/2">
               <PasswordInput
-                label="New password"
+                label={translate('account.password-new')}
                 id="newPassword"
                 required
                 autoComplete="new-password"
-                placeholder="New password"
+                placeholder={translate('account.password-new')}
                 value={passwords.newPassword}
                 onChange={(e) =>
                   setPasswords((value) => ({
@@ -186,11 +236,11 @@ function ProfileForm({ customer }: { customer: Customer }) {
             </div>
             <div className="form-field w-1/2">
               <PasswordInput
-                label="Confirm new password"
+                label={translate('account.password-confirm')}
                 id="confirmPassword"
                 required
                 autoComplete="new-password"
-                placeholder="Confirm new password"
+                placeholder={translate('account.password-confirm')}
                 value={passwords.confirmPassword}
                 onChange={(e) =>
                   setPasswords((value) => ({
@@ -205,10 +255,14 @@ function ProfileForm({ customer }: { customer: Customer }) {
             type="submit"
             disabled={passwordStatus === 'saving'}
           >
-            {passwordStatus === 'saving' ? 'Changing…' : 'Change password'}
+            {passwordStatus === 'saving'
+              ? translate('account.changing')
+              : translate('account.change-password')}
           </Button>
           {passwordStatus === 'saved' && (
-            <p className="text-sm text-sage">Password changed.</p>
+            <p className="text-sm text-sage">
+              {translate('account.password-changed')}
+            </p>
           )}
           {passwordStatus === 'error' && (
             <p className="text-sm text-red-600">{passwordError}</p>

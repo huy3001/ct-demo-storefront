@@ -1,18 +1,20 @@
-import React from 'react';
 import { PopoverButton } from '@headlessui/react';
 import { useTranslations } from 'use-intl';
 import Button from '@/components/ui/atoms/button';
 import Link from '@/components/ui/atoms/link';
 import { useRouter } from '@/i18n/routing';
 
-const LoggedOut = () => {
+const LoggedOut = ({ onClose }: { onClose?: () => void }) => {
   const router = useRouter();
   const translate = useTranslations();
 
-  const goToLoginPage = () => router.push('/login');
+  const goToLoginPage = () => {
+    onClose?.();
+    router.push('/login');
+  };
 
   return (
-    <div className="w-58.75 p-3.5">
+    <div className="w-58.75 p-4 space-y-3">
       <PopoverButton
         as="div"
         className="w-full"
@@ -26,22 +28,28 @@ const LoggedOut = () => {
           {translate('account.sign-in')}
         </Button>
       </PopoverButton>
-      <PopoverButton tabIndex={-1}>
+      <PopoverButton
+        as="div"
+        className="w-full pt-3 border-t border-gray-100"
+        tabIndex={-1}
+      >
         <Link
           link="/"
-          className="mt-5 block w-fit text-left text-charcoal hover:underline"
+          className="block w-fit text-left text-charcoal hover:underline"
+          onClick={onClose}
         >
           {translate('account.membership-info')}
         </Link>
       </PopoverButton>
-      <div className="mt-8 flex flex-wrap gap-x-1 pb-2.5">
+      <div className="pt-3 border-t border-gray-100 flex flex-wrap gap-x-1 items-center">
         <span className="whitespace-nowrap">
           {translate('account.not-member')}
         </span>
         <PopoverButton tabIndex={-1}>
           <Link
             link="/register"
-            className="whitespace-nowrap font-medium text-charcoal hover:underline"
+            className="whitespace-nowrap font-medium text-charcoal py-3 hover:underline"
+            onClick={onClose}
           >
             {translate('account.join-here')}
           </Link>

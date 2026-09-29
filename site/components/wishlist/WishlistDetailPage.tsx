@@ -1,29 +1,50 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useTranslations } from 'use-intl';
 import { Link } from '@/i18n/routing';
 import { useWishlist } from '@/hooks/useWishlist';
 import ProductGrid from '@/components/product/ProductGrid';
 import Button from '@/components/ui/atoms/button';
 import type { Product } from '@/lib/types';
 
-export default function WishlistDetailPage({ locale, wishlistId }: { locale: string; wishlistId: string }) {
+export default function WishlistDetailPage({
+  locale,
+  wishlistId,
+}: {
+  locale: string;
+  wishlistId: string;
+}) {
+  const translate = useTranslations();
   const { wishlists, isLoading, removeAllFromWishlist } = useWishlist();
   const [isRemovingAll, setIsRemovingAll] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const wishlist = useMemo(() => wishlists.find((item) => item.id === wishlistId), [wishlists, wishlistId]);
+  const wishlist = useMemo(
+    () => wishlists.find((item) => item.id === wishlistId),
+    [wishlists, wishlistId],
+  );
 
   if (isLoading) {
-    return <div className="text-charcoal-light">Loading wishlist…</div>;
+    return (
+      <div className="text-charcoal-light">
+        {translate('wishlist.wishlist-loading')}
+      </div>
+    );
   }
 
   if (!wishlist) {
     return (
       <div>
-        <h1 className="text-2xl font-semibold text-charcoal">Wishlist not found</h1>
-        <Link href="/account/wishlists" locale={locale} className="mt-4 inline-block text-terra hover:underline">
-          Back to wishlists
+        <h1 className="text-2xl font-semibold text-charcoal">
+          {translate('wishlist.not-found')}
+        </h1>
+        <Link
+          href="/account/wishlists"
+          locale={locale}
+          className="mt-4 inline-block text-terra hover:underline"
+        >
+          {translate('wishlist.back')}
         </Link>
       </div>
     );
@@ -32,14 +53,18 @@ export default function WishlistDetailPage({ locale, wishlistId }: { locale: str
   const resolvedWishlistId = wishlist.id;
 
   async function onRemoveAll() {
-    if (!window.confirm('Remove all products from this wishlist? This action cannot be undone.')) return;
+    if (!window.confirm(translate('wishlist.remove-all-confirm'))) return;
 
     setIsRemovingAll(true);
     setError(null);
     try {
       await removeAllFromWishlist(resolvedWishlistId, locale);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to remove all items');
+      setError(
+        err instanceof Error
+          ? err.message
+          : translate('wishlist.wishlist-remove-all-failed'),
+      );
     } finally {
       setIsRemovingAll(false);
     }
@@ -52,16 +77,19 @@ export default function WishlistDetailPage({ locale, wishlistId }: { locale: str
     slug: item.slug ?? item.productId,
     categories: [],
     reviews: [],
-    variants: item.variantId === undefined
-      ? []
-      : [{
-          id: item.variantId,
-          sku: '',
-          images: item.image ? [item.image] : [],
-          price: item.price,
-          prices: item.price ? [item.price] : [],
-          attributes: [],
-        }],
+    variants:
+      item.variantId === undefined
+        ? []
+        : [
+            {
+              id: item.variantId,
+              sku: '',
+              images: item.image ? [item.image] : [],
+              price: item.price,
+              prices: item.price ? [item.price] : [],
+              attributes: [],
+            },
+          ],
   }));
 
   return (
@@ -72,7 +100,7 @@ export default function WishlistDetailPage({ locale, wishlistId }: { locale: str
             {wishlist.name}
           </h1>
           <p className="text-sm text-charcoal-light">
-            {wishlist.lineItems.length} saved items
+            {wishlist.lineItems.length} {translate('wishlist.saved-items')}
           </p>
         </div>
         <Link
@@ -80,14 +108,16 @@ export default function WishlistDetailPage({ locale, wishlistId }: { locale: str
           locale={locale}
           className="text-sm text-terra hover:underline"
         >
-          Back to wishlists
+          {translate('wishlist.back')}
         </Link>
       </div>
 
       {error && <p className="mb-4 text-sm text-red-600">{error}</p>}
 
       {wishlist.lineItems.length === 0 ? (
-        <p className="text-charcoal-light text-sm">This wishlist is empty.</p>
+        <p className="text-charcoal-light text-sm">
+          {translate('wishlist.wishlist-empty')}.
+        </p>
       ) : (
         <ProductGrid
           products={products}
@@ -103,7 +133,9 @@ export default function WishlistDetailPage({ locale, wishlistId }: { locale: str
             disabled={isRemovingAll}
             variant="secondary"
           >
-            {isRemovingAll ? 'Removing…' : 'Remove all products'}
+            {isRemovingAll
+              ? translate('wishlist.removing')
+              : translate('wishlist.remove-all-products')}
           </Button>
         )}
       </div>

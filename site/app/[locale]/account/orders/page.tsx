@@ -4,6 +4,7 @@ import useSWR from 'swr';
 import type { Order } from '@commercetools/platform-sdk';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
+import { useTranslations } from 'use-intl';
 import { formatMoney } from '@/lib/utils';
 import { Link } from '@/i18n/routing';
 import { useCart } from '@/hooks/useCart';
@@ -11,8 +12,12 @@ import { useCart } from '@/hooks/useCart';
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function OrdersPage() {
+  const translate = useTranslations();
   const { locale } = useParams<{ locale: string }>();
-  const { data, isLoading } = useSWR<{ results: Order[] }>('/api/account/orders', fetcher);
+  const { data, isLoading } = useSWR<{ results: Order[] }>(
+    '/api/account/orders',
+    fetcher,
+  );
   const { refresh } = useCart();
   const [reorderingId, setReorderingId] = useState<string>();
   const [messages, setMessages] = useState<Record<string, string[]>>({});
@@ -36,16 +41,17 @@ export default function OrdersPage() {
           reason: 'unavailable' | 'quantity-reduced';
         }>;
       };
-      if (!response.ok) throw new Error(body.message ?? 'Unable to reorder');
+      if (!response.ok)
+        throw new Error(body.message ?? translate('error.unable-reorder'));
 
       const nextMessages = [
         body.addedItemCount
-          ? `${body.addedItemCount} item${body.addedItemCount === 1 ? '' : 's'} added to your cart.`
-          : 'No items were added to your cart.',
+          ? `${body.addedItemCount} ${body.addedItemCount === 1 ? translate('cart.item') : translate('product.items')} ${translate('cart.cart-added')}.`
+          : translate('cart.cart-no-items-added'),
         ...(body.notices ?? []).map((notice) =>
           notice.reason === 'unavailable'
-            ? `${notice.name} is unavailable and was not added.`
-            : `${notice.name}: ${notice.addedQuantity} of ${notice.requestedQuantity} added due to limited stock.`,
+            ? `${notice.name} ${translate('cart.cart-not-added')}.`
+            : `${notice.name}: ${notice.addedQuantity} ${translate('cart.of')} ${notice.requestedQuantity} ${translate('cart.limited-stock')}.`,
         ),
       ];
       setMessages((current) => ({ ...current, [order.id]: nextMessages }));
@@ -53,7 +59,11 @@ export default function OrdersPage() {
     } catch (err) {
       setMessages((current) => ({
         ...current,
-        [order.id]: [err instanceof Error ? err.message : 'Unable to reorder'],
+        [order.id]: [
+          err instanceof Error
+            ? err.message
+            : translate('error.unable-reorder'),
+        ],
       }));
     } finally {
       setReorderingId(undefined);
@@ -62,21 +72,34 @@ export default function OrdersPage() {
 
   return (
     <div>
-      <h1 className="text-xl font-semibold mb-6">Orders</h1>
-      {isLoading && <p className="text-charcoal-light text-sm">Loading…</p>}
-      {!isLoading && (data?.results.length ?? 0) === 0 && (
+      <h1 className="text-xl font-semibold mb-6">
+        {translate('account.orders')}
+      </h1>
+
+      {isLoading && (
         <p className="text-charcoal-light text-sm">
-          You haven&apos;t placed any orders yet.
+          {translate('common.loading')}
         </p>
       )}
+
+      {!isLoading && (data?.results.length ?? 0) === 0 && (
+        <p className="text-charcoal-light text-sm">
+          {translate('orders.have-not-placed-orders')}
+        </p>
+      )}
+
       {data?.results && data?.results.length > 0 && (
         <ul className="divide-y divide-border">
-          <li className="py-4 hidden lg:grid lg:grid-cols-7 font-semibold text-xs text-charcoal-light">
-            <div className="lg:col-span-2">ORDER NUMBER</div>
-            <div className="text-right">DATE</div>
-            <div className="text-right">STATUS</div>
-            <div className="text-right">TOTAL</div>
-            <div className="text-right lg:col-span-2">ACTION</div>
+          <li className="py-4 hidden lg:grid lg:grid-cols-7 font-semibold text-xs text-charcoal-light uppercase">
+            <div className="lg:col-span-2">
+              {translate('orders.order-number')}
+            </div>
+            <div className="text-right">{translate('orders.order-date')}</div>
+            <div className="text-right">{translate('orders.status')}</div>
+            <div className="text-right">{translate('orders.total')}</div>
+            <div className="text-right lg:col-span-2">
+              {translate('orders.action')}
+            </div>
           </li>
           {data?.results.map((order) => (
             <li
@@ -85,25 +108,25 @@ export default function OrdersPage() {
             >
               <div className="flex gap-1 items-center lg:col-span-2">
                 <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
-                  ORDER NUMBER
+                  {translate('orders.order-number')}
                 </span>
                 <p>{order.orderNumber ?? order.id}</p>
               </div>
               <div className="flex gap-1 items-center lg:justify-end">
                 <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
-                  DATE
+                  {translate('orders.order-date')}
                 </span>
                 <p>{new Date(order.createdAt).toLocaleDateString(locale)}</p>
               </div>
               <div className="flex gap-1 items-center lg:justify-end">
                 <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
-                  STATUS
+                  {translate('orders.status')}
                 </span>
                 <p>{order.orderState}</p>
               </div>
               <div className="flex gap-1 items-center lg:justify-end">
                 <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
-                  TOTAL
+                  {translate('orders.total')}
                 </span>
                 <p>
                   {formatMoney(
@@ -115,7 +138,7 @@ export default function OrdersPage() {
               </div>
               <div className="flex gap-1 items-center lg:col-span-2 lg:justify-end">
                 <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
-                  ACTION
+                  {translate('orders.action')}
                 </span>
                 <div className="flex gap-2 items-center">
                   <Link
@@ -123,7 +146,7 @@ export default function OrdersPage() {
                     locale={locale}
                     className="text-terra hover:underline whitespace-nowrap"
                   >
-                    View order
+                    {translate('orders.view-order')}
                   </Link>
                   <button
                     type="button"
@@ -131,7 +154,9 @@ export default function OrdersPage() {
                     onClick={() => reorder(order)}
                     className="text-terra hover:underline whitespace-nowrap disabled:cursor-wait disabled:opacity-60"
                   >
-                    {reorderingId === order.id ? 'Adding…' : 'Reorder'}
+                    {reorderingId === order.id
+                      ? translate('orders.adding')
+                      : translate('orders.reorder')}
                   </button>
                 </div>
               </div>

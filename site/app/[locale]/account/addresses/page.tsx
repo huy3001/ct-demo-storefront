@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import useSWR from 'swr';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'use-intl';
 import { Link } from '@/i18n/routing';
 import type { BaseAddress, Customer } from '@commercetools/platform-sdk';
 
@@ -17,6 +18,8 @@ function AddressCard({
   locale: string;
   onRemove: (addressId: string) => void;
 }) {
+  const translate = useTranslations();
+
   return (
     <div className="flex justify-between rounded-sm border border-border p-4 text-sm">
       <div>
@@ -27,11 +30,18 @@ function AddressCard({
       </div>
       {address.id && (
         <div className="flex items-center gap-3">
-          <Link href={`/account/addresses/${address.id}/edit`} locale={locale} className="text-terra hover:underline">
-            Edit
+          <Link
+            href={`/account/addresses/${address.id}/edit`}
+            locale={locale}
+            className="text-terra hover:underline"
+          >
+            {translate('common.edit')}
           </Link>
-          <button onClick={() => onRemove(address.id!)} className="text-charcoal-light hover:text-red-600">
-            Remove
+          <button
+            onClick={() => onRemove(address.id!)}
+            className="text-charcoal-light hover:text-red-600"
+          >
+            {translate('common.remove')}
           </button>
         </div>
       )}
@@ -43,9 +53,14 @@ export default function AddressesPage() {
   const { data: customer, mutate } = useSWR<Customer>('/api/account', fetcher);
   const { locale } = useParams<{ locale: string }>();
   const [status, setStatus] = useState<'idle' | 'error'>('idle');
+  const translate = useTranslations();
   const addresses = customer?.addresses ?? [];
-  const defaultShippingAddress = addresses.find((address) => address.id === customer?.defaultShippingAddressId);
-  const defaultBillingAddress = addresses.find((address) => address.id === customer?.defaultBillingAddressId);
+  const defaultShippingAddress = addresses.find(
+    (address) => address.id === customer?.defaultShippingAddressId,
+  );
+  const defaultBillingAddress = addresses.find(
+    (address) => address.id === customer?.defaultBillingAddressId,
+  );
   const additionalAddresses = addresses.filter(
     (address) =>
       address.id !== customer?.defaultShippingAddressId &&
@@ -71,44 +86,81 @@ export default function AddressesPage() {
   return (
     <div>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <h1 className="text-xl font-semibold">Addresses</h1>
-        <Link href="/account/addresses/new" locale={locale} className="rounded-sm bg-charcoal px-4 py-2 text-sm text-white hover:bg-charcoal-light">Add new address</Link>
+        <h1 className="text-xl font-semibold">
+          {translate('account.addresses')}
+        </h1>
+        <Link
+          href="/account/addresses/new"
+          locale={locale}
+          className="rounded-sm bg-charcoal px-4 py-2 text-sm text-white hover:bg-charcoal-light"
+        >
+          {translate('account.address-add')}
+        </Link>
       </div>
 
       <div className="mb-8 space-y-8">
         <section>
-          <h2 className="mb-3 font-medium">Default shipping address</h2>
+          <h2 className="mb-3 font-medium">
+            {translate('address.default-shipping')}
+          </h2>
           {defaultShippingAddress ? (
-            <AddressCard address={defaultShippingAddress} locale={locale} onRemove={onRemove} />
+            <AddressCard
+              address={defaultShippingAddress}
+              locale={locale}
+              onRemove={onRemove}
+            />
           ) : (
-            <p className="text-sm text-charcoal-light">No default shipping address selected.</p>
+            <p className="text-sm text-charcoal-light">
+              {translate('address.no-default-shipping')}
+            </p>
           )}
         </section>
 
         <section>
-          <h2 className="mb-3 font-medium">Default billing address</h2>
+          <h2 className="mb-3 font-medium">
+            {translate('address.default-billing')}
+          </h2>
           {defaultBillingAddress ? (
-            <AddressCard address={defaultBillingAddress} locale={locale} onRemove={onRemove} />
+            <AddressCard
+              address={defaultBillingAddress}
+              locale={locale}
+              onRemove={onRemove}
+            />
           ) : (
-            <p className="text-sm text-charcoal-light">No default billing address selected.</p>
+            <p className="text-sm text-charcoal-light">
+              {translate('address.no-default-billing')}
+            </p>
           )}
         </section>
 
         <section>
-          <h2 className="mb-3 font-medium">Additional addresses</h2>
+          <h2 className="mb-3 font-medium">
+            {translate('address.additional')}
+          </h2>
           {additionalAddresses.length > 0 ? (
             <div className="space-y-3">
               {additionalAddresses.map((address) => (
-                <AddressCard key={address.id} address={address} locale={locale} onRemove={onRemove} />
+                <AddressCard
+                  key={address.id}
+                  address={address}
+                  locale={locale}
+                  onRemove={onRemove}
+                />
               ))}
             </div>
           ) : (
-            <p className="text-sm text-charcoal-light">No additional addresses.</p>
+            <p className="text-sm text-charcoal-light">
+              {translate('address.no-additional')}
+            </p>
           )}
         </section>
       </div>
 
-      {status === 'error' && <p className="text-sm text-red-600">Could not remove the address.</p>}
+      {status === 'error' && (
+        <p className="text-sm text-red-600">
+          {translate('error.address-could-not-remove')}
+        </p>
+      )}
     </div>
   );
 }

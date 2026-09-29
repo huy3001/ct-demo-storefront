@@ -3,6 +3,7 @@
 import useSWR from 'swr';
 import type { Address, Order, Payment } from '@commercetools/platform-sdk';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'use-intl';
 import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import { formatMoney } from '@/lib/utils';
@@ -19,8 +20,13 @@ function localizedName(values: Record<string, string>, locale: string): string {
 }
 
 function AddressBlock({ address }: { address?: Address }) {
+  const translate = useTranslations();
   if (!address)
-    return <p className="text-sm text-charcoal-light">Not provided</p>;
+    return (
+      <p className="text-sm text-charcoal-light">
+        {translate('orders.not-provided')}
+      </p>
+    );
   const fullName = [address.firstName, address.lastName]
     .filter(Boolean)
     .join(' ');
@@ -46,15 +52,16 @@ function AddressBlock({ address }: { address?: Address }) {
   );
 }
 
-function paymentMethod(order: Order, locale: string): string {
+function paymentMethod(order: Order, locale: string, message: string): string {
   const payment = order.paymentInfo?.payments[0]?.obj as Payment | undefined;
   const info = payment?.paymentMethodInfo;
   return info?.name
     ? localizedName(info.name, locale)
-    : (info?.method ?? info?.paymentInterface ?? 'Not provided');
+    : (info?.method ?? info?.paymentInterface ?? message);
 }
 
 export default function OrderDetailPage() {
+  const translate = useTranslations();
   const { locale, orderId } = useParams<{ locale: string; orderId: string }>();
   const {
     data: order,
@@ -65,13 +72,15 @@ export default function OrderDetailPage() {
   if (isLoading)
     return (
       <div>
-        <p className="text-sm">Loading…</p>
+        <p className="text-sm">{translate('common.loading')}</p>
       </div>
     );
   if (error || !order) {
     return (
       <div>
-        <h1 className="text-xl font-semibold">Order not found</h1>
+        <h1 className="text-xl font-semibold">
+          {translate('orders.order-not-found')}
+        </h1>
         <p className="mt-2 text-charcoal-light">{error?.message}</p>
       </div>
     );
@@ -84,32 +93,40 @@ export default function OrderDetailPage() {
         locale={locale}
         className="text-sm text-terra hover:underline"
       >
-        ← Back to orders
+        ← {translate('orders.back')}
       </Link>
       <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold">
-            Order {order.orderNumber ?? 'details'}
+            {order.orderNumber ?? translate('thank-you.order-details')}
           </h1>
           <p className="mt-1 text-sm text-charcoal-light">
-            <span className="font-semibold">Order ID: </span>
+            <span className="font-semibold">
+              {translate('orders.order-id')}:{' '}
+            </span>
             {order.id}
           </p>
         </div>
         <div className="text-sm sm:text-right">
           <p>
-            <span className="font-semibold">Status: </span>
+            <span className="font-semibold">
+              {translate('orders.status')}:{' '}
+            </span>
             {order.orderState}
           </p>
           <p>
-            <span className="font-semibold">Created: </span>
+            <span className="font-semibold">
+              {translate('orders.created')}:{' '}
+            </span>
             {new Date(order.createdAt).toLocaleDateString(locale)}
           </p>
         </div>
       </div>
 
       <section className="mt-10">
-        <h2 className="text-lg font-semibold mb-4">Products</h2>
+        <h2 className="text-lg font-semibold mb-4">
+          {translate('product.products')}
+        </h2>
         <ul className="divide-y divide-border border-y border-border">
           {order.lineItems.map((item) => (
             <li
@@ -135,7 +152,9 @@ export default function OrderDetailPage() {
                       SKU: {item.variant.sku}
                     </p>
                   )}
-                  <p className="mt-2 text-sm">Quantity: {item.quantity}</p>
+                  <p className="mt-2 text-sm">
+                    {translate('product.quantity')}: {item.quantity}
+                  </p>
                 </div>
                 <p className="font-medium">
                   {formatMoney(
@@ -149,7 +168,7 @@ export default function OrderDetailPage() {
           ))}
         </ul>
         <p className="mt-4 text-right text-lg font-semibold">
-          Total:{' '}
+          {translate('orders.total')}:{' '}
           {formatMoney(
             order.totalPrice.centAmount,
             order.totalPrice.currencyCode,
@@ -160,23 +179,32 @@ export default function OrderDetailPage() {
 
       <section className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-10">
         <div>
-          <h2 className="text-lg font-semibold mb-3">Shipping address</h2>
+          <h2 className="text-lg font-semibold mb-3">
+            {translate('checkout.shippingAddress')}
+          </h2>
           <AddressBlock address={order.shippingAddress} />
         </div>
         <div>
-          <h2 className="text-lg font-semibold mb-3">Billing address</h2>
+          <h2 className="text-lg font-semibold mb-3">
+            {translate('checkout.billingAddress')}
+          </h2>
           <AddressBlock address={order.billingAddress} />
         </div>
         <div>
-          <h2 className="text-lg font-semibold mb-3">Shipping method</h2>
+          <h2 className="text-lg font-semibold mb-3">
+            {translate('orders.shipping-method')}
+          </h2>
           <p className="text-sm text-charcoal-light">
-            {order.shippingInfo?.shippingMethodName ?? 'Not provided'}
+            {order.shippingInfo?.shippingMethodName ??
+              translate('orders.not-provided')}
           </p>
         </div>
         <div>
-          <h2 className="text-lg font-semibold mb-3">Payment method</h2>
+          <h2 className="text-lg font-semibold mb-3">
+            {translate('checkout.paymentMethod')}
+          </h2>
           <p className="text-sm text-charcoal-light">
-            {paymentMethod(order, locale)}
+            {paymentMethod(order, locale, translate('orders.not-provided'))}
           </p>
         </div>
       </section>

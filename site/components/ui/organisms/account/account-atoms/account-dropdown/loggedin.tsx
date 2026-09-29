@@ -1,45 +1,76 @@
+import { useParams, usePathname } from 'next/navigation';
 import { useTranslations } from 'use-intl';
+import { PopoverButton } from '@headlessui/react';
+import Button from '@/components/ui/atoms/button';
 import Link from '@/components/ui/atoms/link';
 import { useRouter } from '@/i18n/routing';
 import { useAccount } from '@/hooks/useAccount';
 
-const LoggedIn = () => {
+const LoggedIn = ({ onClose }: { onClose?: () => void }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const translate = useTranslations();
+  const { locale } = useParams<{ locale: string }>();
   const { logout } = useAccount();
 
   const handleLogout = () => {
+    onClose?.();
     logout().then(() => router.push('/login'));
   };
 
+  const accountLinks = [
+    { href: '/account/profile', label: translate('account.profile') },
+    { href: '/account/orders', label: translate('account.orders') },
+    { href: '/account/addresses', label: translate('account.addresses') },
+    { href: '/account/wishlists', label: translate('account.wishlists') },
+    {
+      href: '/account/?hash=support',
+      label: translate('account.customer-support'),
+    },
+  ];
+
   return (
-    <div className="w-58.75 p-3.5 pb-6">
-      <Link
-        link="/account"
-        className="mt-2.5 block w-fit"
+    <div className="w-58.75 p-4 space-y-3">
+      <PopoverButton
+        as="div"
+        className="w-full"
+        tabIndex={-1}
       >
-        <p className="text-charcoal hover:underline">
+        <Link
+          link="/account"
+          className={`block w-fit text-charcoal hover:underline ${pathname === `/${locale}/account` ? 'underline' : ''}`}
+          onClick={onClose}
+        >
           {translate('account.my-account')}
-        </p>
-      </Link>
+        </Link>
+      </PopoverButton>
 
-      <Link
-        link="/account/?hash=support"
-        className="mt-8 block w-fit"
-      >
-        <p className="text-charcoal hover:underline">
-          {translate('account.customer-support')}
-        </p>
-      </Link>
+      {accountLinks.map(({ href, label }) => {
+        return (
+          <PopoverButton
+            key={href}
+            as="div"
+            className="w-full pt-3 border-t border-gray-100"
+            tabIndex={-1}
+          >
+            <Link
+              link={href}
+              className={`block w-fit text-charcoal hover:underline ${pathname === `/${locale}${href}` ? 'underline' : ''}`}
+              onClick={onClose}
+            >
+              {label}
+            </Link>
+          </PopoverButton>
+        );
+      })}
 
-      <button
+      <Button
+        variant="secondary"
         onClick={handleLogout}
-        className="mt-8 w-fit text-left"
+        className="w-full leading-3.5"
       >
-        <p className="text-base text-charcoal hover:underline">
-          {translate('account.sign-out')}
-        </p>
-      </button>
+        {translate('account.sign-out')}
+      </Button>
     </div>
   );
 };

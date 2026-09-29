@@ -1,6 +1,6 @@
 export interface Props {
   isOpen: boolean;
   onClose?: () => void;
-  direction: 'left' | 'right';
+  direction: 'left' | 'right' | 'center';
   buttonElement: () => React.JSX.Element;
 }
