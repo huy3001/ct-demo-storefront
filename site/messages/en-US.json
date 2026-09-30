@@ -2,6 +2,7 @@
   "address": {
     "additional": "Additional addresses",
     "back": "Back to addresses",
+    "company-name": "Company name",
     "default-billing": "Default billing address",
     "default-shipping": "Default shipping address",
     "edit": "Edit address",
@@ -9,7 +10,7 @@
     "no-default-billing": "No default billing address selected.",
     "no-default-shipping": "No default shipping address selected.",
     "not-found": "Address not found.",
-    "required-fields": "First name, last name, email address, and state are required.",
+    "required-fields": "All required address fields must be completed.",
     "set-default-billing": "Set as default billing address",
     "set-default-shipping": "Set as default shipping address",
     "street-address": "Street address"

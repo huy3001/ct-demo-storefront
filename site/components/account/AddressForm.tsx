@@ -4,20 +4,21 @@ import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useSWRConfig } from 'swr';
 import { useTranslations } from 'use-intl';
-import type { BaseAddress } from '@commercetools/platform-sdk';
 import { useAccount } from '@/hooks/useAccount';
 import { customerPhone } from '@/lib/customer-profile';
 import { COUNTRY_CONFIG } from '@/lib/utils';
+import { Link } from '@/i18n/routing';
 import Button from '@/components/ui/atoms/button';
 import Checkbox from '@/components/ui/atoms/checkbox';
 import Dropdown from '@/components/ui/atoms/dropdown';
 import Input from '@/components/ui/atoms/input';
+import type { BaseAddress } from '@commercetools/platform-sdk';
 
 type AddressFields = Pick<
   BaseAddress,
   | 'firstName'
   | 'lastName'
-  | 'email'
+  | 'company'
   | 'phone'
   | 'country'
   | 'state'
@@ -46,7 +47,7 @@ export default function AddressForm({
   const [form, setForm] = useState<AddressFields>({
     firstName: initialAddress?.firstName || customer?.firstName || '',
     lastName: initialAddress?.lastName || customer?.lastName || '',
-    email: initialAddress?.email || customer?.email || '',
+    company: initialAddress?.company ?? '',
     phone: initialAddress?.phone || customerPhone(customer),
     country: initialAddress?.country ?? country,
     state: initialAddress?.state ?? '',
@@ -70,9 +71,16 @@ export default function AddressForm({
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (
-      ![form.firstName, form.lastName, form.email, form.state].every((value) =>
-        value?.trim(),
-      )
+      ![
+        form.firstName,
+        form.lastName,
+        form.company,
+        form.streetName,
+        form.city,
+        form.postalCode,
+        form.state,
+        form.country,
+      ].every((value) => value?.trim())
     ) {
       setValidationError(translate('address.required-fields'));
       return;
@@ -137,14 +145,15 @@ export default function AddressForm({
       <div className="flex gap-4">
         <div className="form-field w-1/2">
           <Input
-            label={translate('common.email')}
-            id="email"
+            label={translate('address.company-name')}
+            id="company"
             required
-            type="email"
-            placeholder={translate('common.email')}
-            autoComplete="email"
-            value={form.email}
-            onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+            placeholder={translate('address.company-name')}
+            autoComplete="organization"
+            value={form.company}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, company: e.target.value }))
+            }
           />
         </div>
         <div className="form-field w-1/2">
@@ -234,16 +243,29 @@ export default function AddressForm({
           containerClassName="cursor-pointer"
         />
       </div>
-      <Button
-        type="submit"
-        disabled={status === 'saving'}
-      >
-        {status === 'saving'
-          ? translate('account.saving')
-          : addressId
-            ? translate('account.save-address')
-            : translate('account.address-add')}
-      </Button>
+      <div className="flex gap-3">
+        <Link
+          href="/account/addresses"
+          locale={locale}
+        >
+          <Button
+            type="button"
+            variant="secondary"
+          >
+            {translate('common.cancel')}
+          </Button>
+        </Link>
+        <Button
+          type="submit"
+          disabled={status === 'saving'}
+        >
+          {status === 'saving'
+            ? translate('account.saving')
+            : addressId
+              ? translate('account.save-address')
+              : translate('account.address-add')}
+        </Button>
+      </div>
       {validationError && (
         <p className="text-sm text-red-600">{validationError}</p>
       )}

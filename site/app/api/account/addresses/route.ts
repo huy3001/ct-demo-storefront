@@ -4,10 +4,17 @@ import { getSessionApiRoot } from '@/lib/ct/session';
 import { getCustomerById, addCustomerAddress, removeCustomerAddress, updateCustomerAddress } from '@/lib/ct/customer';
 import { apiError } from '../../_utils';
 
-function hasRequiredContactFields(address: BaseAddress) {
-  return [address.firstName, address.lastName, address.email, address.state].every(
-    (value) => typeof value === 'string' && value.trim().length > 0,
-  );
+function hasRequiredAddressFields(address: BaseAddress) {
+  return [
+    address.firstName,
+    address.lastName,
+    address.company,
+    address.streetName,
+    address.city,
+    address.postalCode,
+    address.state,
+    address.country,
+  ].every((value) => typeof value === 'string' && value.trim().length > 0);
 }
 
 export async function POST(req: NextRequest) {
@@ -19,8 +26,8 @@ export async function POST(req: NextRequest) {
     };
     const { apiRoot, session } = await getSessionApiRoot();
     if (!session.customerId) return NextResponse.json({ message: 'Not signed in' }, { status: 401 });
-    if (!hasRequiredContactFields(address)) {
-      return NextResponse.json({ message: 'First name, last name, email address, and state are required' }, { status: 400 });
+    if (!hasRequiredAddressFields(address)) {
+      return NextResponse.json({ message: 'All required address fields must be completed' }, { status: 400 });
     }
     const customer = await getCustomerById(apiRoot, session.customerId);
     const updated = await addCustomerAddress(apiRoot, customer, address, {
@@ -56,8 +63,8 @@ export async function PATCH(req: NextRequest) {
     };
     const { apiRoot, session } = await getSessionApiRoot();
     if (!session.customerId) return NextResponse.json({ message: 'Not signed in' }, { status: 401 });
-    if (!hasRequiredContactFields(address)) {
-      return NextResponse.json({ message: 'First name, last name, email address, and state are required' }, { status: 400 });
+    if (!hasRequiredAddressFields(address)) {
+      return NextResponse.json({ message: 'All required address fields must be completed' }, { status: 400 });
     }
     const customer = await getCustomerById(apiRoot, session.customerId);
     const updated = await updateCustomerAddress(apiRoot, customer, addressId, address, {

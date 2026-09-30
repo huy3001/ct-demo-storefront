@@ -2,6 +2,7 @@
   "address": {
     "additional": "Zusätzliche adressen",
     "back": "Zurück zu den adressen",
+    "company-name": "Firmenname",
     "default-billing": "Standard-Rechnungsadresse",
     "default-shipping": "Standard-Lieferadresse",
     "edit": "Adresse bearbeiten",
@@ -9,7 +10,7 @@
     "no-default-billing": "Keine standard-rechnungsadresse ausgewählt.",
     "no-default-shipping": "Keine standard-lieferadresse ausgewählt.",
     "not-found": "Adresse nicht gefunden.",
-    "required-fields": "Vorname, Nachname, E-Mail-Adresse und Bundesland sind erforderlich.",
+    "required-fields": "Bitte füllen Sie alle Pflichtfelder der Adresse aus.",
     "set-default-billing": "Als Standard-rechnungsadresse festlegen",
     "set-default-shipping": "Als Standard-lieferadresse festlegen",
     "street-address": "Straßenadresse"
