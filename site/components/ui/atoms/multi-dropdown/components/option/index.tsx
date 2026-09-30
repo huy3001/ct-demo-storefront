@@ -1,0 +1,30 @@
+import React from 'react';
+import { ListboxOption } from '@headlessui/react';
+import { classnames } from '@/helpers/utils/classnames';
+import Checkbox from '@/components/ui/atoms/checkbox';
+import { Props } from './types';
+import { useDropdown } from '../../context';
+
+const DropdownOption = ({ children, value }: React.PropsWithChildren<Props>) => {
+  const { value: selectedValue, defaultValue } = useDropdown();
+
+  const isActive = !!(value && (selectedValue?.includes(value) || defaultValue?.includes(value)));
+
+  return (
+    <ListboxOption key={value} className={classnames('relative cursor-default select-none')} value={value}>
+      <div
+        className={classnames(
+          'flex items-center justify-between gap-5 truncate px-3 py-2.5 text-14 text-gray-700 hover:bg-neutral-200 lg:py-1',
+          {
+            'bg-neutral-200': isActive,
+          },
+        )}
+      >
+        {children}
+        <Checkbox checked={isActive} />
+      </div>
+    </ListboxOption>
+  );
+};
+
+export default DropdownOption;
