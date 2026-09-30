@@ -2,6 +2,7 @@
 
 import useSWR from 'swr';
 import type { Customer } from '@commercetools/platform-sdk';
+import type { AccountCustomer } from '@/lib/ct/customer';
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -11,7 +12,7 @@ const fetcher = async (url: string) => {
 };
 
 export function useAccount() {
-  const { data, error, isLoading, mutate } = useSWR<Customer | null>('/api/account', fetcher, {
+  const { data, error, isLoading, mutate } = useSWR<AccountCustomer | null>('/api/account', fetcher, {
     revalidateOnFocus: false,
     shouldRetryOnError: false,
   });

@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSessionApiRoot } from '@/lib/ct/session';
-import { getCustomerById, updateCustomerProfile } from '@/lib/ct/customer';
+import { clearSession, getSessionApiRoot } from '@/lib/ct/session';
+import {
+  deleteCustomer,
+  getCustomerB2BDetails,
+  getCustomerById,
+  updateCustomerProfile,
+  verifyCustomerPassword,
+} from '@/lib/ct/customer';
 import { apiError } from '../_utils';
 
 export async function GET() {
@@ -10,7 +16,34 @@ export async function GET() {
       return NextResponse.json({ message: 'Not signed in' }, { status: 401 });
     }
     const customer = await getCustomerById(apiRoot, session.customerId);
-    return NextResponse.json(customer);
+    const b2b = await getCustomerB2BDetails(apiRoot, customer.id);
+    return NextResponse.json({ ...customer, ...(b2b ? { b2b } : {}) });
+  } catch (err) {
+    return apiError(err);
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { password } = (await req.json()) as { password?: string };
+    if (!password) {
+      return NextResponse.json(
+        { message: 'Password confirmation is required' },
+        { status: 400 },
+      );
+    }
+
+    const { apiRoot, session } = await getSessionApiRoot();
+    if (!session.customerId) {
+      return NextResponse.json({ message: 'Not signed in' }, { status: 401 });
+    }
+
+    const customer = await getCustomerById(apiRoot, session.customerId);
+    await verifyCustomerPassword(apiRoot, customer, password);
+    await deleteCustomer(apiRoot, customer);
+    await clearSession();
+
+    return NextResponse.json({ deleted: true });
   } catch (err) {
     return apiError(err);
   }

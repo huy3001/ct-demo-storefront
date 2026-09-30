@@ -25,6 +25,7 @@ export interface AccordionProps {
   customOpenButton?: ReactNode;
   customClosedButton?: ReactNode;
   onClick?: () => void;
+  onToggle?: () => void;
   defaultOpen?: boolean;
   ref?: React.RefObject<HTMLDivElement | null>;
 }
@@ -45,6 +46,7 @@ const Accordion = ({
   customOpenButton = customClosedButton,
   defaultOpen = false,
   onClick,
+  onToggle,
 }: React.PropsWithChildren<AccordionProps>) => {
   const panelClassNames = useClassNames([panelClassName]);
 
@@ -70,9 +72,13 @@ const Accordion = ({
                 openSectionTitle={openSectionTitle}
                 closedSectionTitle={openSectionTitle}
                 buttonWrapperClassName={buttonWrapperClassName}
+                onToggle={onToggle}
               />
             ) : (
-              <DisclosureButton className={buttonClassName}>
+              <DisclosureButton
+                className={buttonClassName}
+                onClick={onToggle}
+              >
                 {open ? customOpenButton : customClosedButton}
               </DisclosureButton>
             )}

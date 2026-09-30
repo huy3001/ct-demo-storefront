@@ -66,7 +66,7 @@ const useButtonClassNames: UseButtonClassNames = ({
     { 'rounded-sm': variant !== 'ghost' },
     { 'flex gap-2 items-center': includesIcon },
     { 'cursor-not-allowed': !!loading },
-    'relative text-sm transition overflow-hidden font-medium',
+    'relative text-sm transition overflow-hidden font-medium leading-4',
     asSkeleton ? 'relative' : (variantClassNames[variant as ButtonVariant] as string),
     className,
   ]);

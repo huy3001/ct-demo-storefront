@@ -17,8 +17,12 @@ export default function AccountLayout({ children }: { children: ReactNode }) {
   const accountLinks = [
     { href: '/account', label: translate('account.dashboard') },
     { href: '/account/profile', label: translate('account.profile') },
-    { href: '/account/orders', label: translate('account.orders') },
     { href: '/account/addresses', label: translate('account.addresses') },
+    { href: '/account/approval-flows', label: translate('account.approval-flows') },
+    { href: '/account/approval-rules', label: translate('account.approval-rules') },
+    { href: '/account/company', label: translate('account.company') },
+    { href: '/account/orders', label: translate('account.orders') },
+    { href: '/account/quotes', label: translate('account.quotes') },
     { href: '/account/wishlists', label: translate('account.wishlists') },
   ];
 

@@ -19,11 +19,15 @@ const AccordionButton: FC<AccordionButtonProps> = ({
   collapsedLabel,
   variant,
   iconClassName,
+  onToggle,
 }) => {
   const buttonClassNames = useClassNames(['w-full flex justify-between', buttonClassName]);
 
   return (
-    <DisclosureButton className={`${buttonWrapperClassName} w-full`}>
+    <DisclosureButton
+      className={`${buttonWrapperClassName} w-full`}
+      onClick={onToggle}
+    >
       <div className={buttonClassNames}>
         <h4 className="self-center transition">{open ? openSectionTitle : closedSectionTitle}</h4>
         <div className="flex items-center gap-2">

@@ -21,7 +21,7 @@ function AddressCard({
   const translate = useTranslations();
 
   return (
-    <div className="flex justify-between rounded-sm border border-border p-4 text-sm">
+    <div className="flex justify-between rounded-sm bg-white border border-border p-4 text-sm">
       <div>
         <p>{address.streetName}</p>
         <p className="text-charcoal-light">

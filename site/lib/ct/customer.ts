@@ -8,6 +8,16 @@ import type {
   Order,
 } from '@commercetools/platform-sdk';
 
+export interface AccountB2BDetails {
+  businessUnit?: string;
+  company?: string;
+  roles?: string[];
+}
+
+export type AccountCustomer = Customer & {
+  b2b?: AccountB2BDetails;
+};
+
 export interface SignUpInput {
   email: string;
   password: string;
@@ -67,6 +77,115 @@ export async function signInCustomer(
 export async function getCustomerById(apiRoot: ByProjectKeyRequestBuilder, customerId: string): Promise<Customer> {
   const { body } = await apiRoot.customers().withId({ ID: customerId }).get().execute();
   return body;
+}
+
+export async function getCustomerB2BDetails(
+  apiRoot: ByProjectKeyRequestBuilder,
+  customerId: string,
+): Promise<AccountB2BDetails | undefined> {
+  const businessUnit = await getCustomerBusinessUnit(apiRoot, customerId);
+  if (!businessUnit) return undefined;
+
+  const associate = businessUnit.associates.find(
+    ({ customer }) => customer.id === customerId,
+  );
+  const roleKeys = associate?.associateRoleAssignments.map(
+    ({ associateRole }) => associateRole.key,
+  ) ?? [];
+  const roles = roleKeys.length > 0
+    ? await getOptionalB2BField(() => getAssociateRoleNames(apiRoot, roleKeys))
+    : undefined;
+  const company = businessUnit.unitType === 'Company'
+    ? businessUnit.name
+    : await getOptionalB2BField(
+      () => getCompanyName(apiRoot, businessUnit.topLevelUnit.key),
+    );
+
+  return {
+    businessUnit: businessUnit.name,
+    ...(company ? { company } : {}),
+    ...(roles?.length ? { roles } : {}),
+  };
+}
+
+async function getCustomerBusinessUnit(
+  apiRoot: ByProjectKeyRequestBuilder,
+  customerId: string,
+) {
+  try {
+    const { body: businessUnits } = await apiRoot.businessUnits().get({
+      queryArgs: {
+        where: `associates(customer(id="${customerId}"))`,
+        limit: 1,
+      },
+    }).execute();
+    return businessUnits.results[0];
+  } catch (error) {
+    const statusCode = (error as { statusCode?: number }).statusCode;
+    if (statusCode === 403 || statusCode === 404) return undefined;
+    throw error;
+  }
+}
+
+async function getOptionalB2BField<T>(
+  getField: () => Promise<T>,
+): Promise<T | undefined> {
+  try {
+    return await getField();
+  } catch (error) {
+    const statusCode = (error as { statusCode?: number }).statusCode;
+    if (statusCode === 403 || statusCode === 404) return undefined;
+    throw error;
+  }
+}
+
+async function getAssociateRoleNames(
+  apiRoot: ByProjectKeyRequestBuilder,
+  roleKeys: string[],
+): Promise<string[]> {
+  const quotedKeys = roleKeys.map((key) => `"${key}"`).join(',');
+  const { body } = await apiRoot.associateRoles().get({
+    queryArgs: { where: `key in (${quotedKeys})`, limit: roleKeys.length },
+  }).execute();
+  const rolesByKey = new Map(body.results.map((role) => [role.key, role.name ?? role.key]));
+
+  return roleKeys.flatMap((key) => {
+    const role = rolesByKey.get(key);
+    return role ? [role] : [];
+  });
+}
+
+async function getCompanyName(
+  apiRoot: ByProjectKeyRequestBuilder,
+  companyKey: string,
+): Promise<string | undefined> {
+  const { body } = await apiRoot.businessUnits().withKey({ key: companyKey }).get().execute();
+  return body.unitType === 'Company' ? body.name : undefined;
+}
+
+export async function verifyCustomerPassword(
+  apiRoot: ByProjectKeyRequestBuilder,
+  customer: Customer,
+  password: string,
+): Promise<void> {
+  const { body } = await apiRoot.login().post({
+    body: { email: customer.email, password },
+  }).execute();
+
+  if (body.customer.id !== customer.id) {
+    throw new Error('Password does not belong to the signed-in customer');
+  }
+}
+
+export async function deleteCustomer(
+  apiRoot: ByProjectKeyRequestBuilder,
+  customer: Customer,
+): Promise<void> {
+  await apiRoot
+    .customers()
+    .withId({ ID: customer.id })
+    .delete({ queryArgs: { version: customer.version } })
+    .execute();
 }
 
 export async function updateCustomerProfile(
