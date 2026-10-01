@@ -193,7 +193,7 @@ export default function CompanyAdmin() {
       <div className="pt-5">
         {tab === 'general' && (
           <div className="overflow-x-auto rounded-sm border border-border">
-            <table className="w-full min-w-[540px] text-left text-sm">
+            <table className="w-full min-w-135 text-left text-sm">
               <thead className="border-b border-border bg-neutral-100 text-xs uppercase text-charcoal-light">
                 <tr>
                   <th className="px-4 py-3 font-medium">Name</th>
@@ -226,7 +226,7 @@ export default function CompanyAdmin() {
               locale={locale}
             />
             <div className="overflow-x-auto rounded-sm border border-border">
-              <table className="w-full min-w-[900px] text-left text-sm">
+              <table className="w-full min-w-225 text-left text-sm">
                 <thead className="border-b border-border bg-neutral-100 text-xs uppercase text-charcoal-light">
                   <tr>
                     {['Company name', 'Address', 'City', 'State', 'Postcode', 'Country', 'Actions'].map((heading) => (
@@ -272,7 +272,7 @@ export default function CompanyAdmin() {
               locale={locale}
             />
             <div className="overflow-x-auto rounded-sm border border-border">
-              <table className="w-full min-w-[720px] text-left text-sm">
+              <table className="w-full min-w-180 text-left text-sm">
                 <thead className="border-b border-border bg-neutral-100 text-xs uppercase text-charcoal-light">
                   <tr>
                     <th className="px-4 py-3 font-medium">Name</th>
@@ -316,7 +316,7 @@ export default function CompanyAdmin() {
               locale={locale}
             />
             <div className="overflow-x-auto rounded-sm border border-border">
-              <table className="w-full min-w-[760px] text-left text-sm">
+              <table className="w-full min-w-190 text-left text-sm">
                 <thead className="border-b border-border bg-neutral-100 text-xs uppercase text-charcoal-light">
                   <tr>
                     <th className="px-4 py-3 font-medium">Name</th>

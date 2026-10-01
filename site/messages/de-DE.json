@@ -391,7 +391,13 @@
     "weeks": "Wochen",
     "workflow": "Arbeitsablauf",
     "years": "Jahre",
-    "zipCode": "Postleitzahl"
+    "zipCode": "Postleitzahl",
+    "all": "Alle",
+    "clear": "Löschen",
+    "from-to": "{from} - {to} von {totalItems}",
+    "no-results-found": "Keine Ergebnisse gefunden",
+    "rows-per-page": "Zeilen pro Seite",
+    "select": "Auswählen"
   },
   "customer-support": {
     "address": "Adresse",
@@ -600,5 +606,37 @@
     "wishlist-products-no-longer-saved": "Produkte, die nur in dieser wunschliste gespeichert sind, werden nicht mehr als gespeichert markiert",
     "wishlist-required": "Name der wunschliste ist erforderlich",
     "wishlist-oops": "Hoppla..."
+  },
+  "quotes": {
+    "all-quotes": "Alle Angebote",
+    "quote-requests": "Angebotsanfragen",
+    "search-label": "Angebot suchen",
+    "search-placeholder": "Nach ID suchen...",
+    "status": "Status",
+    "status-help": "Hilfe zum Angebotsstatus",
+    "status-help-title": "Angebotsstatus",
+    "status-selected": "{count} ausgewählt",
+    "view": "Anzeigen",
+    "column-status": "Status",
+    "column-id": "ID",
+    "column-date": "Datum",
+    "column-business-unit": "Geschäftseinheit",
+    "column-total": "Gesamt",
+    "details-title": "Details zur Angebotsanfrage",
+    "back": "Zurück zur vorherigen Seite",
+    "quote-request-id": "Angebotsanfrage-ID",
+    "creation-date": "Erstellungsdatum",
+    "po-number": "Bestellnummer",
+    "last-modified": "Zuletzt geändert",
+    "owner": "Eigentümer",
+    "activity": "Aktivität",
+    "revoke": "Angebotsanfrage widerrufen",
+    "items-quoted": "Angebotene Artikel ({count})",
+    "product": "Produkt",
+    "sku": "SKU",
+    "qty": "Menge",
+    "price": "Preis",
+    "total": "Gesamt",
+    "not-found": "Angebot nicht gefunden"
   }
 }

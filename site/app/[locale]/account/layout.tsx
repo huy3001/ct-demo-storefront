@@ -48,7 +48,14 @@ export default function AccountLayout({ children }: { children: ReactNode }) {
         </h2>
         <nav className="space-y-4">
           {accountLinks.map(({ href, label }) => {
-            const active = pathname === `/${locale}${href}`;
+            const fullPath = `/${locale}${href}`;
+            const active =
+              href === '/account'
+                ? pathname === fullPath
+                : href === '/account/quotes'
+                  ? pathname === fullPath ||
+                    pathname.startsWith(`/${locale}/account/quote/`)
+                  : pathname === fullPath || pathname.startsWith(`${fullPath}/`);
 
             return (
               <Link

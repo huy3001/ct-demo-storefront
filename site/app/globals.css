@@ -53,6 +53,19 @@ input[type=number] {
   appearance: textfield;
 }
 
+table {
+  @apply border-separate border-spacing-0 overflow-hidden rounded-sm border border-solid border-border;
+}
+
+table thead th,
+table tbody td {
+  @apply border-b border-solid border-border;
+}
+
+table tbody tr:last-child td {
+  @apply border-b-0;
+}
+
 /* form {
   .form-field {
     &:has(:required) {

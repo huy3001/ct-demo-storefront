@@ -391,7 +391,13 @@
     "weeks": "weeks",
     "workflow": "Workflow",
     "years": "years",
-    "zipCode": "Postcode"
+    "zipCode": "Postcode",
+    "all": "All",
+    "clear": "Clear",
+    "from-to": "{from} - {to} of {totalItems}",
+    "no-results-found": "No results found",
+    "rows-per-page": "Page rows",
+    "select": "Select"
   },
   "customer-support": {
     "address": "Address",
@@ -601,5 +607,37 @@
     "wishlist-products-no-longer-saved": "Products saved only in this wishlist will no longer be marked as saved",
     "wishlist-required": "Wishlist name is required",
     "wishlist-oops": "Oops..."
+  },
+  "quotes": {
+    "all-quotes": "All Quotes",
+    "quote-requests": "Quote Requests",
+    "search-label": "Search for quote",
+    "search-placeholder": "Search by ID...",
+    "status": "Status",
+    "status-help": "Quote status help",
+    "status-help-title": "Quote status",
+    "status-selected": "{count} selected",
+    "view": "View",
+    "column-status": "Status",
+    "column-id": "ID",
+    "column-date": "Date",
+    "column-business-unit": "Business unit",
+    "column-total": "Total",
+    "details-title": "Quote request details",
+    "back": "Back to previous page",
+    "quote-request-id": "Quote request ID",
+    "creation-date": "Creation date",
+    "po-number": "PO number",
+    "last-modified": "Last modified",
+    "owner": "Owner",
+    "activity": "Activity",
+    "revoke": "Revoke Quote Request",
+    "items-quoted": "Items Quoted ({count})",
+    "product": "Product",
+    "sku": "SKU",
+    "qty": "Qty",
+    "price": "Price",
+    "total": "Total",
+    "not-found": "Quote not found"
   }
 }
