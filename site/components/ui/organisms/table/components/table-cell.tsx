@@ -16,11 +16,10 @@ const TableCell = ({
   const isHeadCell = as === 'th';
 
   const cellClassName = classnames(
-    'p-4',
+    'flex gap-1 items-center py-1 first:text-left lg:p-4 lg:table-cell lg:text-right',
     { 'cursor-pointer': !!sortable },
-    { 'bg-white': isButtonsCell },
     {
-      'sticky right-0 z-10 lg:block lg:bg-transparent': isButtonsCell,
+      'sticky right-0 z-10': isButtonsCell,
     },
     { 'text-right': typeof children == 'number' },
     className,
@@ -30,9 +29,8 @@ const TableCell = ({
     () => (
       <span
         className={classnames(
-          'leading-5',
-          { 'text-12 font-semibold': isHeadCell },
-          { 'text-14 font-normal': !isHeadCell },
+          { 'text-xs font-semibold': isHeadCell },
+          { 'text-sm font-normal': !isHeadCell },
         )}
       >
         {children as string}

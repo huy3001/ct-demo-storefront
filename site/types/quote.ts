@@ -3,6 +3,7 @@ export const QUOTE_STATUSES = [
   'Declined',
   'Declined for Renegotiation',
   'Renegotiating',
+  'Renegotiated',
   'In Progress',
   'Cancelled',
   'Closed',

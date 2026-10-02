@@ -8,11 +8,11 @@ import {
   QuestionMarkCircleIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
+import Input from '@/components/ui/atoms/input';
 import MultiDropdown from '@/components/ui/atoms/multi-dropdown';
-import Button from '@/components/ui/atoms/button';
 import Label from '@/components/ui/atoms/label';
+import Link from '@/components/ui/atoms/link';
 import Table from '@/components/ui/organisms/table';
-import { useRouter } from '@/i18n/routing';
 import { formatMoney } from '@/lib/utils';
 import { MOCK_QUOTES } from '@/lib/quotes/mock-data';
 import { QUOTE_STATUSES, type Quote } from '@/types/quote';
@@ -41,7 +41,6 @@ function filterQuotes(
 
 export default function QuotesTabContent() {
   const translate = useTranslations();
-  const router = useRouter();
   const { locale } = useParams<{ locale: string }>();
   const [search, setSearch] = useState('');
   const [statuses, setStatuses] = useState<string[]>([]);
@@ -98,11 +97,9 @@ export default function QuotesTabContent() {
     <div>
       <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="w-full lg:max-w-sm">
-          <Label htmlFor="search-for-quote">
-            {translate('quotes.search-label')}
-          </Label>
           <div className="relative">
-            <input
+            <Input
+              label={translate('quotes.search-label')}
               id="search-for-quote"
               name="search-for-quote"
               type="text"
@@ -110,36 +107,39 @@ export default function QuotesTabContent() {
               onChange={(event) => setSearch(event.target.value)}
               placeholder={translate('quotes.search-placeholder')}
               aria-label={translate('quotes.search-label')}
-              className="h-10 w-full rounded-sm border border-gray-300 py-2.5 pl-3 pr-16 text-sm text-charcoal placeholder:text-gray-600 focus:border-gray-400 focus:outline-none focus:ring-0"
+              className="pr-10"
             />
             {search ? (
               <button
                 type="button"
                 aria-label={translate('common.clear')}
-                className="absolute inset-y-0 right-10 flex items-center"
+                className="absolute right-3 bottom-3 flex items-center"
                 onClick={() => setSearch('')}
               >
-                <XMarkIcon className="size-5 text-charcoal" />
+                <XMarkIcon className="size-4 text-charcoal" />
               </button>
-            ) : null}
-            <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-              <MagnifyingGlassIcon className="size-5 text-charcoal" />
-            </span>
+            ) : (
+              <MagnifyingGlassIcon className="pointer-events-none absolute right-3 bottom-3 size-4 text-charcoal" />
+            )}
           </div>
         </div>
 
         <div className="w-full lg:max-w-xs">
-          <div className="mb-2 flex items-center gap-1.5">
-            <span className="text-14 text-gray-700">{translate('quotes.status')}</span>
-            <button
-              type="button"
-              aria-label={translate('quotes.status-help')}
-              className="text-charcoal hover:text-terra"
-              onClick={() => setIsStatusHelpOpen(true)}
-            >
-              <QuestionMarkCircleIcon className="size-5" />
-            </button>
-          </div>
+          <Label
+            showOptionalLabel
+            optionalLabel={
+              <button
+                type="button"
+                aria-label={translate('quotes.status-help')}
+                className="text-charcoal hover:text-terra"
+                onClick={() => setIsStatusHelpOpen(true)}
+              >
+                <QuestionMarkCircleIcon className="size-5" />
+              </button>
+            }
+          >
+            {translate('quotes.status')}
+          </Label>
           <MultiDropdown
             value={statuses}
             onChange={setStatuses}
@@ -150,7 +150,10 @@ export default function QuotesTabContent() {
             </MultiDropdown.Button>
             <MultiDropdown.Options>
               {QUOTE_STATUSES.map((status) => (
-                <MultiDropdown.Option key={status} value={status}>
+                <MultiDropdown.Option
+                  key={status}
+                  value={status}
+                >
                   {status}
                 </MultiDropdown.Option>
               ))}
@@ -163,13 +166,19 @@ export default function QuotesTabContent() {
         <Table.Container>
           <Table.Head>
             <Table.Row>
-              <Table.HeaderCell>{translate('quotes.column-status')}</Table.HeaderCell>
-              <Table.HeaderCell>{translate('quotes.column-id')}</Table.HeaderCell>
-              <Table.HeaderCell>{translate('quotes.column-date')}</Table.HeaderCell>
+              <Table.HeaderCell>
+                {translate('quotes.column-status')}
+              </Table.HeaderCell>
+              <Table.HeaderCell>
+                {translate('quotes.column-id')}
+              </Table.HeaderCell>
+              <Table.HeaderCell>
+                {translate('quotes.column-date')}
+              </Table.HeaderCell>
               <Table.HeaderCell>
                 {translate('quotes.column-business-unit')}
               </Table.HeaderCell>
-              <Table.HeaderCell className="text-right">
+              <Table.HeaderCell>
                 {translate('quotes.column-total')}
               </Table.HeaderCell>
               <Table.HeaderCell />
@@ -178,7 +187,10 @@ export default function QuotesTabContent() {
           <Table.Body>
             {pagedQuotes.length === 0 ? (
               <Table.Row>
-                <Table.Cell className="text-center" colSpan={6}>
+                <Table.Cell
+                  className="text-center"
+                  colSpan={6}
+                >
                   {translate('common.no-results-found')}
                 </Table.Cell>
               </Table.Row>
@@ -186,30 +198,54 @@ export default function QuotesTabContent() {
               pagedQuotes.map((quote) => (
                 <Table.Row key={quote.id}>
                   <Table.Cell>
+                    <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
+                      {translate('quotes.column-status')}
+                    </span>
                     <QuoteStatusBadge status={quote.status} />
                   </Table.Cell>
-                  <Table.Cell>{quote.id}</Table.Cell>
                   <Table.Cell>
-                    {new Date(quote.createdAt).toLocaleDateString(locale)}
+                    <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
+                      {translate('quotes.column-id')}
+                    </span>
+                    <span>{quote.id}</span>
                   </Table.Cell>
-                  <Table.Cell>{quote.businessUnit}</Table.Cell>
-                  <Table.Cell className="text-right">
-                    {formatMoney(
-                      quote.totalCentAmount,
-                      quote.currencyCode,
-                      locale,
-                    )}
+                  <Table.Cell>
+                    <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
+                      {translate('quotes.column-date')}
+                    </span>
+                    <span>
+                      {new Date(quote.createdAt).toLocaleDateString(locale)}
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
+                      {translate('quotes.column-business-unit')}
+                    </span>
+                    <span>{quote.businessUnit}</span>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
+                      {translate('quotes.column-total')}
+                    </span>
+                    <span>
+                      {formatMoney(
+                        quote.totalCentAmount,
+                        quote.currencyCode,
+                        locale,
+                      )}
+                    </span>
                   </Table.Cell>
                   <Table.Cell isButtonsCell>
-                    <Button
-                      variant="secondary"
-                      type="button"
-                      onClick={() =>
-                        router.push(`/account/quote/${quote.id}`)
-                      }
+                    <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
+                      {translate('orders.action')}
+                    </span>
+                    <Link
+                      variant="primary"
+                      link={`/account/quote/${quote.id}`}
+                      className="text-terra hover:underline whitespace-nowrap"
                     >
                       {translate('quotes.view')}
-                    </Button>
+                    </Link>
                   </Table.Cell>
                 </Table.Row>
               ))
@@ -228,9 +264,7 @@ export default function QuotesTabContent() {
             setPageSize(value === 'all' ? 'all' : Number(value));
           }}
           onPrevious={() => setPage((current) => Math.max(1, current - 1))}
-          onNext={() =>
-            setPage((current) => Math.min(totalPages, current + 1))
-          }
+          onNext={() => setPage((current) => Math.min(totalPages, current + 1))}
         />
       </Table>
 

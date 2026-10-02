@@ -1,7 +1,9 @@
+import type { ReactNode } from 'react';
+
 export interface LabelProps {
   required?: boolean;
   requiredStyle?: 'asterisk' | 'label';
   showOptionalLabel?: boolean;
-  optionalLabel?: string;
+  optionalLabel?: ReactNode | string;
   htmlFor?: string;
 }

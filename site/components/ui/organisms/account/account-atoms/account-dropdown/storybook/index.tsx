@@ -32,7 +32,7 @@ const AccountDropdownContent: FC = () => {
                     </div>
                   </PopoverButton>
                   <PopoverBackdrop className="fixed inset-0 z-310 bg-gray-600 opacity-30" />
-                  <PopoverPanel className="absolute -left-26.25 top-12.5 z-310 animate-[appearDropdown_0.15s_ease-in-out] rounded-sm bg-white shadow-400">
+                  <PopoverPanel className="absolute -left-26.25 top-12.5 z-310 animate-[appearDropdown_0.15s_ease-in-out] rounded-sm bg-white shadow-md">
                     <div className="absolute -top-5 left-1/2 z-10 w-7.75 -translate-x-1/2 overflow-hidden">
                       <div className="size-5.25 origin-bottom-left rotate-45 bg-white" />
                     </div>
@@ -47,14 +47,14 @@ const AccountDropdownContent: FC = () => {
       <div className="mt-11 flex w-1/2 justify-start gap-x-12.5">
         <div>
           <Popover className="relative shadow-300">
-            <div className="z-310 rounded-sm bg-white shadow-400">
+            <div className="z-310 rounded-sm bg-white shadow-md">
               <AccountDropdown loggedIn />
             </div>
           </Popover>
         </div>
         <div>
           <Popover className="relative shadow-300">
-            <div className="z-310 rounded-sm bg-white shadow-400">
+            <div className="z-310 rounded-sm bg-white shadow-md">
               <AccountDropdown loggedIn={false} />
             </div>
           </Popover>

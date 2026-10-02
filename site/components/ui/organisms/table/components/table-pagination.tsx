@@ -55,14 +55,14 @@ const TablePagination = ({
   };
 
   const paginationClassName = classnames(
-    'flex w-full flex-col-reverse justify-between py-2 md:flex-row md:gap-0 md:py-6',
+    'flex gap-4 w-full justify-between py-2 md:py-6',
     className,
   );
 
   return (
     <div className={paginationClassName}>
-      <div className="mt-2 flex items-center justify-center gap-2 md:mt-0 md:justify-start">
-        <p className="text-14 text-gray-700 md:block">{translate('common.rows-per-page')}</p>
+      <div className="flex items-center justify-center gap-2 md:justify-start">
+        <p className="text-sm md:block">{translate('common.rows-per-page')}</p>
         <Select
           onChange={onRowsPerPageChange}
           value={rowsPerPageValue ?? limit.toString()}
@@ -70,15 +70,15 @@ const TablePagination = ({
           className="w-20"
         />
       </div>
-      <div className="flex items-center gap-3 md:gap-9">
-        <p className="hidden text-14 text-gray-700 md:flex">
+      <div className="flex items-center gap-4 md:gap-6">
+        <p className="hidden text-sm md:flex">
           {translate('common.from-to', {
             from,
             to,
             totalItems: totalItems.toString(),
           })}
         </p>
-        <div className="mt-3 flex w-full justify-between gap-4 md:mt-0">
+        <div className="flex items-center w-full justify-between gap-4">
           <button
             data-testid="previous-arrow"
             disabled={disablePrevious}
@@ -87,7 +87,7 @@ const TablePagination = ({
           >
             <ChevronLeftIcon data-disabled={disablePrevious} stroke="#212121" {...previousIconProps} />
           </button>
-          <p className="text-14 text-gray-700 md:hidden">
+          <p className="text-sm md:hidden">
             {translate('common.from-to', {
               from,
               to,

@@ -81,7 +81,7 @@ const Select = ({
           placeholder={placeholder}
           className={classnames(
             className,
-            'w-full rounded-md border border-gray-300 pl-3 pr-10 text-left text-14 focus:border-neutral-800 focus:outline-none focus:ring-0 active:border-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-200',
+            'w-full h-10 rounded-sm bg-white border border-gray-300 pl-3 pr-10 text-left text-sm focus:border-gray-400 focus:outline-none focus:ring-0 active:border-neutral-800 disabled:cursor-not-allowed disabled:bg-neutral-200',
             { 'border-red-500': !!error },
           )}
           aria-label={!label ? translate('common.select') : ''}
@@ -93,27 +93,40 @@ const Select = ({
           data-testid="dropdown-button"
           className="absolute inset-y-0 right-0 flex items-center pr-3"
         >
-          <ChevronDownIcon className="h-4.5" aria-hidden="true" />
+          <ChevronDownIcon
+            className="h-5 stroke-1"
+            aria-hidden="true"
+          />
         </ComboboxButton>
       </div>
-      {error && <span className="mt-3 block text-12 font-medium text-red-500">{error}</span>}
+      {error && (
+        <span className="mt-3 block text-12 font-medium text-red-500">
+          {error}
+        </span>
+      )}
 
-      <Transition leave="transition ease-in duration-100" leaveFrom="opacity-100" leaveTo="opacity-0">
+      <Transition
+        leave="transition ease-in duration-100"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
+      >
         <ComboboxOptions
           className={classnames(
-            'absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-md bg-white py-1 text-base shadow-400 focus:outline-none',
+            'absolute z-50 mt-1 max-h-60 w-full overflow-y-auto rounded-sm bg-white py-1 text-base shadow-md focus:outline-none',
             className,
           )}
         >
           {enableSearch && filteredOptions.length === 0 && (
-            <p className="px-3 py-2 text-14 text-gray-500">{translate('common.no-results-found')}</p>
+            <p className="px-3 py-2 text-sm text-gray-500">
+              {translate('common.no-results-found')}
+            </p>
           )}
           {filteredOptions.map(({ name, value }) => (
             <ComboboxOption
               aria-label={name}
               className={({ focus, selected }) =>
                 classnames(
-                  'relative block cursor-default select-none truncate px-3 py-2.5 text-14 text-gray-700 lg:py-1',
+                  'relative block cursor-default select-none truncate px-3 py-2.5 text-sm text-gray-700 lg:py-1',
                   {
                     'bg-neutral-100': focus,
                     'bg-neutral-200': selected,

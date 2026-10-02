@@ -6,13 +6,13 @@ const TabList = ({ children }: React.PropsWithChildren) => {
   const { activeTabIndex, setActiveTabIndex, onActiveIndexChange } = useTabs();
 
   return (
-    <div className="flex items-center gap-5 overflow-visible border-b-2 border-neutral-400 lg:gap-10">
+    <div className="flex items-center gap-5 overflow-visible border-b-2 border-border lg:gap-10">
       {React.Children.map(children, (Child, index) => {
         const tabClassName = classnames(
-          'mb-[-2px] cursor-pointer whitespace-pre border-b-2 py-2 leading-[16px] transition hover:border-gray-800',
+          'mb-[-2px] cursor-pointer whitespace-pre border-b-2 py-2 leading-[16px] transition hover:border-charcoal',
           {
             'border-transparent': index !== activeTabIndex,
-            'border-gray-800 font-bold': index === activeTabIndex,
+            'border-charcoal font-bold': index === activeTabIndex,
           },
         );
 

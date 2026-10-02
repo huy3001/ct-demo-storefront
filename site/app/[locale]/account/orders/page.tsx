@@ -89,8 +89,8 @@ export default function OrdersPage() {
       )}
 
       {data?.results && data?.results.length > 0 && (
-        <ul className="divide-y divide-border">
-          <li className="py-4 hidden lg:grid lg:grid-cols-7 font-semibold text-xs text-charcoal-light uppercase">
+        <ul className="divide-y divide-border lg:bg-white lg:border lg:border-border lg:rounded-sm">
+          <li className="bg-cream-dark p-4 hidden lg:grid lg:grid-cols-7 font-semibold text-xs text-charcoal-light uppercase">
             <div className="lg:col-span-2">
               {translate('orders.order-number')}
             </div>
@@ -104,7 +104,7 @@ export default function OrdersPage() {
           {data?.results.map((order) => (
             <li
               key={order.id}
-              className="py-4 grid grid-cols-1 lg:grid-cols-7 text-sm gap-y-2"
+              className="py-4 grid grid-cols-1 lg:grid-cols-7 lg:px-4 text-sm gap-y-2"
             >
               <div className="flex gap-1 items-center lg:col-span-2">
                 <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">

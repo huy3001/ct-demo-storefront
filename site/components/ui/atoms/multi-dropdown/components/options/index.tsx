@@ -12,7 +12,7 @@ const DropdownOptions = ({ children, className }: React.PropsWithChildren<Props>
       <ListboxOptions
         static
         className={classnames(
-          'absolute z-50 mt-1 max-h-60 w-full min-w-fit overflow-y-auto rounded-md bg-white py-1 text-base shadow-400 focus:outline-none',
+          'absolute z-50 mt-1 max-h-60 w-full min-w-fit overflow-y-auto rounded-sm bg-white py-2 text-sm shadow-md focus:outline-none',
           className,
         )}
       >

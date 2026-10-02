@@ -4,7 +4,7 @@ import { TableCellProps } from '../types';
 
 const TableHeaderCell = ({ className, children, ...props }: TableCellProps) => {
   const headClassName = classnames(
-    'whitespace-pre rounded-md rounded-b-none bg-gray-100 text-left text-gray-500',
+    'whitespace-pre text-right first:text-left',
     className,
   );
 

@@ -14,7 +14,7 @@ const DropdownOption = ({ children, value }: React.PropsWithChildren<Props>) => 
     <ListboxOption key={value} className={classnames('relative cursor-default select-none')} value={value}>
       <div
         className={classnames(
-          'flex items-center justify-between gap-5 truncate px-3 py-2.5 text-14 text-gray-700 hover:bg-neutral-200 lg:py-1',
+          'flex items-center justify-between gap-5 truncate px-3 py-2.5 text-sm text-gray-700 hover:bg-neutral-200 lg:py-1',
           {
             'bg-neutral-200': isActive,
           },

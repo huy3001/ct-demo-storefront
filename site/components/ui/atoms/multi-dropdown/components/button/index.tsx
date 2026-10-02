@@ -23,13 +23,19 @@ const DropdownButton = ({ children, className }: Props) => {
       <div className="block truncate">
         {typeof children === 'function'
           ? children({
-              selected: (!value || value.length === 0 ? defaultValue : value)?.map((value) => ({ value })) ?? [],
+              selected:
+                (!value || value.length === 0 ? defaultValue : value)?.map(
+                  (value) => ({ value }),
+                ) ?? [],
               isExpanded,
             })
           : children}
       </div>
       <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
-        <ArrowIcon className="h-4.5" aria-hidden="true" />
+        <ArrowIcon
+          className="h-5 stroke-1"
+          aria-hidden="true"
+        />
       </span>
     </ListboxButton>
   );

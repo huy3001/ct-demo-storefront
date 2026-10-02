@@ -54,12 +54,12 @@ input[type=number] {
 }
 
 table {
-  @apply border-separate border-spacing-0 overflow-hidden rounded-sm border border-solid border-border;
+  @apply border-separate border-spacing-0 overflow-hidden divide-y divide-border lg:bg-white lg:border lg:border-border lg:rounded-sm;
 }
 
 table thead th,
 table tbody td {
-  @apply border-b border-solid border-border;
+  @apply lg:border-b lg:border-border;
 }
 
 table tbody tr:last-child td {
