@@ -14,7 +14,6 @@ import Label from '@/components/ui/atoms/label';
 import Link from '@/components/ui/atoms/link';
 import Table from '@/components/ui/organisms/table';
 import { formatMoney } from '@/lib/utils';
-import { MOCK_QUOTES } from '@/lib/quotes/mock-data';
 import { QUOTE_STATUSES, type Quote } from '@/types/quote';
 import QuoteStatusBadge from './QuoteStatusBadge';
 import QuoteStatusHelpModal from './QuoteStatusHelpModal';
@@ -39,7 +38,7 @@ function filterQuotes(
   });
 }
 
-export default function QuotesTabContent() {
+export default function QuotesTabContent({ quotes }: { quotes: Quote[] }) {
   const translate = useTranslations();
   const { locale } = useParams<{ locale: string }>();
   const [search, setSearch] = useState('');
@@ -58,8 +57,8 @@ export default function QuotesTabContent() {
   );
 
   const filteredQuotes = useMemo(
-    () => filterQuotes(MOCK_QUOTES, search, statuses),
-    [search, statuses],
+    () => filterQuotes(quotes, search, statuses),
+    [quotes, search, statuses],
   );
 
   const effectiveLimit =

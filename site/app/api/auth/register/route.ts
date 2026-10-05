@@ -15,7 +15,12 @@ export async function POST(req: NextRequest) {
     const { apiRoot, session } = await getSessionApiRoot();
     const signInResult = await signUpCustomer(apiRoot, { email, password, firstName, lastName }, session.anonymousId);
 
-    await persistSession({ ...session, customerId: signInResult.customer.id, cartId: signInResult.cart?.id });
+    await persistSession({
+      ...session,
+      customerId: signInResult.customer.id,
+      email: signInResult.customer.email,
+      cartId: signInResult.cart?.id,
+    });
 
     return NextResponse.json({ customer: signInResult.customer, cart: signInResult.cart });
   } catch (err) {

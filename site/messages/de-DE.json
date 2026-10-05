@@ -649,6 +649,13 @@
     "sku": "SKU",
     "qty": "Menge",
     "price": "Preis",
+    "subtotal": "Zwischensumme",
+    "discount": "Rabatt",
+    "tax": "Steuer",
+    "error": {
+      "failed-to-load": "Fehler beim laden der angebotsanfrage",
+      "invalid-response": "Ungültige antwort auf die angebotsanfrage"
+    },
     "total": "Gesamt",
     "not-found": "Angebot nicht gefunden"
   }

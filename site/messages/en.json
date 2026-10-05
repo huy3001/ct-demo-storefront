@@ -650,6 +650,13 @@
     "sku": "SKU",
     "qty": "Qty",
     "price": "Price",
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "tax": "Tax",
+    "error": {
+      "failed-to-load": "Failed to load quote request",
+      "invalid-response": "Invalid quote request response"
+    },
     "total": "Total",
     "not-found": "Quote not found"
   }

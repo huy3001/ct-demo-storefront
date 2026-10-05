@@ -4,6 +4,7 @@ import { ctEnv } from './env';
 export interface SessionPayload {
   anonymousId: string;
   customerId?: string;
+  email?: string;
   cartId?: string;
 }
 
