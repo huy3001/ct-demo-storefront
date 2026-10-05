@@ -20,12 +20,21 @@ const MobileMenuFooter: FC<Props> = ({ hideHeaderMenu, insertCategory }) => {
   const { isSignedIn, logout } = useAccount();
 
   const tabs = [
-    { name: translate('account.my-account'), href: '/account' },
-    { name: translate('account.orders'), href: '/account/?hash=orders' },
+    { name: translate('account.dashboard'), href: '/account' },
+    { name: translate('account.profile'), href: '/account/profile' },
+    { name: translate('account.addresses'), href: '/account/addresses' },
     {
-      name: translate('account.customer-support'),
-      href: '/account/?hash=support',
+      name: translate('account.approval-flows'),
+      href: '/account/approval-flows',
     },
+    {
+      name: translate('account.approval-rules'),
+      href: '/account/approval-rules',
+    },
+    { name: translate('account.company'), href: '/account/company' },
+    { name: translate('account.orders'), href: '/account/orders' },
+    { name: translate('account.quotes'), href: '/account/quotes' },
+    { name: translate('account.wishlists'), href: '/account/wishlists' },
   ];
 
   const accountButton: Category = {

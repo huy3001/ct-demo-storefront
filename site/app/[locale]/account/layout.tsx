@@ -18,8 +18,14 @@ export default function AccountLayout({ children }: { children: ReactNode }) {
     { href: '/account', label: translate('account.dashboard') },
     { href: '/account/profile', label: translate('account.profile') },
     { href: '/account/addresses', label: translate('account.addresses') },
-    { href: '/account/approval-flows', label: translate('account.approval-flows') },
-    { href: '/account/approval-rules', label: translate('account.approval-rules') },
+    {
+      href: '/account/approval-flows',
+      label: translate('account.approval-flows'),
+    },
+    {
+      href: '/account/approval-rules',
+      label: translate('account.approval-rules'),
+    },
     { href: '/account/company', label: translate('account.company') },
     { href: '/account/orders', label: translate('account.orders') },
     { href: '/account/quotes', label: translate('account.quotes') },
@@ -42,7 +48,7 @@ export default function AccountLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 grid md:grid-cols-[180px_1fr] gap-10">
-      <aside className="lg:sticky lg:top-24">
+      <aside className="hidden md:block md:sticky md:top-24">
         <h2 className="text-lg font-semibold mb-6">
           {translate('account.my-account')}
         </h2>
@@ -55,7 +61,8 @@ export default function AccountLayout({ children }: { children: ReactNode }) {
                 : href === '/account/quotes'
                   ? pathname === fullPath ||
                     pathname.startsWith(`/${locale}/account/quote/`)
-                  : pathname === fullPath || pathname.startsWith(`${fullPath}/`);
+                  : pathname === fullPath ||
+                    pathname.startsWith(`${fullPath}/`);
 
             return (
               <Link

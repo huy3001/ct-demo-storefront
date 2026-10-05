@@ -19,7 +19,7 @@ const CustomDropDown = ({
     return `flex h-10 w-full items-center justify-between border ${
       open
         ? `rounded-t-sm border-x-neutral-500 border-t-neutral-500 border-b-neutral-400`
-        : 'rounded-sm border-neutral-500'
+        : 'rounded-sm border-gray-300'
     } bg-white px-4 py-3 active:border-gray-500 focus:border-gray-500 focus:shadow-md`;
   }, []);
 

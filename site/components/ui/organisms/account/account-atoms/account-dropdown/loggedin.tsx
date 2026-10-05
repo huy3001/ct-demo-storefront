@@ -20,13 +20,19 @@ const LoggedIn = ({ onClose }: { onClose?: () => void }) => {
 
   const accountLinks = [
     { href: '/account/profile', label: translate('account.profile') },
-    { href: '/account/orders', label: translate('account.orders') },
     { href: '/account/addresses', label: translate('account.addresses') },
-    { href: '/account/wishlists', label: translate('account.wishlists') },
     {
-      href: '/account/?hash=support',
-      label: translate('account.customer-support'),
+      href: '/account/approval-flows',
+      label: translate('account.approval-flows'),
     },
+    {
+      href: '/account/approval-rules',
+      label: translate('account.approval-rules'),
+    },
+    { href: '/account/company', label: translate('account.company') },
+    { href: '/account/orders', label: translate('account.orders') },
+    { href: '/account/quotes', label: translate('account.quotes') },
+    { href: '/account/wishlists', label: translate('account.wishlists') },
   ];
 
   return (

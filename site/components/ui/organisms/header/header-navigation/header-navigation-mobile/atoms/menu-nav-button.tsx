@@ -22,10 +22,10 @@ const MobileMenuNavButton: FC<Props> = ({
   const linkClassNames = useClassNames([
     'flex justify-between',
     categoriesNavigator?.length === 0
-      ? 'py-6'
+      ? 'py-4'
       : link?.id === 'myAccount'
         ? 'pb-4'
-        : 'pb-9',
+        : 'pb-8',
   ]);
 
   const getLinkUrl = (link: Category) => {
