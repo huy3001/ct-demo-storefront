@@ -79,7 +79,7 @@ export default function AccountProfilePage() {
 
   if (!customer)
     return (
-      <p className="text-sm text-charcoal-light">
+      <p className="text-sm text-charcoal-light text-center">
         {translate('common.loading')}
       </p>
     );

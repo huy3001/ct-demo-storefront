@@ -77,13 +77,13 @@ export default function OrdersPage() {
       </h1>
 
       {isLoading && (
-        <p className="text-charcoal-light text-sm">
+        <p className="text-charcoal-light text-center text-sm">
           {translate('common.loading')}
         </p>
       )}
 
       {!isLoading && (data?.results.length ?? 0) === 0 && (
-        <p className="text-charcoal-light text-sm">
+        <p className="text-charcoal-light text-center text-sm">
           {translate('orders.have-not-placed-orders')}
         </p>
       )}
@@ -98,7 +98,7 @@ export default function OrdersPage() {
             <div className="text-right">{translate('orders.status')}</div>
             <div className="text-right">{translate('orders.total')}</div>
             <div className="text-right lg:col-span-2">
-              {translate('orders.action')}
+              {translate('common.actions')}
             </div>
           </li>
           {data?.results.map((order) => (
@@ -138,7 +138,7 @@ export default function OrdersPage() {
               </div>
               <div className="flex gap-1 items-center lg:col-span-2 lg:justify-end">
                 <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
-                  {translate('orders.action')}
+                  {translate('common.actions')}
                 </span>
                 <div className="flex gap-2 items-center">
                   <Link

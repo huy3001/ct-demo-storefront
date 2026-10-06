@@ -10,13 +10,14 @@ const TableCell = ({
   onSorting,
   children = ' ',
   as = 'td',
+  cellHeading,
   ...props
 }: TableCellProps) => {
   const Cell = as;
   const isHeadCell = as === 'th';
 
   const cellClassName = classnames(
-    'flex gap-1 items-center py-1 first:text-left lg:p-4 lg:table-cell lg:text-right',
+    'flex gap-1 items-center py-1 text-left lg:p-4 lg:table-cell',
     { 'cursor-pointer': !!sortable },
     {
       'sticky right-0 z-10': isButtonsCell,
@@ -53,6 +54,11 @@ const TableCell = ({
 
   return (
     <Cell className={cellClassName} {...props}>
+      {cellHeading && (
+        <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
+          {cellHeading}
+        </span>
+      )}
       {childrenContainer}
     </Cell>
   );

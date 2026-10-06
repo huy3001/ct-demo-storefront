@@ -196,36 +196,23 @@ export default function QuotesTabContent({ quotes }: { quotes: Quote[] }) {
             ) : (
               pagedQuotes.map((quote) => (
                 <Table.Row key={quote.id}>
-                  <Table.Cell>
-                    <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
-                      {translate('quotes.column-status')}
-                    </span>
+                  <Table.Cell cellHeading={translate('quotes.column-status')}>
                     <QuoteStatusBadge status={quote.status} />
                   </Table.Cell>
-                  <Table.Cell>
-                    <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
-                      {translate('quotes.column-id')}
-                    </span>
+                  <Table.Cell cellHeading={translate('quotes.column-id')}>
                     <span>{quote.id}</span>
                   </Table.Cell>
-                  <Table.Cell>
-                    <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
-                      {translate('quotes.column-date')}
-                    </span>
+                  <Table.Cell cellHeading={translate('quotes.column-date')}>
                     <span>
                       {new Date(quote.createdAt).toLocaleDateString(locale)}
                     </span>
                   </Table.Cell>
-                  <Table.Cell>
-                    <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
-                      {translate('quotes.column-business-unit')}
-                    </span>
+                  <Table.Cell
+                    cellHeading={translate('quotes.column-business-unit')}
+                  >
                     <span>{quote.businessUnit}</span>
                   </Table.Cell>
-                  <Table.Cell>
-                    <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
-                      {translate('quotes.column-total')}
-                    </span>
+                  <Table.Cell cellHeading={translate('quotes.column-total')}>
                     <span>
                       {formatMoney(
                         quote.totalCentAmount,
@@ -234,10 +221,10 @@ export default function QuotesTabContent({ quotes }: { quotes: Quote[] }) {
                       )}
                     </span>
                   </Table.Cell>
-                  <Table.Cell isButtonsCell>
-                    <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
-                      {translate('orders.action')}
-                    </span>
+                  <Table.Cell
+                    cellHeading={translate('orders.action')}
+                    isButtonsCell
+                  >
                     <Link
                       variant="primary"
                       link={`/account/quote/${quote.id}`}

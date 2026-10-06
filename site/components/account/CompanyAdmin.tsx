@@ -3,7 +3,14 @@
 import { useMemo, useState } from 'react';
 import useSWR from 'swr';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'use-intl';
 import { Link } from '@/i18n/routing';
+import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import Button from '@/components/ui/atoms/button';
+import Dropdown from '@/components/ui/atoms/dropdown';
+import Input from '@/components/ui/atoms/input';
+import Table from '@/components/ui/organisms/table';
+import Tabs from '@/components/ui/organisms/tabs';
 import type { CompanyManagement } from '@/lib/company';
 
 const fetcher = async (url: string) => {
@@ -16,13 +23,6 @@ const fetcher = async (url: string) => {
 };
 
 type Tab = 'general' | 'addresses' | 'associates' | 'business-units';
-
-const tabs: { id: Tab; label: string }[] = [
-  { id: 'general', label: 'General' },
-  { id: 'addresses', label: 'Addresses' },
-  { id: 'associates', label: 'Associates' },
-  { id: 'business-units', label: 'Business Units' },
-];
 
 function SearchToolbar({
   value,
@@ -37,45 +37,71 @@ function SearchToolbar({
   label: string;
   locale: string;
 }) {
+  const translate = useTranslations();
+
   return (
-    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <input
-        aria-label="Search and filter"
-        placeholder="Search and filter"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="h-10 w-full rounded-sm border border-border px-3 text-sm sm:max-w-sm"
-      />
+    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="relative w-full lg:max-w-sm">
+        <Input
+          labelPosition="inline"
+          aria-label={`${translate('common.search')}...`}
+          placeholder={`${translate('common.search')}...`}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          className="h-10 w-full rounded-sm border border-border px-3 text-sm sm:max-w-sm"
+        />
+        {value ? (
+          <button
+            type="button"
+            aria-label={translate('common.clear')}
+            className="absolute right-3 bottom-3 flex items-center"
+            onClick={() => onChange('')}
+          >
+            <XMarkIcon className="size-4 text-charcoal" />
+          </button>
+        ) : (
+          <MagnifyingGlassIcon className="pointer-events-none absolute right-3 bottom-3 size-4 text-charcoal" />
+        )}
+      </div>
+
       <Link
         href={href}
         locale={locale}
-        className="rounded-sm bg-charcoal px-4 py-2 text-center text-sm text-white hover:bg-charcoal-light"
       >
-        {label}
+        <Button>{label}</Button>
       </Link>
     </div>
   );
 }
 
 function EmptyTable({ colSpan }: { colSpan: number }) {
+  const translate = useTranslations();
+
   return (
-    <tr>
-      <td colSpan={colSpan} className="px-4 py-6 text-center text-sm text-charcoal-light">
-        No records found.
-      </td>
-    </tr>
+    <Table.Row>
+      <Table.Cell colSpan={colSpan}>
+        {translate('common.no-results-found')}
+      </Table.Cell>
+    </Table.Row>
   );
 }
 
 export default function CompanyAdmin() {
+  const translate = useTranslations();
   const { locale } = useParams<{ locale: string }>();
   const { data, error, mutate } = useSWR('/api/account/company', fetcher, {
     revalidateOnFocus: false,
   });
-  const [tab, setTab] = useState<Tab>('general');
   const [businessUnitId, setBusinessUnitId] = useState('');
   const [query, setQuery] = useState('');
   const [actionError, setActionError] = useState('');
+
+  const tabs: { id: Tab; label: string }[] = [
+    { id: 'general', label: translate('account.company') },
+    { id: 'addresses', label: translate('account.addresses') },
+    { id: 'associates', label: translate('account.associates') },
+    { id: 'business-units', label: translate('account.business-units') },
+  ];
 
   const selectedBusinessUnitId = businessUnitId || data?.company.id || '';
   const filteredAddresses = useMemo(() => {
@@ -113,11 +139,17 @@ export default function CompanyAdmin() {
       });
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
-        throw new Error(body.message ?? 'Unable to remove associate');
+        throw new Error(
+          body.message ?? translate('account.unable-to-remove-associate'),
+        );
       }
       await mutate();
     } catch (error) {
-      setActionError(error instanceof Error ? error.message : 'Unable to remove associate');
+      setActionError(
+        error instanceof Error
+          ? error.message
+          : translate('account.unable-to-remove-associate'),
+      );
     }
   }
 
@@ -131,11 +163,17 @@ export default function CompanyAdmin() {
       });
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
-        throw new Error(body.message ?? 'Unable to remove address');
+        throw new Error(
+          body.message ?? translate('account.unable-to-remove-address'),
+        );
       }
       await mutate();
     } catch (error) {
-      setActionError(error instanceof Error ? error.message : 'Unable to remove address');
+      setActionError(
+        error instanceof Error
+          ? error.message
+          : translate('account.unable-to-remove-address'),
+      );
     }
   }
 
@@ -144,211 +182,319 @@ export default function CompanyAdmin() {
   }
 
   if (!data) {
-    return <p className="text-sm text-charcoal-light">Loading company information...</p>;
+    return (
+      <p className="text-sm text-charcoal-light text-center">
+        {translate('common.loading')}
+      </p>
+    );
   }
 
   return (
-    <div>
-      <h1 className="mb-6 text-xl font-semibold">Company Admin</h1>
+    <div className="space-y-6">
+      <h1 className="text-xl font-semibold">{translate('account.company')}</h1>
 
-      <label className="mb-2 block text-sm font-medium" htmlFor="business-unit">
-        Business unit
-      </label>
-      <select
-        id="business-unit"
-        value={selectedBusinessUnitId}
-        onChange={(event) => setBusinessUnitId(event.target.value)}
-        className="mb-8 h-10 w-full max-w-sm rounded-sm border border-border bg-white px-3 text-sm"
-      >
-        {data.businessUnits.map((businessUnit) => (
-          <option key={businessUnit.id} value={businessUnit.id}>
-            {businessUnit.name}
-          </option>
-        ))}
-      </select>
-
-      <div className="border-b border-border" role="tablist" aria-label="Company administration">
-        {tabs.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            role="tab"
-            aria-selected={tab === item.id}
-            onClick={() => {
-              setTab(item.id);
-              setQuery('');
-              setActionError('');
-            }}
-            className={`mr-6 border-b-2 px-1 py-3 text-sm ${
-              tab === item.id
-                ? 'border-charcoal font-semibold text-charcoal'
-                : 'border-transparent text-charcoal-light hover:text-charcoal'
-            }`}
-          >
-            {item.label}
-          </button>
-        ))}
+      <div className="w-full lg:max-w-sm">
+        <Dropdown
+          label={translate('account.business-unit')}
+          id="business-unit"
+          value={selectedBusinessUnitId}
+          onChange={(event) => setBusinessUnitId(event.target.value)}
+          items={data.businessUnits.map((businessUnit) => ({
+            label: businessUnit.name,
+            value: businessUnit.id,
+          }))}
+        />
       </div>
 
-      <div className="pt-5">
-        {tab === 'general' && (
-          <div className="overflow-x-auto rounded-sm border border-border">
-            <table className="w-full min-w-135 text-left text-sm">
-              <thead className="border-b border-border bg-neutral-100 text-xs uppercase text-charcoal-light">
-                <tr>
-                  <th className="px-4 py-3 font-medium">Name</th>
-                  <th className="px-4 py-3 font-medium">Email</th>
-                  <th className="px-4 py-3"><span className="sr-only">Actions</span></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="px-4 py-3">{data.company.name}</td>
-                  <td className="px-4 py-3">{data.company.email ?? '—'}</td>
-                  <td className="px-4 py-3 text-right">
-                    <Link href="/account/company/edit" locale={locale} className="text-terra hover:underline">
-                      Edit
-                    </Link>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        )}
+      <div>
+        <Tabs>
+          <Tabs.TabList>
+            {tabs.map((item) => (
+              <Tabs.Tab key={item.id}>{item.label}</Tabs.Tab>
+            ))}
+          </Tabs.TabList>
 
-        {tab === 'addresses' && (
-          <>
-            <SearchToolbar
-              value={query}
-              onChange={setQuery}
-              href="/account/addresses/new"
-              label="Add new address"
-              locale={locale}
-            />
-            <div className="overflow-x-auto rounded-sm border border-border">
-              <table className="w-full min-w-225 text-left text-sm">
-                <thead className="border-b border-border bg-neutral-100 text-xs uppercase text-charcoal-light">
-                  <tr>
-                    {['Company name', 'Address', 'City', 'State', 'Postcode', 'Country', 'Actions'].map((heading) => (
-                      <th key={heading} className="px-4 py-3 font-medium">{heading}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredAddresses.map((address) => (
-                    <tr key={address.id} className="border-t border-border">
-                      <td className="px-4 py-3">{address.companyName}</td>
-                      <td className="px-4 py-3">{address.address}</td>
-                      <td className="px-4 py-3">{address.city}</td>
-                      <td className="px-4 py-3">{address.state}</td>
-                      <td className="px-4 py-3">{address.postcode}</td>
-                      <td className="px-4 py-3">{address.country}</td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex justify-end gap-3">
-                          <Link href={`/account/addresses/${address.id}/edit`} locale={locale} className="text-terra hover:underline">
-                            Edit
-                          </Link>
-                          <button type="button" onClick={() => removeAddress(address.id, address.businessUnitId)} className="text-charcoal-light hover:text-red-600">
-                            Remove
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {filteredAddresses.length === 0 ? <EmptyTable colSpan={7} /> : null}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
+          <Tabs.Panels>
+            <Tabs.Panel>
+              <Table>
+                <Table.Container>
+                  <Table.Head>
+                    <Table.Row>
+                      <Table.HeaderCell>
+                        {translate('common.name')}
+                      </Table.HeaderCell>
+                      <Table.HeaderCell>
+                        {translate('common.email')}
+                      </Table.HeaderCell>
+                      <Table.HeaderCell />
+                    </Table.Row>
+                  </Table.Head>
 
-        {tab === 'associates' && (
-          <>
-            <SearchToolbar
-              value={query}
-              onChange={setQuery}
-              href="/account/associate/new"
-              label="Add new associate"
-              locale={locale}
-            />
-            <div className="overflow-x-auto rounded-sm border border-border">
-              <table className="w-full min-w-180 text-left text-sm">
-                <thead className="border-b border-border bg-neutral-100 text-xs uppercase text-charcoal-light">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Name</th>
-                    <th className="px-4 py-3 font-medium">Email</th>
-                    <th className="px-4 py-3 font-medium">Role</th>
-                    <th className="px-4 py-3"><span className="sr-only">Actions</span></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredAssociates.map((associate) => (
-                    <tr key={associate.id} className="border-t border-border">
-                      <td className="px-4 py-3">{associate.name}</td>
-                      <td className="px-4 py-3">{associate.email}</td>
-                      <td className="px-4 py-3">{associate.roles.join(', ')}</td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex justify-end gap-3">
-                          <Link href={`/account/associate/${associate.id}/edit`} locale={locale} className="text-terra hover:underline">
-                            Edit
-                          </Link>
-                          <button type="button" onClick={() => removeAssociate(associate.id)} className="text-charcoal-light hover:text-red-600">
-                            Remove
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                  {filteredAssociates.length === 0 ? <EmptyTable colSpan={4} /> : null}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
-
-        {tab === 'business-units' && (
-          <>
-            <SearchToolbar
-              value={query}
-              onChange={setQuery}
-              href="/account/business-unit/new"
-              label="Add new business unit"
-              locale={locale}
-            />
-            <div className="overflow-x-auto rounded-sm border border-border">
-              <table className="w-full min-w-190 text-left text-sm">
-                <thead className="border-b border-border bg-neutral-100 text-xs uppercase text-charcoal-light">
-                  <tr>
-                    <th className="px-4 py-3 font-medium">Name</th>
-                    <th className="px-4 py-3 font-medium">Key</th>
-                    <th className="px-4 py-3 font-medium">Parent unit</th>
-                    <th className="px-4 py-3 font-medium">Email</th>
-                    <th className="px-4 py-3"><span className="sr-only">Actions</span></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredBusinessUnits.map((businessUnit) => (
-                    <tr key={businessUnit.id} className="border-t border-border">
-                      <td className="px-4 py-3">{businessUnit.name}</td>
-                      <td className="px-4 py-3">{businessUnit.key}</td>
-                      <td className="px-4 py-3">{businessUnit.parentUnit ?? '—'}</td>
-                      <td className="px-4 py-3">{businessUnit.email ?? '—'}</td>
-                      <td className="px-4 py-3 text-right">
-                        <Link href={`/account/business-unit/${businessUnit.id}/edit`} locale={locale} className="text-terra hover:underline">
-                          Edit
+                  <Table.Body>
+                    <Table.Row>
+                      <Table.Cell cellHeading={translate('common.name')}>
+                        <span>{data.company.name}</span>
+                      </Table.Cell>
+                      <Table.Cell cellHeading={translate('common.email')}>
+                        <span>{data.company.email ?? '—'}</span>
+                      </Table.Cell>
+                      <Table.Cell
+                        cellHeading={translate('orders.action')}
+                        className="lg:text-right"
+                      >
+                        <Link
+                          href="/account/company/edit"
+                          locale={locale}
+                          className="text-terra hover:underline"
+                        >
+                          {translate('common.edit')}
                         </Link>
-                      </td>
-                    </tr>
-                  ))}
-                  {filteredBusinessUnits.length === 0 ? <EmptyTable colSpan={5} /> : null}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
+                      </Table.Cell>
+                    </Table.Row>
+                  </Table.Body>
+                </Table.Container>
+              </Table>
+            </Tabs.Panel>
 
-        {actionError && <p className="mt-4 text-sm text-red-600">{actionError}</p>}
+            <Tabs.Panel>
+              <div>
+                <SearchToolbar
+                  value={query}
+                  onChange={setQuery}
+                  href="/account/addresses/new"
+                  label="Add new address"
+                  locale={locale}
+                />
+
+                <Table>
+                  <Table.Container>
+                    <Table.Head>
+                      <Table.Row>
+                        <Table.HeaderCell>
+                          {translate('address.company-name')}
+                        </Table.HeaderCell>
+                        <Table.HeaderCell>
+                          {translate('common.address')}
+                        </Table.HeaderCell>
+                        <Table.HeaderCell>
+                          {translate('common.city')}
+                        </Table.HeaderCell>
+                        <Table.HeaderCell>
+                          {translate('common.state')}
+                        </Table.HeaderCell>
+                        <Table.HeaderCell>
+                          {translate('common.zipCode')}
+                        </Table.HeaderCell>
+                        <Table.HeaderCell>
+                          {translate('common.country')}
+                        </Table.HeaderCell>
+                        <Table.HeaderCell />
+                      </Table.Row>
+                    </Table.Head>
+
+                    <Table.Body>
+                      {filteredAddresses.map((address) => (
+                        <Table.Row key={address.id}>
+                          <Table.Cell
+                            cellHeading={translate('address.company-name')}
+                          >
+                            <span>{address.companyName}</span>
+                          </Table.Cell>
+                          <Table.Cell cellHeading={translate('common.address')}>
+                            <span>{address.address}</span>
+                          </Table.Cell>
+                          <Table.Cell cellHeading={translate('common.city')}>
+                            <span>{address.city}</span>
+                          </Table.Cell>
+                          <Table.Cell cellHeading={translate('common.state')}>
+                            <span>{address.state}</span>
+                          </Table.Cell>
+                          <Table.Cell cellHeading={translate('common.zipCode')}>
+                            <span>{address.postcode}</span>
+                          </Table.Cell>
+                          <Table.Cell cellHeading={translate('common.country')}>
+                            <span>{address.country}</span>
+                          </Table.Cell>
+                          <Table.Cell cellHeading={translate('common.actions')}>
+                            <div className="flex items-center justify-end gap-2">
+                              <Link
+                                href={`/account/addresses/${address.id}/edit`}
+                                locale={locale}
+                                className="text-terra hover:underline"
+                              >
+                                {translate('common.edit')}
+                              </Link>
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  removeAddress(
+                                    address.id,
+                                    address.businessUnitId,
+                                  )
+                                }
+                                className="text-red-600 hover:underline"
+                              >
+                                {translate('common.remove')}
+                              </button>
+                            </div>
+                          </Table.Cell>
+                        </Table.Row>
+                      ))}
+                      {filteredAddresses.length === 0 ? (
+                        <EmptyTable colSpan={7} />
+                      ) : null}
+                    </Table.Body>
+                  </Table.Container>
+                </Table>
+              </div>
+            </Tabs.Panel>
+
+            <Tabs.Panel>
+              <div>
+                <SearchToolbar
+                  value={query}
+                  onChange={setQuery}
+                  href="/account/associate/new"
+                  label="Add new associate"
+                  locale={locale}
+                />
+
+                <Table>
+                  <Table.Container>
+                    <Table.Head>
+                      <Table.Row>
+                        <Table.HeaderCell>
+                          {translate('common.name')}
+                        </Table.HeaderCell>
+                        <Table.HeaderCell>
+                          {translate('common.email')}
+                        </Table.HeaderCell>
+                        <Table.HeaderCell>
+                          {translate('account.role')}
+                        </Table.HeaderCell>
+                        <Table.HeaderCell />
+                      </Table.Row>
+                    </Table.Head>
+
+                    <Table.Body>
+                      {filteredAssociates.map((associate) => (
+                        <Table.Row key={associate.id}>
+                          <Table.Cell cellHeading={translate('common.name')}>
+                            <span>{associate.name}</span>
+                          </Table.Cell>
+                          <Table.Cell cellHeading={translate('common.email')}>
+                            <span>{associate.email}</span>
+                          </Table.Cell>
+                          <Table.Cell cellHeading={translate('account.role')}>
+                            <span>{associate.roles.join(', ')}</span>
+                          </Table.Cell>
+                          <Table.Cell cellHeading={translate('common.actions')}>
+                            <div className="flex items-center justify-end gap-2">
+                              <Link
+                                href={`/account/associate/${associate.id}/edit`}
+                                locale={locale}
+                                className="text-terra hover:underline"
+                              >
+                                {translate('common.edit')}
+                              </Link>
+
+                              <button
+                                type="button"
+                                onClick={() => removeAssociate(associate.id)}
+                                className="text-red-600 hover:underline"
+                              >
+                                {translate('common.remove')}
+                              </button>
+                            </div>
+                          </Table.Cell>
+                        </Table.Row>
+                      ))}
+                      {filteredAssociates.length === 0 ? (
+                        <EmptyTable colSpan={4} />
+                      ) : null}
+                    </Table.Body>
+                  </Table.Container>
+                </Table>
+              </div>
+            </Tabs.Panel>
+
+            <Tabs.Panel>
+              <div>
+                <SearchToolbar
+                  value={query}
+                  onChange={setQuery}
+                  href="/account/business-unit/new"
+                  label="Add new business unit"
+                  locale={locale}
+                />
+
+                <Table>
+                  <Table.Container>
+                    <Table.Head>
+                      <Table.Row>
+                        <Table.HeaderCell>
+                          {translate('common.name')}
+                        </Table.HeaderCell>
+                        <Table.HeaderCell>
+                          {translate('common.key')}
+                        </Table.HeaderCell>
+                        <Table.HeaderCell>
+                          {translate('common.parent-unit')}
+                        </Table.HeaderCell>
+                        <Table.HeaderCell>
+                          {translate('common.email')}
+                        </Table.HeaderCell>
+                        <Table.HeaderCell />
+                      </Table.Row>
+                    </Table.Head>
+
+                    <Table.Body>
+                      {filteredBusinessUnits.map((businessUnit) => (
+                        <Table.Row key={businessUnit.id}>
+                          <Table.Cell cellHeading={translate('common.name')}>
+                            <span>{businessUnit.name}</span>
+                          </Table.Cell>
+                          <Table.Cell cellHeading={translate('common.key')}>
+                            <span>{businessUnit.key}</span>
+                          </Table.Cell>
+                          <Table.Cell
+                            cellHeading={translate('common.parent-unit')}
+                          >
+                            <span>{businessUnit.parentUnit ?? '—'}</span>
+                          </Table.Cell>
+                          <Table.Cell cellHeading={translate('common.email')}>
+                            <span>{businessUnit.email ?? '—'}</span>
+                          </Table.Cell>
+                          <Table.Cell
+                            cellHeading={translate('orders.action')}
+                            className="lg:text-right"
+                          >
+                            <Link
+                              href={`/account/business-unit/${businessUnit.id}/edit`}
+                              locale={locale}
+                              className="text-terra hover:underline"
+                            >
+                              {translate('common.edit')}
+                            </Link>
+                          </Table.Cell>
+                        </Table.Row>
+                      ))}
+                      {filteredBusinessUnits.length === 0 ? (
+                        <EmptyTable colSpan={5} />
+                      ) : null}
+                    </Table.Body>
+                  </Table.Container>
+                </Table>
+              </div>
+            </Tabs.Panel>
+          </Tabs.Panels>
+        </Tabs>
       </div>
+
+      {actionError && (
+        <p className="mt-4 text-sm text-red-600">{actionError}</p>
+      )}
     </div>
   );
 }

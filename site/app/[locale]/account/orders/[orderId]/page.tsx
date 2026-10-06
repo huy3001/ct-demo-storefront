@@ -72,7 +72,7 @@ export default function OrderDetailPage() {
   if (isLoading)
     return (
       <div>
-        <p className="text-sm">{translate('common.loading')}</p>
+        <p className="text-center text-sm">{translate('common.loading')}</p>
       </div>
     );
   if (error || !order) {

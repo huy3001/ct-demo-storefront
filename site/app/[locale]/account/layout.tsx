@@ -40,7 +40,7 @@ export default function AccountLayout({ children }: { children: ReactNode }) {
 
   if (isLoading || !isSignedIn) {
     return (
-      <div className="mx-auto max-w-5xl px-4 py-16 text-center text-charcoal-light">
+      <div className="mx-auto max-w-5xl px-4 py-16 text-center text-charcoal-light text-sm">
         {translate('common.loading')}
       </div>
     );

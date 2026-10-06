@@ -54,7 +54,7 @@ export default function QuoteDetailPage() {
     return (
       <p
         role="status"
-        className="text-sm text-charcoal-light"
+        className="text-sm text-charcoal-light text-center"
       >
         {translate('common.loading')}
       </p>
@@ -207,9 +207,7 @@ export default function QuoteDetailPage() {
                 <Table.HeaderCell>{translate('quotes.sku')}</Table.HeaderCell>
                 <Table.HeaderCell>{translate('quotes.qty')}</Table.HeaderCell>
                 <Table.HeaderCell>{translate('quotes.price')}</Table.HeaderCell>
-                <Table.HeaderCell className="text-right">
-                  {translate('quotes.total')}
-                </Table.HeaderCell>
+                <Table.HeaderCell>{translate('quotes.total')}</Table.HeaderCell>
               </Table.Row>
             </Table.Head>
             <Table.Body>
@@ -229,23 +227,14 @@ export default function QuoteDetailPage() {
                       <span>{item.name}</span>
                     </div>
                   </Table.Cell>
-                  <Table.Cell>
-                    <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
-                      {translate('quotes.sku')}
-                    </span>
+                  <Table.Cell cellHeading={translate('quotes.sku')}>
                     <span>{item.sku}</span>
                   </Table.Cell>
-                  <Table.Cell>
-                    <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
-                      {translate('quotes.qty')}
-                    </span>
+                  <Table.Cell cellHeading={translate('quotes.qty')}>
                     <span>{item.quantity}</span>
                   </Table.Cell>
-                  <Table.Cell>
-                    <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
-                      {translate('quotes.price')}
-                    </span>
-                    <div className="flex items-center justify-end gap-2">
+                  <Table.Cell cellHeading={translate('quotes.price')}>
+                    <div className="flex items-center gap-2">
                       <span
                         className={
                           item.originalPriceCentAmount
@@ -270,10 +259,7 @@ export default function QuoteDetailPage() {
                       ) : null}
                     </div>
                   </Table.Cell>
-                  <Table.Cell>
-                    <span className="w-1/4 shrink-0 font-semibold text-xs text-charcoal-light lg:hidden">
-                      {translate('quotes.total')}
-                    </span>
+                  <Table.Cell cellHeading={translate('quotes.total')}>
                     <span>
                       {formatMoney(
                         item.totalCentAmount,

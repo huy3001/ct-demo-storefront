@@ -6,6 +6,7 @@ export type TableCellProps = TdHTMLAttributes<HTMLTableCellElement> & {
   isButtonsCell?: boolean;
   onSorting?: () => void;
   as?: 'th' | 'td';
+  cellHeading?: string;
 };
 
 export type TableRowProps = TableHTMLAttributes<HTMLTableRowElement>;

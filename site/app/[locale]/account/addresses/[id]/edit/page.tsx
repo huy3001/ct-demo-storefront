@@ -13,13 +13,13 @@ export default function EditAddressPage() {
   const address = customer?.addresses?.find((item) => item.id === id);
 
   if (isLoading) return (
-    <p className="text-sm text-charcoal-light">
+    <p className="text-sm text-charcoal-light text-center">
       {translate('common.loading')}
     </p>
   );
 
   if (!address) return (
-    <p className="text-sm text-charcoal-light">
+    <p className="text-sm text-charcoal-light text-center">
       {translate('address.not-found')}
     </p>
   );
