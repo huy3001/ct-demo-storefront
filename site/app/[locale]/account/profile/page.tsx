@@ -16,6 +16,7 @@ import Card from '@/components/ui/molecules/card';
 import Input from '@/components/ui/atoms/input';
 import Modal from '@/components/ui/organisms/modal';
 import PasswordInput from '@/components/ui/atoms/input-password';
+import Skeleton from '@/components/ui/atoms/skeleton';
 import type { AccountCustomer } from '@/lib/ct/customer';
 
 type ProfileAccordionItemProps = {
@@ -78,11 +79,7 @@ export default function AccountProfilePage() {
   }, [translate, customer]);
 
   if (!customer)
-    return (
-      <p className="text-sm text-charcoal-light text-center">
-        {translate('common.loading')}
-      </p>
-    );
+    return <Skeleton className="h-5 w-full" />;
 
   return (
     <div className="space-y-10">

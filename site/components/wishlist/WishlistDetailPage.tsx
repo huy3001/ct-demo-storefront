@@ -6,6 +6,7 @@ import { Link } from '@/i18n/routing';
 import { useWishlist } from '@/hooks/useWishlist';
 import ProductGrid from '@/components/product/ProductGrid';
 import Button from '@/components/ui/atoms/button';
+import Skeleton from '@/components/ui/atoms/skeleton';
 import type { Product } from '@/lib/types';
 
 export default function WishlistDetailPage({
@@ -26,11 +27,7 @@ export default function WishlistDetailPage({
   );
 
   if (isLoading) {
-    return (
-      <div className="text-charcoal-light">
-        {translate('wishlist.wishlist-loading')}
-      </div>
-    );
+    return <Skeleton className="h-5 w-full" />;
   }
 
   if (!wishlist) {

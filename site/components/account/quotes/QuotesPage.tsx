@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import Tabs from '@/components/ui/organisms/tabs';
 import { isQuoteList, type Quote } from '@/types/quote';
 import QuotesTabContent from './QuotesTabContent';
+import Skeleton from '@/components/ui/atoms/skeleton';
 
 export default function QuotesPage() {
   const translate = useTranslations();
@@ -38,16 +39,19 @@ export default function QuotesPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-xl font-semibold">{translate('account.quotes')}</h1>
+      <h1 className="mb-6 text-xl font-semibold">
+        {translate('account.quotes')}
+      </h1>
 
       {hasLoadError ? (
-        <p role="alert" className="text-sm text-red-700">
+        <p
+          role="alert"
+          className="text-sm text-red-700"
+        >
           {translate('error.wentWrong')}
         </p>
       ) : quotes === null ? (
-        <p role="status" className="text-sm text-charcoal-light">
-          {translate('common.loading')}
-        </p>
+        <Skeleton className="h-5 w-full" />
       ) : (
         <Tabs>
           <Tabs.TabList>

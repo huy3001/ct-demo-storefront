@@ -9,6 +9,7 @@ import Table from '@/components/ui/organisms/table';
 import { formatMoney } from '@/lib/utils';
 import { isQuote, type Quote } from '@/types/quote';
 import QuoteStatusBadge from './QuoteStatusBadge';
+import Skeleton from '@/components/ui/atoms/skeleton';
 
 export default function QuoteDetailPage() {
   const translate = useTranslations();
@@ -51,14 +52,7 @@ export default function QuoteDetailPage() {
   }, [locale, quoteId, translate]);
 
   if (!result || result.quoteId !== quoteId) {
-    return (
-      <p
-        role="status"
-        className="text-sm text-charcoal-light text-center"
-      >
-        {translate('common.loading')}
-      </p>
-    );
+    return <Skeleton className="h-5 w-full" />;
   }
 
   if (result.hasError) {

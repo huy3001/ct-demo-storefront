@@ -7,6 +7,7 @@ import { useTranslations } from 'use-intl';
 import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import { formatMoney } from '@/lib/utils';
+import Skeleton from '@/components/ui/atoms/skeleton';
 
 async function fetcher(url: string): Promise<Order> {
   const response = await fetch(url);
@@ -70,11 +71,8 @@ export default function OrderDetailPage() {
   } = useSWR<Order>(`/api/account/orders/${orderId}`, fetcher);
 
   if (isLoading)
-    return (
-      <div>
-        <p className="text-center text-sm">{translate('common.loading')}</p>
-      </div>
-    );
+    return <Skeleton className="h-5 w-full" />;
+  
   if (error || !order) {
     return (
       <div>

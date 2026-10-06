@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import Button from '@/components/ui/atoms/button';
 import Input from '@/components/ui/atoms/input';
+import Skeleton from '@/components/ui/atoms/skeleton';
 import { Link } from '@/i18n/routing';
 import { useWishlist } from '@/hooks/useWishlist';
 
@@ -101,11 +102,7 @@ export default function WishlistListPage({ locale }: { locale: string }) {
   }
 
   if (isLoading) {
-    return (
-      <div className="text-charcoal-light">
-        {translate('wishlist.wishlist-loading')}
-      </div>
-    );
+    return <Skeleton className="h-5 w-full" />;
   }
 
   return (

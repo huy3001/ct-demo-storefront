@@ -9,6 +9,7 @@ import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import Button from '@/components/ui/atoms/button';
 import Dropdown from '@/components/ui/atoms/dropdown';
 import Input from '@/components/ui/atoms/input';
+import Skeleton from '@/components/ui/atoms/skeleton';
 import Table from '@/components/ui/organisms/table';
 import Tabs from '@/components/ui/organisms/tabs';
 import type { CompanyManagement } from '@/lib/company';
@@ -182,11 +183,7 @@ export default function CompanyAdmin() {
   }
 
   if (!data) {
-    return (
-      <p className="text-sm text-charcoal-light text-center">
-        {translate('common.loading')}
-      </p>
-    );
+    return <Skeleton className="h-5 w-full" />;
   }
 
   return (

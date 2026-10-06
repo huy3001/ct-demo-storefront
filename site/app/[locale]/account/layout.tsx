@@ -6,6 +6,7 @@ import { useParams, usePathname, useRouter } from 'next/navigation';
 import { Link } from '@/i18n/routing';
 import { useAccount } from '@/hooks/useAccount';
 import Button from '@/components/ui/atoms/button';
+import Skeleton from '@/components/ui/atoms/skeleton';
 
 export default function AccountLayout({ children }: { children: ReactNode }) {
   const { locale } = useParams<{ locale: string }>();
@@ -40,8 +41,9 @@ export default function AccountLayout({ children }: { children: ReactNode }) {
 
   if (isLoading || !isSignedIn) {
     return (
-      <div className="mx-auto max-w-5xl px-4 py-16 text-center text-charcoal-light text-sm">
-        {translate('common.loading')}
+      <div className="mx-auto max-w-7xl px-4 py-12 grid md:grid-cols-[180px_1fr] gap-10">
+        <Skeleton className="hidden md:block h-5 w-full" />
+        <Skeleton className="h-5 w-full" />
       </div>
     );
   }

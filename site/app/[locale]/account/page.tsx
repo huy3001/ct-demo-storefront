@@ -15,6 +15,7 @@ import {
 import { Link } from '@/i18n/routing';
 import { useAccount } from '@/hooks/useAccount';
 import Card from '@/components/ui/molecules/card';
+import Skeleton from '@/components/ui/atoms/skeleton';
 
 export default function AccountProfilePage() {
   const { customer } = useAccount();
@@ -22,11 +23,7 @@ export default function AccountProfilePage() {
   const translate = useTranslations();
 
   if (!customer) {
-    return (
-      <p className="text-charcoal-light text-center text-sm">
-        {translate('common.loading')}
-      </p>
-    );
+    return <Skeleton className="h-5 w-full" />;
   }
 
   const dashboardCards = [

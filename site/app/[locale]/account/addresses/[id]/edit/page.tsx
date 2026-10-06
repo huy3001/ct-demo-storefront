@@ -5,6 +5,7 @@ import { useTranslations } from 'use-intl';
 import { useAccount } from '@/hooks/useAccount';
 import AddressForm from '@/components/account/AddressForm';
 import { Link } from '@/i18n/routing';
+import Skeleton from '@/components/ui/atoms/skeleton';
 
 export default function EditAddressPage() {
   const { id, locale } = useParams<{ id: string; locale: string }>();
@@ -12,11 +13,7 @@ export default function EditAddressPage() {
   const translate = useTranslations();
   const address = customer?.addresses?.find((item) => item.id === id);
 
-  if (isLoading) return (
-    <p className="text-sm text-charcoal-light text-center">
-      {translate('common.loading')}
-    </p>
-  );
+  if (isLoading) return <Skeleton className="h-5 w-full" />;
 
   if (!address) return (
     <p className="text-sm text-charcoal-light text-center">
