@@ -21,7 +21,13 @@ export type CompanyAddress = {
   id: string;
   businessUnitId: string;
   companyName: string;
+  company?: string;
   address: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  isDefaultShipping: boolean;
+  isDefaultBilling: boolean;
   city: string;
   state: string;
   postcode: string;

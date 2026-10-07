@@ -29,11 +29,13 @@ type AddressFields = Pick<
 
 export default function AddressForm({
   addressId,
+  companyId,
   initialAddress,
   initialDefaultShipping = false,
   initialDefaultBilling = false,
 }: {
   addressId?: string;
+  companyId?: string;
   initialAddress?: AddressFields;
   initialDefaultShipping?: boolean;
   initialDefaultBilling?: boolean;
@@ -61,6 +63,7 @@ export default function AddressForm({
   const [defaultBilling, setDefaultBilling] = useState(initialDefaultBilling);
   const [status, setStatus] = useState<'idle' | 'saving' | 'error'>('idle');
   const [validationError, setValidationError] = useState('');
+  const isCompanyAddress = companyId !== undefined;
 
   const dropdownItems = Object.entries(COUNTRY_CONFIG).map(([key, value]) => ({
     id: key,
@@ -89,20 +92,38 @@ export default function AddressForm({
     setValidationError('');
     setStatus('saving');
     try {
-      const res = await fetch('/api/account/addresses', {
+      const res = await fetch(
+        isCompanyAddress ? '/api/account/company' : '/api/account/addresses',
+        {
         method: addressId ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...(addressId ? { addressId } : {}),
-          address: form,
-          defaultShipping,
-          defaultBilling,
+          ...(isCompanyAddress
+            ? {
+                resource: 'address',
+                ...(addressId ? { id: addressId } : {}),
+                businessUnitId: companyId,
+                address: form,
+                defaultShipping,
+                defaultBilling,
+              }
+            : {
+                ...(addressId ? { addressId } : {}),
+                address: form,
+                defaultShipping,
+                defaultBilling,
+              }),
         }),
-      });
+        },
+      );
       if (!res.ok) throw new Error();
-      const updatedCustomer = await res.json();
-      await mutate('/api/account', updatedCustomer, { revalidate: false });
-      router.push(`/${locale}/account/addresses`);
+      if (isCompanyAddress) {
+        await mutate('/api/account/company');
+      } else {
+        const updatedCustomer = await res.json();
+        await mutate('/api/account', updatedCustomer, { revalidate: false });
+      }
+      router.push(`/${locale}/account/${isCompanyAddress ? 'company' : 'addresses'}`);
       router.refresh();
     } catch {
       setStatus('error');
@@ -245,7 +266,7 @@ export default function AddressForm({
       </div>
       <div className="flex gap-3">
         <Link
-          href="/account/addresses"
+          href={isCompanyAddress ? '/account/company' : '/account/addresses'}
           locale={locale}
         >
           <Button

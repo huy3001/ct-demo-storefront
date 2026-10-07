@@ -23,6 +23,7 @@ export default function NewAddressPage() {
           {translate('address.back')}
         </Link>
       </div>
+      
       <AddressForm />
     </div>
   );

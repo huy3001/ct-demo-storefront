@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
+import type { BaseAddress } from '@commercetools/platform-sdk';
 import { apiError } from '@/app/api/_utils';
 import { ASSOCIATE_ROLES } from '@/lib/company';
 import {
   createAssociate,
+  createBusinessUnitAddress,
   createBusinessUnit,
   getCompanyManagement,
   removeAssociate,
   removeBusinessUnitAddress,
   updateAssociate,
+  updateBusinessUnitAddress,
   updateBusinessUnit,
   updateCompanyDetails,
 } from '@/lib/ct/company';
@@ -18,6 +21,24 @@ function requireText(value: unknown, field: string): string {
     throw new Error(`${field} is required`);
   }
   return value.trim();
+}
+
+function requireAddress(value: unknown): BaseAddress {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('Address is required');
+  }
+  const address = value as Record<string, unknown>;
+  return {
+    firstName: requireText(address.firstName, 'First name'),
+    lastName: requireText(address.lastName, 'Last name'),
+    company: requireText(address.company, 'Company'),
+    streetName: requireText(address.streetName, 'Street name'),
+    city: requireText(address.city, 'City'),
+    postalCode: requireText(address.postalCode, 'Postal code'),
+    state: requireText(address.state, 'State'),
+    country: requireText(address.country, 'Country'),
+    ...(typeof address.phone === 'string' ? { phone: address.phone } : {}),
+  };
 }
 
 function requireRoles(value: unknown): string[] {
@@ -52,8 +73,29 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json() as { resource?: string; name?: unknown; email?: unknown; roles?: unknown };
+    const body = await req.json() as {
+      resource?: string;
+      businessUnitId?: unknown;
+      name?: unknown;
+      email?: unknown;
+      roles?: unknown;
+      address?: unknown;
+      defaultShipping?: unknown;
+      defaultBilling?: unknown;
+    };
     const { apiRoot, customerId } = await sessionContext();
+    if (body.resource === 'address') {
+      return NextResponse.json(await createBusinessUnitAddress(
+        apiRoot,
+        customerId,
+        requireText(body.businessUnitId, 'Business unit id'),
+        requireAddress(body.address),
+        {
+          shipping: Boolean(body.defaultShipping),
+          billing: Boolean(body.defaultBilling),
+        },
+      ));
+    }
     if (body.resource === 'business-unit') {
       const unit = await createBusinessUnit(apiRoot, customerId, {
         name: requireText(body.name, 'Name'),
@@ -79,11 +121,28 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json() as {
       resource?: string;
       id?: unknown;
+      businessUnitId?: unknown;
       name?: unknown;
       email?: unknown;
       roles?: unknown;
+      address?: unknown;
+      defaultShipping?: unknown;
+      defaultBilling?: unknown;
     };
     const { apiRoot, customerId } = await sessionContext();
+    if (body.resource === 'address') {
+      return NextResponse.json(await updateBusinessUnitAddress(
+        apiRoot,
+        customerId,
+        requireText(body.businessUnitId, 'Business unit id'),
+        requireText(body.id, 'Address id'),
+        requireAddress(body.address),
+        {
+          shipping: Boolean(body.defaultShipping),
+          billing: Boolean(body.defaultBilling),
+        },
+      ));
+    }
     if (body.resource === 'company') {
       return NextResponse.json(await updateCompanyDetails(apiRoot, customerId, {
         name: requireText(body.name, 'Name'),

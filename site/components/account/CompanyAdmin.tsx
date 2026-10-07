@@ -240,7 +240,7 @@ export default function CompanyAdmin() {
                         className="lg:text-right"
                       >
                         <Link
-                          href="/account/company/edit"
+                          href={`/account/company/${data.company.id}/edit`}
                           locale={locale}
                           className="text-terra hover:underline"
                         >
@@ -258,7 +258,7 @@ export default function CompanyAdmin() {
                 <SearchToolbar
                   value={query}
                   onChange={setQuery}
-                  href="/account/addresses/new"
+                  href="/account/company/addresses/new"
                   label="Add new address"
                   locale={locale}
                 />
@@ -315,7 +315,7 @@ export default function CompanyAdmin() {
                           <Table.Cell cellHeading={translate('common.actions')}>
                             <div className="flex items-center justify-end gap-2">
                               <Link
-                                href={`/account/addresses/${address.id}/edit`}
+                                href={`/account/company/addresses/${address.id}/edit`}
                                 locale={locale}
                                 className="text-terra hover:underline"
                               >

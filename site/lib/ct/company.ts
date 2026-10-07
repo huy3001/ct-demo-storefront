@@ -1,6 +1,7 @@
 import { randomUUID } from 'crypto';
 import type {
   AssociateRoleAssignmentDraft,
+  BaseAddress,
   BusinessUnit,
   BusinessUnitUpdateAction,
   ByProjectKeyRequestBuilder,
@@ -107,7 +108,13 @@ export async function getCompanyManagement(
         id: address.id,
         businessUnitId: unit.id,
         companyName: unit.name,
+        ...(address.company ? { company: address.company } : {}),
         address: [address.streetNumber, address.streetName].filter(Boolean).join(' '),
+        ...(address.firstName ? { firstName: address.firstName } : {}),
+        ...(address.lastName ? { lastName: address.lastName } : {}),
+        ...(address.phone ? { phone: address.phone } : {}),
+        isDefaultShipping: unit.defaultShippingAddressId === address.id,
+        isDefaultBilling: unit.defaultBillingAddressId === address.id,
         city: address.city ?? '',
         state: address.state ?? '',
         postcode: address.postalCode ?? '',
@@ -192,6 +199,58 @@ export async function updateBusinessUnit(
     { action: 'changeName', name: input.name },
     { action: 'setContactEmail', contactEmail: input.email },
   ]);
+}
+
+export async function updateBusinessUnitAddress(
+  apiRoot: ByProjectKeyRequestBuilder,
+  customerId: string,
+  unitId: string,
+  addressId: string,
+  address: BaseAddress,
+  defaults: { shipping: boolean; billing: boolean },
+) {
+  const unit = await getManagedUnit(apiRoot, customerId, unitId);
+  const actions: BusinessUnitUpdateAction[] = [{
+    action: 'changeAddress',
+    addressId,
+    address,
+  }];
+
+  if (defaults.shipping) {
+    actions.push({ action: 'setDefaultShippingAddress', addressId });
+  } else if (unit.defaultShippingAddressId === addressId) {
+    actions.push({ action: 'setDefaultShippingAddress' });
+  }
+
+  if (defaults.billing) {
+    actions.push({ action: 'setDefaultBillingAddress', addressId });
+  } else if (unit.defaultBillingAddressId === addressId) {
+    actions.push({ action: 'setDefaultBillingAddress' });
+  }
+
+  return updateUnit(apiRoot, customerId, unitId, actions);
+}
+
+export async function createBusinessUnitAddress(
+  apiRoot: ByProjectKeyRequestBuilder,
+  customerId: string,
+  unitId: string,
+  address: BaseAddress,
+  defaults: { shipping: boolean; billing: boolean },
+) {
+  const addressKey = randomUUID();
+  const actions: BusinessUnitUpdateAction[] = [{
+    action: 'addAddress',
+    address: { ...address, key: addressKey },
+  }];
+  if (defaults.shipping) {
+    actions.push({ action: 'setDefaultShippingAddress', addressKey });
+  }
+  if (defaults.billing) {
+    actions.push({ action: 'setDefaultBillingAddress', addressKey });
+  }
+
+  return updateUnit(apiRoot, customerId, unitId, actions);
 }
 
 async function findCustomerByName(

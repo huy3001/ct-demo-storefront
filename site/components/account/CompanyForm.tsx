@@ -2,10 +2,14 @@
 
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'use-intl';
 import useSWR from 'swr';
 import { Link } from '@/i18n/routing';
 import Button from '@/components/ui/atoms/button';
 import Input from '@/components/ui/atoms/input';
+import Label from '@/components/ui/atoms/label';
+import MultiDropdown from '@/components/ui/atoms/multi-dropdown';
+import Skeleton from '@/components/ui/atoms/skeleton';
 import {
   ASSOCIATE_ROLES,
   type CompanyAssociate,
@@ -28,17 +32,27 @@ export default function CompanyForm({
   kind: FormKind;
   id?: string;
 }) {
+  const translate = useTranslations();
   const { data, error } = useSWR('/api/account/company', fetcher, {
     revalidateOnFocus: false,
   });
 
   if (error) return <p className="text-sm text-red-600">{error.message}</p>;
-  if (!data) return <p className="text-sm text-charcoal-light">Loading company information...</p>;
+  if (!data) return <Skeleton className="h-5 w-full" />;
 
   const associate = data.associates.find((item) => item.id === id);
   const businessUnit = data.businessUnits.find((item) => item.id === id);
-  if (id && ((kind === 'associate' && !associate) || (kind === 'business-unit' && !businessUnit))) {
-    return <p className="text-sm text-charcoal-light">The requested record could not be found.</p>;
+
+  if (
+    id &&
+    ((kind === 'associate' && !associate) ||
+      (kind === 'business-unit' && !businessUnit))
+  ) {
+    return (
+      <p className="text-sm text-charcoal-light">
+        {translate('account.record-not-found')}
+      </p>
+    );
   }
 
   return (
@@ -68,19 +82,23 @@ function CompanyFormFields({
 }) {
   const { locale } = useParams<{ locale: string }>();
   const router = useRouter();
+  const translate = useTranslations();
   const isAssociate = kind === 'associate';
   const isNew = !id;
   const record = kind === 'company' ? company : isAssociate ? associate : businessUnit;
   const [name, setName] = useState(record?.name ?? '');
-  const [email, setEmail] = useState(!isAssociate ? record?.email ?? '' : '');
+  const [email, setEmail] = useState(record?.email ?? '');
   const [roles, setRoles] = useState<string[]>(associate?.roles ?? []);
   const [status, setStatus] = useState<'idle' | 'saving' | 'error'>('idle');
   const [error, setError] = useState('');
   const title = `${isNew ? 'Add new' : 'Edit'} ${kind === 'company' ? 'company' : kind.replace('-', ' ')}`;
 
-  function onRolesChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    setRoles(Array.from(event.target.selectedOptions, (option) => option.value));
-  }
+  const roleButtonLabel =
+    roles.length === 0
+      ? translate('account.role')
+      : roles.length === 1
+        ? roles[0]
+        : translate('account.role-selected', { count: roles.length });
 
   async function onSubmit(event: React.FormEvent) {
     event.preventDefault();
@@ -94,63 +112,105 @@ function CompanyFormFields({
           resource: kind,
           ...(id ? { id } : {}),
           name,
-          ...(isAssociate ? { roles } : { email }),
+          email,
+          ...(isAssociate ? { roles } : {}),
         }),
       });
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
-        throw new Error(body.message ?? 'Unable to save changes');
+        throw new Error(
+          body.message ?? translate('account.unable-to-save-changes'),
+        );
       }
       router.push(`/${locale}/account/company`);
       router.refresh();
     } catch (reason) {
       setStatus('error');
-      setError(reason instanceof Error ? reason.message : 'Unable to save changes');
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : translate('account.unable-to-save-changes'),
+      );
     }
   }
 
   return (
     <div>
       <h1 className="mb-6 text-xl font-semibold">{title}</h1>
-      <form onSubmit={onSubmit} className="max-w-lg space-y-5 rounded-sm border border-border p-5">
+      <form
+        onSubmit={onSubmit}
+        className="max-w-lg space-y-6"
+      >
         <Input
-          label="Name"
+          label={translate('common.name')}
           name="name"
           required
           value={name}
           onChange={(event) => setName(event.target.value)}
         />
-        {isAssociate ? (
+
+        <Input
+          label={translate('common.email')}
+          name="email"
+          type="email"
+          required
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+        />
+
+        {isAssociate && (
           <div>
-            <label htmlFor="roles" className="mb-2 block text-sm font-medium">Role</label>
-            <select
-              id="roles"
-              multiple
+            <Label
+              htmlFor="roles"
               required
-              value={roles}
-              onChange={onRolesChange}
-              className="min-h-32 w-full rounded-sm border border-border bg-white px-3 py-2 text-sm"
             >
-              {ASSOCIATE_ROLES.map((role) => <option key={role} value={role}>{role}</option>)}
-            </select>
-            <p className="mt-1 text-xs text-charcoal-light">Hold Command or Control to select multiple roles.</p>
+              {translate('account.role')}
+            </Label>
+            <MultiDropdown
+              value={roles}
+              onChange={setRoles}
+              className="w-full"
+            >
+              <MultiDropdown.Button className="w-full">
+                {roleButtonLabel}
+              </MultiDropdown.Button>
+              <MultiDropdown.Options>
+                {ASSOCIATE_ROLES.map((role) => (
+                  <MultiDropdown.Option
+                    key={role}
+                    value={role}
+                  >
+                    {role}
+                  </MultiDropdown.Option>
+                ))}
+              </MultiDropdown.Options>
+            </MultiDropdown>
           </div>
-        ) : (
-          <Input
-            label="Email"
-            name="email"
-            type="email"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-          />
         )}
+
         <div className="flex gap-3">
-          <Link href="/account/company" locale={locale}>
-            <Button type="button" variant="secondary">Cancel</Button>
+          <Link
+            href="/account/company"
+            locale={locale}
+          >
+            <Button
+              type="button"
+              variant="secondary"
+            >
+              {translate('common.cancel')}
+            </Button>
           </Link>
-          <Button type="submit" loading={status === 'saving'}>Save</Button>
+
+          <Button
+            type="submit"
+            disabled={status === 'saving'}
+          >
+            {status === 'saving'
+              ? translate('account.saving')
+              : translate('common.save')}
+          </Button>
         </div>
+
         {status === 'error' && <p className="text-sm text-red-600">{error}</p>}
       </form>
     </div>
