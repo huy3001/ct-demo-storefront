@@ -191,6 +191,7 @@ export default function QuoteDetailPage() {
         <h2 className="mb-4 text-lg font-semibold">
           {translate('quotes.items-quoted', { count: quote.items.length })}
         </h2>
+        
         <Table>
           <Table.Container>
             <Table.Head>
@@ -212,10 +213,10 @@ export default function QuoteDetailPage() {
                       {item.imageUrl ? (
                         <Image
                           src={item.imageUrl}
-                          alt=""
+                          alt={item.name}
                           width={48}
                           height={48}
-                          className="size-12 rounded object-cover"
+                          className="size-12 rounded-sm object-cover"
                         />
                       ) : null}
                       <span>{item.name}</span>

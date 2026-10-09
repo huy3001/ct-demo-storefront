@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import { formatMoney } from '@/lib/utils';
 import Skeleton from '@/components/ui/atoms/skeleton';
+import Table from '@/components/ui/organisms/table';
 
 async function fetcher(url: string): Promise<Order> {
   const response = await fetch(url);
@@ -121,61 +122,110 @@ export default function OrderDetailPage() {
         </div>
       </div>
 
-      <section className="mt-10">
+      <section className="mt-8 pt-8 border-t border-border">
         <h2 className="text-lg font-semibold mb-4">
           {translate('product.products')}
         </h2>
-        <ul className="divide-y divide-border border-y border-border">
-          {order.lineItems.map((item) => (
-            <li
-              key={item.id}
-              className="flex gap-4 py-5"
-            >
-              {item.variant.images?.[0] && (
-                <Image
-                  src={item.variant.images[0].url}
-                  alt=""
-                  width={80}
-                  height={80}
-                  className="h-20 w-20 rounded object-cover"
-                />
-              )}
-              <div className="flex flex-col grow sm:flex-row gap-4">
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium">
-                    {localizedName(item.name, locale)}
-                  </p>
-                  {item.variant.sku && (
-                    <p className="mt-1 text-xs text-charcoal-light">
-                      SKU: {item.variant.sku}
-                    </p>
-                  )}
-                  <p className="mt-2 text-sm">
-                    {translate('product.quantity')}: {item.quantity}
-                  </p>
-                </div>
-                <p className="font-medium">
-                  {formatMoney(
-                    item.totalPrice.centAmount,
-                    item.totalPrice.currencyCode,
-                    locale,
-                  )}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
-        <p className="mt-4 text-right text-lg font-semibold">
-          {translate('orders.total')}:{' '}
-          {formatMoney(
-            order.totalPrice.centAmount,
-            order.totalPrice.currencyCode,
-            locale,
-          )}
-        </p>
+
+        <Table>
+          <Table.Container>
+            <Table.Head>
+              <Table.Row>
+                <Table.HeaderCell>
+                  {translate('quotes.product')}
+                </Table.HeaderCell>
+                <Table.HeaderCell>{translate('quotes.sku')}</Table.HeaderCell>
+                <Table.HeaderCell>{translate('quotes.qty')}</Table.HeaderCell>
+                <Table.HeaderCell>{translate('quotes.price')}</Table.HeaderCell>
+                <Table.HeaderCell>{translate('quotes.total')}</Table.HeaderCell>
+              </Table.Row>
+            </Table.Head>
+            <Table.Body>
+              {order.lineItems.map((item) => (
+                <Table.Row key={item.id}>
+                  <Table.Cell>
+                    <div className="flex items-center gap-3">
+                      {item.variant.images?.[0] && (
+                        <Image
+                          src={item.variant.images[0].url}
+                          alt={localizedName(item.name, locale)}
+                          width={48}
+                          height={48}
+                          className="size-12 rounded-sm object-cover"
+                        />
+                      )}
+                      <span>{localizedName(item.name, locale)}</span>
+                    </div>
+                  </Table.Cell>
+                  <Table.Cell cellHeading={translate('quotes.sku')}>
+                    <span>{item.variant.sku}</span>
+                  </Table.Cell>
+                  <Table.Cell cellHeading={translate('quotes.qty')}>
+                    <span>{item.quantity}</span>
+                  </Table.Cell>
+                  <Table.Cell cellHeading={translate('quotes.price')}>
+                    <span>
+                      {formatMoney(
+                        item.totalPrice.centAmount,
+                        item.totalPrice.currencyCode,
+                        locale,
+                      )}
+                    </span>
+                  </Table.Cell>
+                  <Table.Cell cellHeading={translate('quotes.total')}>
+                    <span>
+                      {formatMoney(
+                        item.totalPrice.centAmount,
+                        item.totalPrice.currencyCode,
+                        locale,
+                      )}
+                    </span>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table.Container>
+        </Table>
+
+        <dl className="border-t border-border w-full pt-4 grid grid-cols-2 gap-y-3 text-sm lg:border-t-0 lg:max-w-sm lg:ml-auto lg:mt-6 lg:pt-0">
+          <dt className="text-charcoal-light">
+            {translate('quotes.subtotal')}
+          </dt>
+          <dd className="text-right">
+            {formatMoney(
+              order?.taxedPrice?.totalNet?.centAmount ?? 0,
+              order?.taxedPrice?.totalNet?.currencyCode ?? 'USD',
+              locale,
+            )}
+          </dd>
+          {/* <dt className="text-charcoal-light">
+            {translate('quotes.discount')}
+          </dt>
+          <dd className="text-right">
+            {formatMoney(order.discountCentAmount, order.currencyCode, locale)}
+          </dd> */}
+          <dt className="text-charcoal-light">{translate('quotes.tax')}</dt>
+          <dd className="text-right">
+            {formatMoney(
+              order?.taxedPrice?.totalTax?.centAmount ?? 0,
+              order?.taxedPrice?.totalTax?.currencyCode ?? 'USD',
+              locale,
+            )}
+          </dd>
+          <dt className="font-semibold text-base">
+            {translate('quotes.total')}
+          </dt>
+          <dd className="text-right font-semibold text-base">
+            {formatMoney(
+              order?.taxedPrice?.totalGross?.centAmount ?? 0,
+              order?.taxedPrice?.totalGross?.currencyCode ?? 'USD',
+              locale,
+            )}
+          </dd>
+        </dl>
       </section>
 
-      <section className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-10">
+      <section className="mt-8 pt-8 border-t border-border grid gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:gap-10">
         <div>
           <h2 className="text-lg font-semibold mb-3">
             {translate('checkout.shippingAddress')}

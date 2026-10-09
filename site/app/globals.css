@@ -66,27 +66,19 @@ table tbody tr:last-child td {
   @apply border-b-0;
 }
 
-/* form {
-  .form-field {
-    &:has(:required) {
-      label {
-        &::after {
-          content: '*';
-          color: var(--color-terra);
-          margin-left: 0.25rem;
-        }
-      }
-    }
-  }
-} */
+@utility button-style {
+  @apply bg-charcoal! text-white! text-sm! font-medium! normal-case! leading-4! px-6! py-3! rounded-sm! min-h-min!;
+}
 
 .commercetools-checkout-embedded {
   [data-testid="checkout"] {
     background: none;
 
     > div {
+      @apply lg:max-w-full;
+
       > div {
-        background: none;
+        @apply bg-transparent;
       }
     }
   }
@@ -97,16 +89,55 @@ table tbody tr:last-child td {
       > div {
         &:not(:has(input[value=""])) {
           label {
-            background: var(--background) !important;
+            @apply bg-(--background)!;
           }
         }
       }
-      
+
       div {
+        > input {
+          @apply border! border-gray-300! h-10 text-charcoal text-sm! px-3! py-2.5! rounded-sm! focus:outline-none! focus:border-gray-400!;
+
+          &[aria-invalid="true"] {
+            @apply border-red-500!;
+          }
+        }
+
+        > select {
+          @apply border! border-gray-300! h-10 text-charcoal text-sm! pl-3! py-2.5! rounded-sm! focus:outline-none! focus:border-gray-400!;
+        }
+
         &:focus-within,
         &:is([class*="_containValue_"]) {
           > label {
-            background: var(--background) !important;
+            @apply bg-(--background)!;
+
+          }
+        }
+      }
+    }
+
+    label {
+      @apply font-medium text-gray-600! text-sm! top-2.5!;
+    }
+
+    input {
+      &[type="checkbox"] {
+        &:checked {
+          & + span {
+            span {
+              @apply bg-terra!;
+            }
+          }
+        }
+      }
+
+      &[type="radio"] {
+        &:checked {
+          & + span {
+            &::before {
+              @apply border-terra!;
+            }
           }
         }
       }
@@ -116,6 +147,34 @@ table tbody tr:last-child td {
       background: none;
       margin-left: 2rem;
       padding-left: 0;
+    }
+  }
+
+  button {
+    &[type="button"] {
+      @apply text-terra! decoration-terra! text-sm! font-medium! normal-case!;
+
+      &[name="continue"] {
+        @apply button-style;
+      }
+
+      img {
+        @apply hidden!;
+      }
+    }
+
+    &[type="submit"] {
+      @apply button-style;
+    }
+
+    &[aria-describedby="a11yButtonDescription"] {
+      @apply button-style;
+    }
+  }
+
+  [data-testid="seller-agreements"] {
+    & + button[type="button"] {
+      @apply button-style;
     }
   }
 }
