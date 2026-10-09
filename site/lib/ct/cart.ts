@@ -141,6 +141,24 @@ export async function setCheckoutAddresses(
   return body;
 }
 
+export async function setCartShippingMethod(
+  apiRoot: ByProjectKeyRequestBuilder,
+  cart: Cart,
+  shippingMethodId: string,
+): Promise<Cart> {
+  const { body } = await apiRoot
+    .carts()
+    .withId({ ID: cart.id })
+    .post({
+      body: {
+        version: cart.version,
+        actions: [{ action: 'setShippingMethod', shippingMethod: { typeId: 'shipping-method', id: shippingMethodId } }],
+      },
+    })
+    .execute();
+  return body;
+}
+
 export async function changeLineItemQuantity(
   apiRoot: ByProjectKeyRequestBuilder,
   cart: Cart,

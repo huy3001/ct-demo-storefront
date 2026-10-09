@@ -109,11 +109,10 @@ const DiscountForm: React.FC<Props> = ({
               </div>
 
               <Button
-                className="py-2.5!"
                 type="submit"
                 disabled={isSubmitting}
               >
-                Apply
+                {translate('cart.cart-apply')}
               </Button>
             </div>
 

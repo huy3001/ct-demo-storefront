@@ -1,11 +1,13 @@
 import type {
   ByProjectKeyRequestBuilder,
+  Cart,
   CustomLineItem,
   Customer,
   LineItem,
   Order,
   Quote as CtQuote,
   QuoteRequest,
+  QuoteRequestDraft,
   TaxRate,
 } from '@commercetools/platform-sdk';
 import type { Quote, QuoteLineItem, QuoteStatus } from '@/types/quote';
@@ -46,6 +48,31 @@ async function getBusinessUnitKeys(
     .get({ queryArgs: { limit: QUERY_LIMIT } })
     .execute();
   return [...new Set(body.results.map(({ key }) => key))];
+}
+
+export async function createCustomerQuoteRequest(
+  apiRoot: ByProjectKeyRequestBuilder,
+  customerId: string,
+  cart: Cart,
+  purchaseOrderNumber: string,
+): Promise<QuoteRequest> {
+  const businessUnitKeys = await getBusinessUnitKeys(apiRoot, customerId);
+  const businessUnitKey = cart.businessUnit?.key ?? businessUnitKeys[0];
+  if (!businessUnitKey || !businessUnitKeys.includes(businessUnitKey)) {
+    throw new Error('The customer must belong to a business unit to request a quote.');
+  }
+
+  const body: QuoteRequestDraft = {
+    cart: { typeId: 'cart', id: cart.id },
+    cartVersion: cart.version,
+    purchaseOrderNumber,
+  };
+  const { body: quoteRequest } = await businessUnitApi(
+    apiRoot,
+    customerId,
+    businessUnitKey,
+  ).quoteRequests().post({ body }).execute();
+  return quoteRequest;
 }
 
 async function resolveCustomerId(
@@ -388,6 +415,36 @@ function mapQuoteRequest(
       request.purchaseOrderNumber ??
       '',
     owner: displayName || request.customer.id,
+    customerEmail: customer.email,
+    deliveryAddress: request.shippingAddress
+      ? {
+          firstName: request.shippingAddress.firstName,
+          lastName: request.shippingAddress.lastName,
+          company: request.shippingAddress.company,
+          streetName: request.shippingAddress.streetName,
+          streetNumber: request.shippingAddress.streetNumber,
+          additionalStreetInfo: request.shippingAddress.additionalStreetInfo,
+          postalCode: request.shippingAddress.postalCode,
+          city: request.shippingAddress.city,
+          state: request.shippingAddress.state,
+          country: request.shippingAddress.country,
+        }
+      : undefined,
+    billingAddress: request.billingAddress
+      ? {
+          firstName: request.billingAddress.firstName,
+          lastName: request.billingAddress.lastName,
+          company: request.billingAddress.company,
+          streetName: request.billingAddress.streetName,
+          streetNumber: request.billingAddress.streetNumber,
+          additionalStreetInfo: request.billingAddress.additionalStreetInfo,
+          postalCode: request.billingAddress.postalCode,
+          city: request.billingAddress.city,
+          state: request.billingAddress.state,
+          country: request.billingAddress.country,
+        }
+      : undefined,
+    shippingMethodName: request.shippingInfo?.shippingMethodName,
     activity,
     items: [
       ...lineItems.map((item) => mapLineItem(item, locale, currencyCode)),

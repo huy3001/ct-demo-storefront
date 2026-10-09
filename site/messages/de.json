@@ -174,6 +174,7 @@
     "cart-shopping": "Einkaufswagen",
     "cart-shopping-items": "Artikel in Ihrem Warenkorb",
     "cart-start-shopping": "Beginn mit dem Einkauf",
+    "cart-update-error": "Ihr warenkorb konnte nicht aktualisiert werden.",
     "checkout": "Kasse",
     "checkout-go": "Zum Checkout gehen",
     "codeAdded": "Rabattcode hinzugefügt",
@@ -229,7 +230,8 @@
     "totalSum": "Gesamtsumme",
     "voucher-max-usage-plural": "Diese Rabattcodes können nicht mehr eingelöst werden, da die maximale Anzahl erreicht wurde. {codes}",
     "voucher-max-usage-singular": "Dieser Rabattcode kann nicht mehr eingelöst werden, da die maximale Einlösbarkeit erreicht ist. {codes}",
-    "we-accept": "Wir akzeptieren"
+    "we-accept": "Wir akzeptieren",
+    "your-cart": "Ihr rarenkorb"
   },
   "checkout": {
     "add-address": "Fügen Sie eine weitere Adresszeile hinzu",
@@ -638,6 +640,7 @@
   },
   "quotes": {
     "all-quotes": "Alle Angebote",
+    "request-quote": "Angebot anfordern",
     "quote-requests": "Angebotsanfragen",
     "search-label": "Angebot suchen",
     "search-placeholder": "Nach ID suchen...",

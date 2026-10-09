@@ -31,6 +31,19 @@ export type QuoteActivityItem = {
   label: string;
 };
 
+export type QuoteAddress = {
+  firstName?: string;
+  lastName?: string;
+  company?: string;
+  streetName?: string;
+  streetNumber?: string;
+  additionalStreetInfo?: string;
+  postalCode?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+};
+
 export type Quote = {
   id: string;
   status: QuoteStatus;
@@ -44,6 +57,10 @@ export type Quote = {
   currencyCode: string;
   poNumber: string;
   owner: string;
+  customerEmail?: string;
+  deliveryAddress?: QuoteAddress;
+  billingAddress?: QuoteAddress;
+  shippingMethodName?: string;
   activity: QuoteActivityItem[];
   items: QuoteLineItem[];
 };
@@ -67,6 +84,12 @@ export function isQuote(value: unknown): value is Quote {
     typeof value.currencyCode === 'string' &&
     typeof value.poNumber === 'string' &&
     typeof value.owner === 'string' &&
+    (value.customerEmail === undefined ||
+      typeof value.customerEmail === 'string') &&
+    (value.deliveryAddress === undefined || isRecord(value.deliveryAddress)) &&
+    (value.billingAddress === undefined || isRecord(value.billingAddress)) &&
+    (value.shippingMethodName === undefined ||
+      typeof value.shippingMethodName === 'string') &&
     Array.isArray(value.activity) &&
     value.activity.every(
       (item: unknown) =>
