@@ -9,6 +9,7 @@ const Label = ({
   optionalLabel,
   requiredStyle = 'asterisk',
   htmlFor,
+  className,
 }: React.PropsWithChildren<LabelProps>) => {
   const translate = useTranslations();
 
@@ -21,7 +22,7 @@ const Label = ({
           aria-label={htmlFor}
           data-testid="label"
           htmlFor={htmlFor}
-          className="flex items-center gap-1 text-sm font-medium"
+          className={`flex items-center gap-1 text-sm font-medium ${className ?? ''}`}
         >
           <span className="text-gray-600">{children}</span>
           {!required && showOptionalLabel && (

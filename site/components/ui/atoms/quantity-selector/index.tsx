@@ -17,7 +17,7 @@ const QuantitySelector = ({
   const className = useClassNames([
     'flex w-fit items-center gap-3 rounded-sm border border-border transition hover:border-charcoal',
     disabled
-      ? 'cursor-not-allowed bg-neutral-200 text-gray-400'
+      ? 'cursor-not-allowed bg-neutral-300 text-gray-400'
       : 'cursor-pointer bg-white text-charcoal',
     classNameProp,
   ]);

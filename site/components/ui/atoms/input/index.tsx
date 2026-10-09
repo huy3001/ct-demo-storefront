@@ -74,7 +74,7 @@ const Input: FC<InputProps> = ({
   ]);
 
   const inputClassName = useClassNames([
-    'h-10 focus:border-gray-400 focus:ring-0 w-full rounded-sm border border-gray-300 px-3 text-charcoal text-sm placeholder:text-sm placeholder:leading-normal placeholder:text-gray-600 focus:outline-none disabled:cursor-not-allowed disabled:bg-neutral-400',
+    'h-10 focus:border-gray-400 focus:ring-0 w-full rounded-sm border border-gray-300 px-3 text-charcoal text-sm placeholder:text-sm placeholder:leading-normal placeholder:text-gray-600 focus:outline-none disabled:cursor-not-allowed disabled:bg-neutral-300',
     bgClassName,
     isFocused && label && labelPosition == 'inline' ? 'pt-5 pb-1' : 'py-2.5',
     {

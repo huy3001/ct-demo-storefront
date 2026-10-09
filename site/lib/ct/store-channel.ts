@@ -17,7 +17,7 @@ export async function getStorePriceChannel(
     .execute();
   
   const defaultStore = body.results.find(
-    (store) => store.key === 'default-store',
+    (store) => store.key === 'us-medium-customers',
   );
 
   const selectedStore =

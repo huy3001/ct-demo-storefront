@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import toast from 'react-hot-toast';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { useCart } from '@/hooks/useCart';
 import { formatMoney } from '@/lib/utils';
@@ -26,6 +27,7 @@ export default function AddToCartForm({
   const [selectedVariant, setSelectedVariant] = useState<Variant | undefined>(
     undefined,
   );
+
   const colorVariants = useMemo(
     () =>
       product.variants
@@ -48,10 +50,15 @@ export default function AddToCartForm({
     if (!matchingVariant || isUnavailable) return;
     setStatus('loading');
     try {
-      await addItem(product.id, matchingVariant.id, quantity);
+      await addItem(product.id, matchingVariant.id, quantity).then(() => {
+        toast.success(`${product.name} added to cart`);
+      });
       setStatus('idle');
-    } catch {
+    } catch (error) {
       setStatus('error');
+      toast.error(
+        error instanceof Error ? error.message : 'Failed to add item to cart',
+      );
     }
   }
 

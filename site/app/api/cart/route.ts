@@ -17,15 +17,52 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const { productId, variantId, quantity, locale } = (await req.json()) as {
-      productId: string;
-      variantId: number;
+    const { productId: requestedProductId, variantId: requestedVariantId, sku, quantity, locale } = (await req.json()) as {
+      productId?: string;
+      variantId?: number;
+      sku?: string;
       quantity?: number;
       locale?: string;
     };
 
+    if (quantity !== undefined && (!Number.isSafeInteger(quantity) || quantity < 1)) {
+      return NextResponse.json({ message: 'Quantity must be a positive whole number.' }, { status: 400 });
+    }
+
     const selectedLocale = locale ?? localeFromRequest(req);
     const { apiRoot, session } = await getSessionApiRoot();
+    let productId = requestedProductId;
+    let variantId = requestedVariantId;
+
+    if (sku?.trim()) {
+      const selectedSku = sku.trim();
+      const escapedSku = selectedSku.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
+      const { body: projections } = await apiRoot.productProjections().get({
+        queryArgs: {
+          where: `masterVariant(sku="${escapedSku}") or variants(sku="${escapedSku}")`,
+          limit: 10,
+        },
+      }).execute();
+      const matchedProduct = projections.results
+        .map((projection) => ({
+          productId: projection.id,
+          variant: [projection.masterVariant, ...(projection.variants ?? [])]
+            .find((candidate) => candidate.sku === selectedSku),
+        }))
+        .find((product) => product.variant);
+
+      if (!matchedProduct?.variant) {
+        return NextResponse.json({ message: `No product found for SKU "${selectedSku}".` }, { status: 404 });
+      }
+
+      productId = matchedProduct.productId;
+      variantId = matchedProduct.variant.id;
+    }
+
+    if (!productId || typeof variantId !== 'number' || !Number.isSafeInteger(variantId)) {
+      return NextResponse.json({ message: 'A valid product and variant are required.' }, { status: 400 });
+    }
+
     const [cartResult, distributionChannelId] = await Promise.all([
       getOrCreateCart(apiRoot, session, selectedLocale),
       getStorePriceChannel(apiRoot, selectedLocale),

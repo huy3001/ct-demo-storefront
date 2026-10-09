@@ -20,15 +20,28 @@ export function useCart() {
     revalidateOnFocus: false,
   });
 
-  async function addItem(productId: string, variantId: number, quantity = 1) {
+  async function addItemRequest(item: {
+    productId?: string;
+    variantId?: number;
+    sku?: string;
+    quantity?: number;
+  }) {
     const response = await fetch('/api/cart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productId, variantId, quantity, locale }),
+      body: JSON.stringify({ ...item, locale }),
     });
     const updated = await readJson<Cart>(response);
     await mutate(updated, { revalidate: false });
     return updated as Cart;
+  }
+
+  async function addItem(productId: string, variantId: number, quantity = 1) {
+    return addItemRequest({ productId, variantId, quantity });
+  }
+
+  async function addItemBySku(sku: string, quantity = 1) {
+    return addItemRequest({ sku, quantity });
   }
 
   async function changeQuantity(lineItemId: string, quantity: number) {
@@ -93,6 +106,7 @@ export function useCart() {
     isLoading,
     error,
     addItem,
+    addItemBySku,
     changeQuantity,
     removeItem,
     clearCart,

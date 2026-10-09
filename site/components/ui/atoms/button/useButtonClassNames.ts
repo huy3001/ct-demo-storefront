@@ -38,7 +38,7 @@ const useButtonClassNames: UseButtonClassNames = ({
     'hover:bg-cream-dark hover:shadow-bottom',
     'active:outline-2 active:shadow-button active:disabled:shadow-none active:outline-1 active:outline-gray-300 active:outline-offset-0',
     'focus-visible:outline focus-visible:border-white-100 focus-visible:border focus-visible:outline-offset-[3px]',
-    'disabled:text-gray-400 disabled:pointer-events-none',
+    'disabled:border-neutral-300 disabled:text-gray-400 disabled:pointer-events-none',
   ]);
 
   const warningClassName = useClassNames([
@@ -66,8 +66,11 @@ const useButtonClassNames: UseButtonClassNames = ({
     { 'rounded-sm': variant !== 'ghost' },
     { 'flex gap-2 items-center': includesIcon },
     { 'cursor-not-allowed': !!loading },
-    'relative text-sm transition overflow-hidden font-medium leading-4',
-    asSkeleton ? 'relative' : (variantClassNames[variant as ButtonVariant] as string),
+    'relative text-sm transition overflow-hidden font-medium',
+    variant === 'secondary' ? 'leading-3.5' : 'leading-4',
+    asSkeleton
+      ? 'relative'
+      : (variantClassNames[variant as ButtonVariant] as string),
     className,
   ]);
 };

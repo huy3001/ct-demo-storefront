@@ -11,7 +11,7 @@ const ShippingAndLanguageSectionMobile = () => {
   const languageButtonRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="block border-t py-4 lg:hidden">
+    <div className="block border-t border-neutral-400 py-4 lg:hidden">
       <ShippingSelect />
 
       <div

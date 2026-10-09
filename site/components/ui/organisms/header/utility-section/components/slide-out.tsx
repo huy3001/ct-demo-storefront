@@ -117,7 +117,7 @@ const Slideout: React.FC<SlideOutProps> = ({
 
   return (
     <>
-      <div className="flex items-center justify-between border-b border-neutral-400 py-6 pb-5.5 pl-3 pr-2 md:pl-5.5 md:pr-4.5">
+      <div className="flex items-center justify-between border-b border-neutral-400 py-6 pb-5.5 px-4 md:px-5">
         <h3 className="text-lg font-medium leading-normal md:text-xl">
           {title}
         </h3>

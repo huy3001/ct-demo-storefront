@@ -6,4 +6,5 @@ export interface LabelProps {
   showOptionalLabel?: boolean;
   optionalLabel?: ReactNode | string;
   htmlFor?: string;
+  className?: string;
 }

@@ -8,6 +8,7 @@ import { Reference } from '@/types/reference';
 import MobileMenu from './content/mobile-menu';
 import MobileMenuFooter from './content/mobile-menu-footer';
 import MobileMenuHeader from './content/mobile-menu-header';
+import QuickOrder from '@/components/ui/organisms/header/quick-order';
 import type { Category } from '@/lib/types';
 
 export interface Props {
@@ -72,8 +73,19 @@ const HeaderNavigationMobile: FC<Props> = ({ links, logo, logoLink }) => {
         />
 
         {categoriesNavigator.length <= 0 && (
-          <MobileMenuFooter showMenu={showMenu} hideHeaderMenu={hideHeaderMenu} insertCategory={insertCategory} />
+          <MobileMenuFooter
+            showMenu={showMenu}
+            hideHeaderMenu={hideHeaderMenu}
+            insertCategory={insertCategory}
+          />
         )}
+
+        <div className="border-t border-neutral-400 mx-4 px-2 py-4">
+          <QuickOrder
+            triggerClassName="text-left text-base! font-normal!"
+            triggerSize="full"
+          />
+        </div>
       </Drawer>
     </div>
   );

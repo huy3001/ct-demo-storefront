@@ -52,9 +52,11 @@ const CartItem: React.FC<CartItemProps> = ({
 
       setProcessing(true);
 
-      await (quantity < 1
-        ? removeItem(item.id)
-        : changeQuantity(item.id, quantity));
+      await (
+        quantity < 1 ? removeItem(item.id) : changeQuantity(item.id, quantity)
+      ).then(() => {
+        toast.success('Item updated in cart');
+      });
 
       setProcessing(false);
     },

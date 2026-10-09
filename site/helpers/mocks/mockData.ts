@@ -1370,3 +1370,13 @@ export const notFoundImage = {
     height: 1352,
   },
 };
+
+export const uploadImage = {
+  media: {
+    file: 'https://poc-b2bdev.frontend.site/sb-assets/upload.svg',
+    mediaId: 'upload-svg',
+    name: 'Upload Image',
+    width: 42,
+    height: 37,
+  },
+};

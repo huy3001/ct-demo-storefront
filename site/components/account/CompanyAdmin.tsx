@@ -49,7 +49,6 @@ function SearchToolbar({
           placeholder={`${translate('common.search')}...`}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="h-10 w-full rounded-sm border border-border px-3 text-sm sm:max-w-sm"
         />
         {value ? (
           <button

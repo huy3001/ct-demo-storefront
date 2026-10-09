@@ -54,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({
           target={{ type: 'link', link: '/category/all' }}
         />
 
-        <div className="relative h-fit w-full border-b-[1.5px] border-neutral-400 bg-white">
+        <div className="relative h-fit w-full border-b border-neutral-400 bg-white">
           <div
             aria-label="Top"
             className="flex w-full items-center justify-between mx-auto max-w-7xl px-4"
