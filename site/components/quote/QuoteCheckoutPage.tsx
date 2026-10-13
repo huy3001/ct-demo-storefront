@@ -1,11 +1,19 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { BaseAddress, Cart } from '@commercetools/platform-sdk';
-import Image from 'next/image';
 import { useParams } from 'next/navigation';
+import { useTranslations } from 'use-intl';
 import { Link, useRouter } from '@/i18n/routing';
-import { COUNTRY_CONFIG, formatMoney, getLocalizedString } from '@/lib/utils';
+import { COUNTRY_CONFIG, formatMoney } from '@/lib/utils';
+import Button from '@/components/ui/atoms/button';
+import Checkbox from '@/components/ui/atoms/checkbox';
+import Dropdown from '@/components/ui/atoms/dropdown';
+import Input from '@/components/ui/atoms/input';
+import Radio from '@/components/ui/atoms/radio';
+import Skeleton from '@/components/ui/atoms/skeleton';
+import SummaryAccordion from '@/components/ui/organisms/order-summary/components/summary-accordion';
+import useCostsData from '@/components/ui/organisms/order-payment-section/hooks/useCostsData';
 
 type Address = BaseAddress & { id?: string };
 type Customer = {
@@ -102,11 +110,11 @@ function toAddress(address: AddressFields): BaseAddress {
 function isValidAddress(address: AddressFields): boolean {
   return Boolean(
     address.firstName.trim() &&
-      address.lastName.trim() &&
-      address.streetName.trim() &&
-      address.city.trim() &&
-      address.postalCode.trim() &&
-      /^[A-Za-z]{2}$/.test(address.country.trim()),
+    address.lastName.trim() &&
+    address.streetName.trim() &&
+    address.city.trim() &&
+    address.postalCode.trim() &&
+    /^[A-Za-z]{2}$/.test(address.country.trim()),
   );
 }
 
@@ -136,6 +144,7 @@ function AddressFieldsForm({
   customer: Customer;
   onChange: (value: AddressFields) => void;
 }) {
+  const translate = useTranslations();
   const fields: Array<{
     key: keyof AddressFields;
     label: string;
@@ -156,14 +165,19 @@ function AddressFieldsForm({
     { key: 'email', label: 'Email' },
   ];
 
+  const addressDropdownItems = addresses.map((address) => ({
+    label: addressLabel(address),
+    value: address.id ?? '',
+  }));
+
   return (
     <section className="mt-6">
-      <div className="mb-3 flex items-center justify-between gap-4">
+      <div className="mb-6 flex items-center justify-between gap-4">
         <h3 className="text-sm font-semibold uppercase">{title}</h3>
         {addresses.length > 0 && (
-          <select
+          <Dropdown
             aria-label={`Select saved ${title.toLowerCase()}`}
-            className="max-w-[65%] rounded-sm border border-border bg-white px-3 py-2 text-sm"
+            containerClassName="min-w-md max-w-2/3"
             value=""
             onChange={(event) => {
               const selected = addresses.find(
@@ -171,37 +185,32 @@ function AddressFieldsForm({
               );
               if (selected) onChange(addressFields(selected, customer));
             }}
-          >
-            <option value="">Select a saved address</option>
-            {addresses.map((address, index) => (
-              <option key={address.id ?? index} value={address.id ?? ''}>
-                {addressLabel(address)}
-              </option>
-            ))}
-          </select>
+            items={[
+              {
+                label: translate('checkout.select-an-address'),
+                value: '',
+              },
+              ...addressDropdownItems,
+            ]}
+          />
         )}
       </div>
+
       <div className="grid gap-4 sm:grid-cols-2">
-        {fields.map(({ key, label, required, wide }) => (
-          <label
+        {fields.map(({ key, label, required }) => (
+          <Input
             key={key}
-            className={`block text-sm ${wide ? 'sm:col-span-2' : ''}`}
-          >
-            <span>
-              {label}
-              {required ? ' *' : ''}
-            </span>
-            <input
-              autoComplete="off"
-              required={required}
-              maxLength={key === 'country' ? 2 : undefined}
-              value={value[key]}
-              onChange={(event) =>
-                onChange({ ...value, [key]: event.target.value })
-              }
-              className="mt-1 w-full rounded-sm border border-border bg-white px-3 py-2 text-sm"
-            />
-          </label>
+            label={label}
+            name={key}
+            placeholder={label}
+            autoComplete="off"
+            required={required}
+            maxLength={key === 'country' ? 2 : undefined}
+            value={value[key]}
+            onChange={(event) =>
+              onChange({ ...value, [key]: event.target.value })
+            }
+          />
         ))}
       </div>
     </section>
@@ -221,8 +230,10 @@ function StepHeading({
   complete: boolean;
   onEdit: () => void;
 }) {
+  const translate = useTranslations();
+
   return (
-    <div className="mb-5 flex items-center justify-between gap-3">
+    <div className="flex items-center justify-between gap-3">
       <div className="flex items-center gap-3">
         <span
           className={`flex size-7 items-center justify-center rounded-full text-sm font-semibold ${
@@ -237,14 +248,15 @@ function StepHeading({
         </span>
         <h2 className="font-semibold">{label}</h2>
       </div>
+
       {complete && !active && (
-        <button
-          type="button"
+        <Button
+          variant="underlined"
           onClick={onEdit}
-          className="text-sm underline"
+          className="text-terra! p-0!"
         >
-          Edit
-        </button>
+          {translate('common.edit')}
+        </Button>
       )}
     </div>
   );
@@ -253,13 +265,12 @@ function StepHeading({
 export default function QuoteCheckoutPage() {
   const { locale } = useParams<{ locale: string }>();
   const router = useRouter();
+  const translate = useTranslations();
   const [data, setData] = useState<QuoteCheckoutData | null>(null);
-  const [shippingAddress, setShippingAddress] = useState<AddressFields>(
-    emptyAddress(),
-  );
-  const [billingAddress, setBillingAddress] = useState<AddressFields>(
-    emptyAddress(),
-  );
+  const [shippingAddress, setShippingAddress] =
+    useState<AddressFields>(emptyAddress());
+  const [billingAddress, setBillingAddress] =
+    useState<AddressFields>(emptyAddress());
   const [sameBilling, setSameBilling] = useState(false);
   const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
   const [selectedMethodId, setSelectedMethodId] = useState('');
@@ -283,7 +294,9 @@ export default function QuoteCheckoutPage() {
           | { message?: string };
         if (!response.ok || !('cart' in body)) {
           throw new Error(
-            'message' in body ? body.message : 'Unable to load quote checkout.',
+            'message' in body
+              ? body.message
+              : translate('quotes.failed-to-load-quote'),
           );
         }
         const cart = body.cart;
@@ -315,16 +328,17 @@ export default function QuoteCheckoutPage() {
           setError(
             loadError instanceof Error
               ? loadError.message
-              : 'Unable to load quote checkout.',
+              : translate('quotes.failed-to-load-quote'),
           );
         }
       }
     }
     void load();
     return () => controller.abort();
-  }, [locale]);
+  }, [locale, translate]);
 
-  const total = data?.cart.totalPrice;
+  const { costsToRender, total } = useCostsData({ dataReference: 'cart', order: data?.cart });
+  
   const canSubmit =
     addressesComplete &&
     deliveryComplete &&
@@ -363,10 +377,16 @@ export default function QuoteCheckoutPage() {
         | { message?: string };
       if (!response.ok || !('cart' in body)) {
         throw new Error(
-          'message' in body ? body.message : 'Unable to save addresses.',
+          'message' in body
+            ? body.message
+            : translate('quotes.failed-to-save-addresses'),
         );
       }
-      setData({ ...data, cart: body.cart, shippingMethods: body.shippingMethods });
+      setData({
+        ...data,
+        cart: body.cart,
+        shippingMethods: body.shippingMethods,
+      });
       setShippingMethods(body.shippingMethods);
       setBillingAddress(billing);
       setAddressesComplete(true);
@@ -375,7 +395,9 @@ export default function QuoteCheckoutPage() {
       setStep(2);
     } catch (saveError) {
       setError(
-        saveError instanceof Error ? saveError.message : 'Unable to save addresses.',
+        saveError instanceof Error
+          ? saveError.message
+          : translate('quotes.failed-to-save-addresses'),
       );
     } finally {
       setBusy(false);
@@ -393,7 +415,9 @@ export default function QuoteCheckoutPage() {
         body: JSON.stringify({
           locale,
           shippingAddress: toAddress(shippingAddress),
-          billingAddress: toAddress(sameBilling ? shippingAddress : billingAddress),
+          billingAddress: toAddress(
+            sameBilling ? shippingAddress : billingAddress,
+          ),
           shippingMethodId: selectedMethodId,
         }),
       });
@@ -402,10 +426,16 @@ export default function QuoteCheckoutPage() {
         | { message?: string };
       if (!response.ok || !('cart' in body)) {
         throw new Error(
-          'message' in body ? body.message : 'Unable to save delivery method.',
+          'message' in body
+            ? body.message
+            : translate('quotes.failed-to-save-delivery-method'),
         );
       }
-      setData({ ...data, cart: body.cart, shippingMethods: body.shippingMethods });
+      setData({
+        ...data,
+        cart: body.cart,
+        shippingMethods: body.shippingMethods,
+      });
       setShippingMethods(body.shippingMethods);
       setDeliveryComplete(true);
       setStep(3);
@@ -413,7 +443,7 @@ export default function QuoteCheckoutPage() {
       setError(
         saveError instanceof Error
           ? saveError.message
-          : 'Unable to save delivery method.',
+          : translate('quotes.failed-to-save-delivery-method'),
       );
     } finally {
       setBusy(false);
@@ -435,60 +465,77 @@ export default function QuoteCheckoutPage() {
         | { message?: string };
       if (!response.ok || !('quoteRequestId' in body)) {
         throw new Error(
-          'message' in body ? body.message : 'Unable to submit quote request.',
+          'message' in body
+            ? body.message
+            : translate('quotes.failed-to-submit-quote-request'),
         );
       }
-      router.push(`/quote-submitted?quoteRequestId=${encodeURIComponent(body.quoteRequestId)}`);
+      router.push(
+        `/quote-submitted?quoteRequestId=${encodeURIComponent(body.quoteRequestId)}`,
+      );
     } catch (submitError) {
       setError(
         submitError instanceof Error
           ? submitError.message
-          : 'Unable to submit quote request.',
+          : translate('quotes.failed-to-submit-quote-request'),
       );
       setBusy(false);
     }
   }
 
   const billing = sameBilling ? shippingAddress : billingAddress;
-  const currentMethod = shippingMethods.find(({ id }) => id === selectedMethodId);
+  const currentMethod = shippingMethods.find(
+    ({ id }) => id === selectedMethodId,
+  );
   const addressText = (address: AddressFields) =>
     [
       [address.firstName, address.lastName].filter(Boolean).join(' '),
       address.company,
       [address.streetNumber, address.streetName].filter(Boolean).join(' '),
       address.additionalStreetInfo,
-      [address.city, address.state, address.postalCode].filter(Boolean).join(', '),
+      [address.city, address.state, address.postalCode]
+        .filter(Boolean)
+        .join(', '),
       address.country,
     ]
       .filter(Boolean)
       .join(', ');
 
-  const lineItems = useMemo(() => data?.cart.lineItems ?? [], [data?.cart.lineItems]);
-
   if (!data && !error) {
     return (
-      <main className="mx-auto max-w-7xl px-4 py-16 text-center text-charcoal-light">
-        Loading quote checkout…
+      <main className="mx-auto max-w-7xl px-4 py-12">
+        <Skeleton className="h-5 w-full" />
       </main>
     );
   }
 
   if (error && !data) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-16 text-center">
-        <p role="alert" className="text-sm text-red-700">{error}</p>
-        {error.toLowerCase().includes('sign in') && (
+      <main className="mx-auto max-w-7xl px-4 py-12 text-center">
+        <p
+          role="alert"
+          className="text-sm text-red-700"
+        >
+          {error}
+        </p>
+        <div className="mt-6 flex items-center justify-center gap-3">
           <Link
-            href="/login"
+            href="/cart"
             locale={locale}
-            className="mt-5 inline-block rounded-sm bg-charcoal px-6 py-3 text-sm text-white"
           >
-            Sign in
+            <Button variant="secondary">
+              {translate('quotes.return-to-cart')}
+            </Button>
           </Link>
-        )}
-        <Link href="/cart" locale={locale} className="mt-5 inline-block underline">
-          Return to cart
-        </Link>
+          {error.toLowerCase().includes('sign in') && (
+            <Link
+              href="/login"
+              locale={locale}
+            >
+              <Button>{translate('account.sign-in')}</Button>
+            </Link>
+          )}
+        </div>
       </main>
     );
   }
@@ -496,23 +543,30 @@ export default function QuoteCheckoutPage() {
   if (!data) return null;
   if (data.cart.lineItems.length === 0) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-16 text-center">
-        <h1 className="text-xl font-semibold">Your cart is empty</h1>
-        <Link href="/cart" locale={locale} className="mt-5 inline-block underline">
-          Return to cart
+      <main className="mx-auto max-w-7xl px-4 py-12 text-center">
+        <h1 className="text-xl font-semibold mb-6">
+          {translate('cart.cart-empty-ask')}
+        </h1>
+        <Link
+          href="/category/all"
+          locale={locale}
+        >
+          <Button variant="secondary">
+            {translate('cart.continue-shopping')}
+          </Button>
         </Link>
       </main>
     );
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-10">
+    <main className="mx-auto max-w-7xl px-4 py-12">
       <h1 className="mb-7 border-b border-border pb-4 text-xl font-semibold">
         Update to Submit Quote
       </h1>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
         <div className="space-y-5">
-          <section className="rounded-sm bg-white p-6">
+          <section className="rounded-sm bg-white p-6 space-y-6">
             <StepHeading
               number={1}
               label="Addresses"
@@ -523,28 +577,27 @@ export default function QuoteCheckoutPage() {
             {step === 1 ? (
               <>
                 <AddressFieldsForm
-                  title="Shipping address"
+                  title={translate('checkout.shippingAddress')}
                   value={shippingAddress}
                   addresses={data.customer.addresses}
                   customer={data.customer}
                   onChange={(value) => markAddressChanged(value, 'shipping')}
                 />
                 <div className="mt-6 border-t border-border pt-5">
-                  <label className="flex items-center gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={sameBilling}
-                      onChange={(event) => {
-                        setSameBilling(event.target.checked);
-                        setAddressesComplete(false);
-                        setDeliveryComplete(false);
-                      }}
-                    />
-                    Billing address is the same as shipping
-                  </label>
+                  <Checkbox
+                    label={translate('checkout.billingAddressSameAsShipping')}
+                    checked={sameBilling}
+                    onChange={(event) => {
+                      setSameBilling(event.checked);
+                      setAddressesComplete(false);
+                      setDeliveryComplete(false);
+                    }}
+                    containerClassName="cursor-pointer"
+                  />
+
                   {!sameBilling && (
                     <AddressFieldsForm
-                      title="Billing address"
+                      title={translate('checkout.billingAddress')}
                       value={billingAddress}
                       addresses={data.customer.addresses}
                       customer={data.customer}
@@ -553,35 +606,40 @@ export default function QuoteCheckoutPage() {
                   )}
                 </div>
                 <div className="mt-6 flex justify-end">
-                  <button
-                    type="button"
+                  <Button
+                    variant="primary"
                     disabled={
                       busy ||
                       !isValidAddress(shippingAddress) ||
                       !isValidAddress(billing)
                     }
                     onClick={() => void saveAddresses()}
-                    className="rounded-sm bg-charcoal px-7 py-3 text-sm text-white hover:bg-charcoal-light disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {busy ? 'Saving…' : 'Continue to delivery'}
-                  </button>
+                    {busy
+                      ? translate('account.saving')
+                      : translate('quotes.continue-to-delivery')}
+                  </Button>
                 </div>
               </>
             ) : addressesComplete ? (
               <div className="grid gap-5 rounded-sm border border-border p-4 sm:grid-cols-2">
                 <div>
-                  <h3 className="mb-2 text-xs font-semibold uppercase">Shipping address</h3>
+                  <h3 className="mb-2 text-xs font-semibold uppercase">
+                    {translate('checkout.shippingAddress')}
+                  </h3>
                   <p className="text-sm">{addressText(shippingAddress)}</p>
                 </div>
                 <div>
-                  <h3 className="mb-2 text-xs font-semibold uppercase">Billing address</h3>
+                  <h3 className="mb-2 text-xs font-semibold uppercase">
+                    {translate('checkout.billingAddress')}
+                  </h3>
                   <p className="text-sm">{addressText(billing)}</p>
                 </div>
               </div>
             ) : null}
           </section>
 
-          <section className="rounded-sm bg-white p-6">
+          <section className="rounded-sm bg-white p-6 space-y-6">
             <StepHeading
               number={2}
               label="Delivery"
@@ -593,12 +651,12 @@ export default function QuoteCheckoutPage() {
               <>
                 {shippingMethods.length === 0 ? (
                   <p className="text-sm text-charcoal-light">
-                    No delivery methods are available for this address.
+                    {translate('quotes.no-delivery-methods')}
                   </p>
                 ) : (
                   <div className="space-y-3">
                     {shippingMethods.map((method) => (
-                      <label
+                      <div
                         key={method.id}
                         className={`flex cursor-pointer items-center justify-between gap-4 rounded-sm border p-4 ${
                           selectedMethodId === method.id
@@ -606,53 +664,69 @@ export default function QuoteCheckoutPage() {
                             : 'border-border'
                         }`}
                       >
-                        <span className="flex items-center gap-3">
-                          <input
-                            type="radio"
-                            name="quote-delivery-method"
-                            checked={selectedMethodId === method.id}
-                            onChange={() => setSelectedMethodId(method.id)}
-                          />
-                          <span>
-                            <span className="block text-sm font-medium">{method.name}</span>
-                            {method.description && (
-                              <span className="block text-xs text-charcoal-light">
-                                {method.description}
+                        <Radio
+                          checked={selectedMethodId === method.id}
+                          onSelected={() => setSelectedMethodId(method.id)}
+                          tabIndex={-1}
+                          label={
+                            <>
+                              <span className="block text-sm font-medium">
+                                {method.name}
                               </span>
-                            )}
-                          </span>
-                        </span>
+                              {method.description && (
+                                <span className="block text-xs text-charcoal-light">
+                                  {method.description}
+                                </span>
+                              )}
+                            </>
+                          }
+                        />
+
                         <span className="text-sm font-medium">
-                          {formatMoney(method.centAmount, method.currencyCode, locale)}
+                          {formatMoney(
+                            method.centAmount,
+                            method.currencyCode,
+                            locale,
+                          )}
                         </span>
-                      </label>
+                      </div>
                     ))}
                   </div>
                 )}
                 <div className="mt-6 flex justify-end">
-                  <button
-                    type="button"
-                    disabled={busy || !selectedMethodId || shippingMethods.length === 0}
+                  <Button
+                    variant="primary"
+                    disabled={
+                      busy || !selectedMethodId || shippingMethods.length === 0
+                    }
                     onClick={() => void saveDeliveryMethod()}
-                    className="rounded-sm bg-charcoal px-7 py-3 text-sm text-white hover:bg-charcoal-light disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {busy ? 'Saving…' : 'Continue to payment'}
-                  </button>
+                    {busy
+                      ? translate('account.saving')
+                      : translate('checkout.nextPayment')}
+                  </Button>
                 </div>
               </>
             ) : deliveryComplete ? (
               <div className="rounded-sm border border-border p-4 text-sm">
-                <p className="font-medium">{currentMethod?.name ?? data.cart.shippingInfo?.shippingMethodName}</p>
+                <p className="font-medium">
+                  {currentMethod?.name ??
+                    data.cart.shippingInfo?.shippingMethodName}
+                </p>
                 {currentMethod && (
                   <p className="mt-1 text-charcoal-light">
-                    {formatMoney(currentMethod.centAmount, currentMethod.currencyCode, locale)}
+                    {formatMoney(
+                      currentMethod.centAmount,
+                      currentMethod.currencyCode,
+                      locale,
+                    )}
                   </p>
                 )}
               </div>
             ) : null}
           </section>
 
-          <section className="rounded-sm bg-white p-6">
+          <section className="rounded-sm bg-white p-6 space-y-6">
             <StepHeading
               number={3}
               label="Payment"
@@ -662,120 +736,102 @@ export default function QuoteCheckoutPage() {
             />
             {step === 3 && deliveryComplete && (
               <div className="rounded-sm border border-border p-4">
-                <p className="mb-4 text-sm font-medium">Purchase Order (PO)</p>
-                <p className="mb-4 text-sm text-charcoal-light">
-                  Enter a purchase order number generated by your organization.
+                <p className="mb-4 text-sm font-medium">
+                  {translate('quotes.purchase-order')}
                 </p>
-                <label className="block max-w-sm text-sm font-medium">
-                  PO Number <span aria-hidden="true">*</span>
-                  <input
-                    required
-                    maxLength={100}
-                    value={purchaseOrderNumber}
-                    onChange={(event) => setPurchaseOrderNumber(event.target.value)}
-                    className="mt-2 w-full rounded-sm border border-border px-3 py-2 font-normal"
-                  />
-                </label>
+                <p className="mb-4 text-sm text-charcoal-light">
+                  {translate('quotes.purchase-order-help')}
+                </p>
+                <Input
+                  label={translate('quotes.po-number')}
+                  id="po-number"
+                  required
+                  placeholder={translate('quotes.po-number')}
+                  value={purchaseOrderNumber}
+                  onChange={(event) =>
+                    setPurchaseOrderNumber(event.target.value)
+                  }
+                />
               </div>
             )}
           </section>
           {error && (
-            <p role="alert" className="rounded-sm bg-red-50 p-3 text-sm text-red-700">
+            <p
+              role="alert"
+              className="rounded-sm bg-red-50 p-3 text-sm text-red-700"
+            >
               {error}
             </p>
           )}
         </div>
 
         <aside className="rounded-sm bg-white p-6 lg:sticky lg:top-24">
-          <h2 className="text-lg font-semibold">Quote summary</h2>
-          <div className="mt-4 space-y-4 border-b border-border pb-4">
-            {lineItems.map((item) => {
-              const name = getLocalizedString(item.name, locale);
-              const image = item.variant.images?.[0]?.url;
-              return (
-                <div key={item.id} className="flex gap-3">
-                  {image && (
-                    <Image
-                      src={image}
-                      alt={name}
-                      width={64}
-                      height={64}
-                      unoptimized
-                      className="size-16 rounded-sm object-contain"
-                    />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">{name}</p>
-                    <p className="mt-1 text-xs text-charcoal-light">
-                      Qty {item.quantity}
-                    </p>
-                  </div>
-                  <span className="text-sm">
-                    {formatMoney(
-                      item.totalPrice.centAmount,
-                      item.totalPrice.currencyCode,
-                      locale,
-                    )}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-          <dl className="mt-4 space-y-3 text-sm">
-            <div className="flex justify-between gap-3">
-              <dt>Subtotal</dt>
-              <dd>
-                {formatMoney(
-                  lineItems.reduce((sum, item) => sum + item.totalPrice.centAmount, 0),
-                  total?.currencyCode ?? 'USD',
-                  locale,
-                )}
-              </dd>
-            </div>
-            {data.cart.taxedPrice?.totalTax && (
-              <div className="flex justify-between gap-3">
-                <dt>Tax</dt>
+          <h2 className="text-lg font-semibold">{translate('quotes.quote-summary')}</h2>
+
+          <SummaryAccordion cart={data?.cart} />
+
+          <dl className="border-t border-border pt-4 space-y-4 text-sm">
+            <div className="grid gap-2">
+              {costsToRender.map(
+                ({ key, label, value }) =>
+                  !!value?.centAmount &&
+                  value.centAmount > 0 && (
+                    <div
+                      key={key}
+                      className="flex items-center justify-between capitalize text-gray-600"
+                    >
+                      <dt>{label}</dt>
+                      <dd>
+                        {key === 'discount' && '-'}
+                        {formatMoney(
+                          value.centAmount ?? 0,
+                          value.currencyCode ?? 'USD',
+                          locale,
+                        )}
+                      </dd>
+                    </div>
+                  ),
+              )}
+              <div className="flex items-center justify-between capitalize text-gray-600">
+                <dt>{translate('quotes.delivery')}</dt>
                 <dd>
-                  {formatMoney(
-                    data.cart.taxedPrice.totalTax.centAmount,
-                    data.cart.taxedPrice.totalTax.currencyCode,
-                    locale,
-                  )}
+                  {deliveryComplete && data.cart.shippingInfo
+                    ? formatMoney(
+                        data.cart.shippingInfo.price.centAmount,
+                        data.cart.shippingInfo.price.currencyCode,
+                        locale,
+                      )
+                    : translate('quotes.calculated-later')}
                 </dd>
               </div>
-            )}
-            <div className="flex justify-between gap-3">
-              <dt>Delivery</dt>
-              <dd>
-                {deliveryComplete && data.cart.shippingInfo
-                  ? formatMoney(
-                      data.cart.shippingInfo.price.centAmount,
-                      data.cart.shippingInfo.price.currencyCode,
-                      locale,
-                    )
-                  : 'Calculated later'}
-              </dd>
             </div>
             <div className="flex justify-between border-t border-border pt-4 text-base font-semibold">
-              <dt>Total</dt>
+              <dt>{translate('quotes.total')}</dt>
               <dd>
                 {total
-                  ? formatMoney(total.centAmount, total.currencyCode, locale)
+                  ? formatMoney(
+                      total.value.centAmount ?? 0,
+                      total.value.currencyCode ?? 'USD',
+                      locale,
+                    )
                   : '—'}
               </dd>
             </div>
           </dl>
-          <button
-            type="button"
+          <Button
+            size="full"
+            variant="primary"
             disabled={!canSubmit}
             onClick={() => void submitQuoteRequest()}
-            className="mt-5 w-full rounded-sm bg-charcoal px-4 py-3 text-sm font-medium text-white hover:bg-charcoal-light disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-charcoal-light"
+            className="mt-5"
           >
-            {busy ? 'Submitting…' : 'Submit quote request'}
-          </button>
+            {busy
+              ? translate('quotes.submitting')
+              : translate('quotes.submit-quote-request')}
+          </Button>
           {!canSubmit && (
             <p className="mt-2 text-center text-xs text-charcoal-light">
-              Complete all steps and enter a PO Number to submit.
+              {translate('quotes.complete-all-steps')}
             </p>
           )}
         </aside>

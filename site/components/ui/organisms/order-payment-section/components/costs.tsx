@@ -56,10 +56,10 @@ const Costs: FC<CostsProps> = ({
       <div className={totalAmountClassNames}>
         <p>{total.label}</p>
         <p>
-          {cart?.totalPrice
+          {cart?.taxedPrice?.totalGross
             ? formatMoney(
-                cart.totalPrice.centAmount,
-                cart.totalPrice.currencyCode,
+                cart.taxedPrice.totalGross.centAmount,
+                cart.taxedPrice.totalGross.currencyCode,
                 locale,
               )
             : formatMoney(

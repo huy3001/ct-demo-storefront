@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { BaseAddress, ByProjectKeyRequestBuilder } from '@commercetools/platform-sdk';
 import { getSessionApiRoot, persistSession } from '@/lib/ct/session';
 import { getCustomerById } from '@/lib/ct/customer';
+import { getOrCreateCart } from '@/lib/ct/cart';
 import {
-  getOrCreateCart,
-  setCartShippingMethod,
-  setCheckoutAddresses,
-} from '@/lib/ct/cart';
-import { createCustomerQuoteRequest } from '@/lib/ct/quotes';
+  createCustomerQuoteRequest,
+  createQuoteCartInBusinessUnit,
+  QuoteRequestError,
+  setQuoteCartShippingMethod,
+  updateQuoteCartAddresses,
+} from '@/lib/ct/quotes';
 import { customerPhone } from '@/lib/customer-profile';
 import { apiError, localeFromRequest } from '../_utils';
 
@@ -126,9 +128,17 @@ export async function PATCH(req: NextRequest) {
       body.locale ?? localeFromRequest(req),
     );
     await persistSession(updatedSession);
-    let updatedCart = await setCheckoutAddresses(
+    const { cart: quoteCart, businessUnitKey } = await createQuoteCartInBusinessUnit(
       apiRoot,
+      session.customerId,
       cart,
+    );
+    await persistSession({ ...updatedSession, cartId: quoteCart.id });
+    let updatedCart = await updateQuoteCartAddresses(
+      apiRoot,
+      session.customerId,
+      businessUnitKey,
+      quoteCart,
       body.shippingAddress,
       body.billingAddress,
     );
@@ -141,12 +151,21 @@ export async function PATCH(req: NextRequest) {
           { status: 400 },
         );
       }
-      updatedCart = await setCartShippingMethod(apiRoot, updatedCart, body.shippingMethodId);
+      updatedCart = await setQuoteCartShippingMethod(
+        apiRoot,
+        session.customerId,
+        businessUnitKey,
+        updatedCart,
+        body.shippingMethodId,
+      );
       methods = await shippingMethodOptions(apiRoot, updatedCart.id);
     }
 
     return NextResponse.json({ cart: updatedCart, shippingMethods: methods });
   } catch (error) {
+    if (error instanceof QuoteRequestError) {
+      return NextResponse.json({ message: error.message }, { status: 400 });
+    }
     return apiError(error);
   }
 }
@@ -199,19 +218,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const quoteRequest = await createCustomerQuoteRequest(
+    const { cart: quoteCart, businessUnitKey } = await createQuoteCartInBusinessUnit(
       apiRoot,
       session.customerId,
       cart,
+      true,
+    );
+    await persistSession({ ...updatedSession, cartId: quoteCart.id });
+
+    const quoteRequest = await createCustomerQuoteRequest(
+      apiRoot,
+      session.customerId,
+      quoteCart,
       poNumber,
+      businessUnitKey,
     );
     await persistSession({ ...updatedSession, cartId: undefined });
     return NextResponse.json({ quoteRequestId: quoteRequest.id });
   } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message === 'The customer must belong to a business unit to request a quote.'
-    ) {
+    if (error instanceof QuoteRequestError) {
       return NextResponse.json({ message: error.message }, { status: 400 });
     }
     return apiError(error);

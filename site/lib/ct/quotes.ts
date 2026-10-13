@@ -1,6 +1,8 @@
 import type {
   ByProjectKeyRequestBuilder,
   Cart,
+  CartDraft,
+  CartUpdateAction,
   CustomLineItem,
   Customer,
   LineItem,
@@ -21,6 +23,14 @@ type AssociateApi = ReturnType<
 type BusinessUnitApi = ReturnType<
   AssociateApi['inBusinessUnitKeyWithBusinessUnitKeyValue']
 >;
+
+/** Buyer-correctable problem that should surface as a 400 response. */
+export class QuoteRequestError extends Error {}
+
+export type QuoteCartContext = {
+  cart: Cart;
+  businessUnitKey: string;
+};
 
 function escapePredicate(value: string): string {
   return value.replace(/([\\"])/g, '\\$1');
@@ -50,16 +60,217 @@ async function getBusinessUnitKeys(
   return [...new Set(body.results.map(({ key }) => key))];
 }
 
+async function storeContainsProducts(
+  apiRoot: ByProjectKeyRequestBuilder,
+  storeKey: string,
+  productIds: string[],
+): Promise<boolean> {
+  const results = await Promise.all(
+    productIds.map(async (ID) => {
+      try {
+        await apiRoot
+          .inStoreKeyWithStoreKeyValue({ storeKey })
+          .productProjections()
+          .withId({ ID })
+          .get()
+          .execute();
+        return true;
+      } catch (error) {
+        if ((error as { statusCode?: number }).statusCode === 404) return false;
+        throw error;
+      }
+    }),
+  );
+  return results.every(Boolean);
+}
+
+export async function createQuoteCartInBusinessUnit(
+  apiRoot: ByProjectKeyRequestBuilder,
+  customerId: string,
+  cart: Cart,
+  preserveShippingMethod = false,
+): Promise<QuoteCartContext> {
+  const businessUnitKeys = await getBusinessUnitKeys(apiRoot, customerId);
+  const businessUnitKey = cart.businessUnit?.key ?? businessUnitKeys[0];
+  if (!businessUnitKey || !businessUnitKeys.includes(businessUnitKey)) {
+    throw new QuoteRequestError('The customer must belong to a business unit to request a quote.');
+  }
+  if (cart.businessUnit?.key === businessUnitKey) {
+    return { cart, businessUnitKey };
+  }
+  if (cart.shippingMode !== 'Single') {
+    throw new QuoteRequestError('Quote requests require a cart with a single delivery method.');
+  }
+  if (cart.taxMode !== 'Platform') {
+    throw new QuoteRequestError('Quote requests from externally taxed carts are not supported.');
+  }
+
+  const unit = await apiRoot
+    .asAssociate()
+    .withAssociateIdValue({ associateId: customerId })
+    .businessUnits()
+    .withKey({ key: businessUnitKey })
+    .get()
+    .execute()
+    .then(({ body }) => body);
+  const allowedStoreKeys = [
+    ...(unit.stores ?? []),
+    ...(unit.inheritedStores ?? []),
+  ].map(({ key }) => key);
+  const productIds = [...new Set(cart.lineItems.map(({ productId }) => productId))];
+  let storeKey: string | undefined;
+  let storeChannelIds: string[] = [];
+  if (allowedStoreKeys.length > 0) {
+    // Candidate order: the cart's own store first, then the business unit's stores.
+    const candidates = [
+      ...(cart.store?.key && allowedStoreKeys.includes(cart.store.key)
+        ? [cart.store.key]
+        : []),
+      ...allowedStoreKeys.filter((key) => key !== cart.store?.key),
+    ];
+    for (const candidate of candidates) {
+      if (await storeContainsProducts(apiRoot, candidate, productIds)) {
+        storeKey = candidate;
+        break;
+      }
+    }
+    if (!storeKey) {
+      throw new QuoteRequestError(
+        'The products in your cart are not available in your business unit\u2019s stores, so a quote cannot be requested.',
+      );
+    }
+    const { body: store } = await apiRoot.stores().withKey({ key: storeKey }).get().execute();
+    storeChannelIds = store.distributionChannels.map(({ id }) => id);
+  }
+
+  const lineItemChannelId = (channelId?: string): string | undefined => {
+    if (storeChannelIds.length === 0) return channelId;
+    return channelId && storeChannelIds.includes(channelId)
+      ? channelId
+      : storeChannelIds[0];
+  };
+
+  const cartDraft: CartDraft = {
+    currency: cart.totalPrice.currencyCode,
+    country: cart.country,
+    locale: cart.locale,
+    customerId,
+    ...(storeKey ? { store: { typeId: 'store', key: storeKey } } : {}),
+    shippingMode: 'Single',
+    shippingAddress: cart.shippingAddress,
+    billingAddress: cart.billingAddress,
+    ...(preserveShippingMethod && cart.shippingInfo?.shippingMethod?.id
+      ? {
+          shippingMethod: {
+            typeId: 'shipping-method',
+            id: cart.shippingInfo.shippingMethod.id,
+          },
+        }
+      : {}),
+    ...(cart.shippingRateInput
+      ? { shippingRateInput: cart.shippingRateInput }
+      : {}),
+    ...(cart.purchaseOrderNumber
+      ? { purchaseOrderNumber: cart.purchaseOrderNumber }
+      : {}),
+    lineItems: cart.lineItems.map((item) => ({
+      productId: item.productId,
+      variantId: item.variant.id,
+      quantity: item.quantity,
+      ...(lineItemChannelId(item.distributionChannel?.id)
+        ? {
+            distributionChannel: {
+              typeId: 'channel',
+              id: lineItemChannelId(item.distributionChannel?.id)!,
+            },
+          }
+        : {}),
+      ...(item.supplyChannel?.id
+        ? {
+            supplyChannel: {
+              typeId: 'channel',
+              id: item.supplyChannel.id,
+            },
+          }
+        : {}),
+      ...(item.custom ? { custom: { type: item.custom.type, fields: item.custom.fields } } : {}),
+    })),
+    customLineItems: cart.customLineItems.map((item) => ({
+      name: item.name,
+      quantity: item.quantity,
+      money: {
+        currencyCode: item.money.currencyCode,
+        centAmount: item.money.centAmount,
+      },
+      slug: item.slug,
+      ...(item.taxCategory
+        ? {
+            taxCategory: {
+              typeId: 'tax-category',
+              id: item.taxCategory.id,
+            },
+          }
+        : {}),
+      ...(item.custom ? { custom: { type: item.custom.type, fields: item.custom.fields } } : {}),
+    })),
+  };
+  const { body: quoteCart } = await businessUnitApi(
+    apiRoot,
+    customerId,
+    businessUnitKey,
+  ).carts().post({ body: cartDraft }).execute();
+
+  return { cart: quoteCart, businessUnitKey };
+}
+
+export async function updateQuoteCartAddresses(
+  apiRoot: ByProjectKeyRequestBuilder,
+  customerId: string,
+  businessUnitKey: string,
+  cart: Cart,
+  shippingAddress: NonNullable<Cart['shippingAddress']>,
+  billingAddress: NonNullable<Cart['billingAddress']>,
+): Promise<Cart> {
+  const actions: CartUpdateAction[] = [
+    { action: 'setShippingAddress', address: shippingAddress },
+    { action: 'setBillingAddress', address: billingAddress },
+  ];
+  const { body } = await businessUnitApi(apiRoot, customerId, businessUnitKey)
+    .carts()
+    .withId({ ID: cart.id })
+    .post({ body: { version: cart.version, actions } })
+    .execute();
+  return body;
+}
+
+export async function setQuoteCartShippingMethod(
+  apiRoot: ByProjectKeyRequestBuilder,
+  customerId: string,
+  businessUnitKey: string,
+  cart: Cart,
+  shippingMethodId: string,
+): Promise<Cart> {
+  const actions: CartUpdateAction[] = [{
+    action: 'setShippingMethod',
+    shippingMethod: { typeId: 'shipping-method', id: shippingMethodId },
+  }];
+  const { body } = await businessUnitApi(apiRoot, customerId, businessUnitKey)
+    .carts()
+    .withId({ ID: cart.id })
+    .post({ body: { version: cart.version, actions } })
+    .execute();
+  return body;
+}
+
 export async function createCustomerQuoteRequest(
   apiRoot: ByProjectKeyRequestBuilder,
   customerId: string,
   cart: Cart,
   purchaseOrderNumber: string,
+  businessUnitKey: string,
 ): Promise<QuoteRequest> {
-  const businessUnitKeys = await getBusinessUnitKeys(apiRoot, customerId);
-  const businessUnitKey = cart.businessUnit?.key ?? businessUnitKeys[0];
-  if (!businessUnitKey || !businessUnitKeys.includes(businessUnitKey)) {
-    throw new Error('The customer must belong to a business unit to request a quote.');
+  if (cart.businessUnit?.key !== businessUnitKey) {
+    throw new QuoteRequestError('The quote request cart must belong to the selected business unit.');
   }
 
   const body: QuoteRequestDraft = {

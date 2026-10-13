@@ -2,10 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
+import { useTranslations } from 'use-intl';
 import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import { formatMoney } from '@/lib/utils';
 import { isQuote, type Quote } from '@/types/quote';
+import Button from '@/components/ui/atoms/button';
+import Skeleton from '@/components/ui/atoms/skeleton';
 
 function addressLines(
   address: Quote['deliveryAddress'] | Quote['billingAddress'],
@@ -24,12 +27,13 @@ function addressLines(
 export default function QuoteSubmittedPage() {
   const { locale } = useParams<{ locale: string }>();
   const searchParams = useSearchParams();
+  const translate = useTranslations();
   const quoteRequestId = searchParams.get('quoteRequestId');
   const [quote, setQuote] = useState<Quote | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [comment, setComment] = useState('');
-  const [commentStatus, setCommentStatus] = useState('Changes are saved automatically.');
+  const [commentStatus, setCommentStatus] = useState(translate('quotes.comment-auto-save'));
 
   useEffect(() => {
     if (!quoteRequestId) return;
@@ -48,7 +52,7 @@ export default function QuoteSubmittedPage() {
               'message' in body &&
               typeof body.message === 'string'
               ? body.message
-              : 'Unable to load the submitted quote request.',
+              : translate('quotes.failed-to-load-submitted-quote'),
           );
         }
         setQuote(body);
@@ -57,7 +61,7 @@ export default function QuoteSubmittedPage() {
           setLoadError(
             error instanceof Error
               ? error.message
-              : 'Unable to load the submitted quote request.',
+              : translate('quotes.failed-to-load-submitted-quote'),
           );
         }
       } finally {
@@ -66,7 +70,7 @@ export default function QuoteSubmittedPage() {
     }
     void loadQuote();
     return () => controller.abort();
-  }, [locale, quoteRequestId]);
+  }, [locale, quoteRequestId, translate]);
 
   useEffect(() => {
     if (!quoteRequestId) return;
@@ -76,20 +80,28 @@ export default function QuoteSubmittedPage() {
           window.localStorage.getItem(`quote-comment-${quoteRequestId}`) ?? '',
         );
       } catch {
-        setCommentStatus('Automatic saving is unavailable in this browser.');
+        setCommentStatus(translate('quotes.comment-auto-save-unavailable'));
       }
     }, 0);
     return () => window.clearTimeout(timeout);
-  }, [quoteRequestId]);
+  }, [quoteRequestId, translate]);
 
   if (!quoteRequestId) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-16 text-center">
-        <p role="alert" className="text-sm text-red-700">
-          Quote request ID is missing.
+      <main className="mx-auto max-w-7xl px-4 py-12 text-center">
+        <p
+          role="alert"
+          className="text-sm text-red-700 mb-6"
+        >
+          {translate('quotes.quote-request-id-missing')}
         </p>
-        <Link href="/account/quotes" locale={locale} className="mt-5 inline-block underline">
-          Review quote requests
+        <Link
+          href="/account/quotes"
+          locale={locale}
+        >
+          <Button variant="secondary">
+            {translate('quotes.review-quote-requests')}
+          </Button>
         </Link>
       </main>
     );
@@ -97,20 +109,31 @@ export default function QuoteSubmittedPage() {
 
   if (loading) {
     return (
-      <main className="mx-auto max-w-7xl px-4 py-16 text-center text-charcoal-light">
-        Loading submitted quote…
+      <main className="mx-auto max-w-7xl px-4 py-12">
+        <Skeleton className="h-5 w-full" />
       </main>
     );
   }
 
   if (loadError || !quote) {
     return (
-      <main className="mx-auto max-w-3xl px-4 py-16 text-center">
-        <p role="alert" className="text-sm text-red-700">
-          {loadError ?? (quoteRequestId ? 'Quote request not found.' : 'Quote request ID is missing.')}
+      <main className="mx-auto max-w-7xl px-4 py-12 text-center">
+        <p
+          role="alert"
+          className="text-sm text-red-700 mb-6"
+        >
+          {loadError ??
+            (quoteRequestId
+              ? translate('quotes.quote-request-not-found')
+              : translate('quotes.quote-request-id-missing'))}
         </p>
-        <Link href="/account/quotes" locale={locale} className="mt-5 inline-block underline">
-          Review quote requests
+        <Link
+          href="/account/quotes"
+          locale={locale}
+        >
+          <Button variant="secondary">
+            {translate('quotes.review-quote-requests')}
+          </Button>
         </Link>
       </main>
     );
@@ -124,52 +147,78 @@ export default function QuoteSubmittedPage() {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start">
         <section className="rounded-sm bg-white p-6 md:p-8">
           <h1 className="text-xl font-semibold">
-            Your quote request has been submitted
+            {translate('quotes.quote-request-submitted')}
           </h1>
           <p className="mt-2 text-sm text-charcoal-light">
-            A sales representative will review your request and contact you with updates.
+            {translate('quotes.quote-request-submitted-description')}
           </p>
           <dl className="mt-7 grid gap-5 sm:grid-cols-2">
             <div>
-              <dt className="text-sm text-charcoal-light">Quote ID</dt>
-              <dd className="mt-1 break-all text-sm font-semibold">{quote.id}</dd>
+              <dt className="text-sm text-charcoal-light">
+                {translate('quotes.quote-id')}
+              </dt>
+              <dd className="mt-1 break-all text-sm font-semibold">
+                {quote.id}
+              </dd>
             </div>
             <div>
-              <dt className="text-sm text-charcoal-light">PO Number</dt>
+              <dt className="text-sm text-charcoal-light">
+                {translate('quotes.po-number')}
+              </dt>
               <dd className="mt-1 text-sm font-semibold">{quote.poNumber}</dd>
             </div>
             <div>
-              <dt className="text-sm text-charcoal-light">Customer</dt>
+              <dt className="text-sm text-charcoal-light">
+                {translate('quotes.customer')}
+              </dt>
               <dd className="mt-1 text-sm font-semibold">{quote.owner}</dd>
               {quote.customerEmail && (
                 <dd className="mt-1 text-sm">{quote.customerEmail}</dd>
               )}
             </div>
             <div>
-              <dt className="text-sm text-charcoal-light">Delivery method</dt>
+              <dt className="text-sm text-charcoal-light">
+                {translate('quotes.delivery-method')}
+              </dt>
               <dd className="mt-1 text-sm font-semibold">
-                {quote.shippingMethodName || 'Not specified'}
+                {quote.shippingMethodName || translate('quotes.not-specified')}
               </dd>
             </div>
           </dl>
 
           <div className="mt-7 grid gap-6 border-t border-border pt-6 sm:grid-cols-2">
             <div>
-              <h2 className="mb-2 text-sm font-semibold uppercase">Delivery address</h2>
+              <h2 className="mb-2 text-sm font-semibold uppercase">
+                {translate('quotes.delivery-address')}
+              </h2>
               {deliveryLines.map((line, index) => (
-                <p key={`${index}-${line}`} className="text-sm">{line}</p>
+                <p
+                  key={`${index}-${line}`}
+                  className="text-sm"
+                >
+                  {line}
+                </p>
               ))}
             </div>
             <div>
-              <h2 className="mb-2 text-sm font-semibold uppercase">Billing address</h2>
+              <h2 className="mb-2 text-sm font-semibold uppercase">
+                {translate('checkout.billingAddress')}
+              </h2>
               {billingLines.map((line, index) => (
-                <p key={`${index}-${line}`} className="text-sm">{line}</p>
+                <p
+                  key={`${index}-${line}`}
+                  className="text-sm"
+                >
+                  {line}
+                </p>
               ))}
             </div>
           </div>
 
           <section className="mt-7 border-t border-border pt-6">
-            <h2 className="mb-3 text-sm font-semibold uppercase">Comment</h2>
+            <h2 className="mb-3 text-sm font-semibold uppercase">
+              {translate('quotes.comment')}
+            </h2>
             <textarea
               value={comment}
               onChange={(event) => {
@@ -180,42 +229,55 @@ export default function QuoteSubmittedPage() {
                     `quote-comment-${quote.id}`,
                     value,
                   );
-                  setCommentStatus('Saved automatically.');
+                  setCommentStatus(
+                    translate('quotes.comment-saved-automatically'),
+                  );
                 } catch {
-                  setCommentStatus('Unable to save this comment in this browser.');
+                  setCommentStatus(
+                    translate('quotes.comment-save-unavailable'),
+                  );
                 }
               }}
               rows={4}
               maxLength={2000}
-              aria-label="Comment"
-              placeholder="Add an optional note to your quote request"
+              aria-label={translate('quotes.comment')}
+              placeholder={translate('quotes.comment-placeholder')}
               className="w-full resize-y rounded-sm border border-border p-3 text-sm"
             />
-            <p role="status" className="mt-2 text-xs text-charcoal-light">
+            <p
+              role="status"
+              className="mt-2 text-xs text-charcoal-light"
+            >
               {commentStatus}
             </p>
           </section>
 
           <section className="mt-7 border-t border-border pt-6">
-            <h2 className="text-lg font-semibold">Quotes</h2>
-            <p className="mt-1 text-sm text-charcoal-light">
-              Manage, review or track your quote requests.
+            <h2 className="text-lg font-semibold">
+              {translate('account.quotes')}
+            </h2>
+            <p className="mt-1 mb-5 text-sm text-charcoal-light">
+              {translate('quotes.quotes-description')}
             </p>
             <Link
               href="/account/quotes"
               locale={locale}
-              className="mt-5 inline-block rounded-sm bg-charcoal px-6 py-3 text-center text-sm text-white hover:bg-charcoal-light"
             >
-              Review quote request
+              <Button>{translate('quotes.review-quote-requests')}</Button>
             </Link>
           </section>
         </section>
 
         <aside className="rounded-sm bg-white p-6 lg:sticky lg:top-24">
-          <h2 className="text-lg font-semibold">Items quoted</h2>
+          <h2 className="text-lg font-semibold">
+            {translate('quotes.items-quoted', { count: quote.items.length })}
+          </h2>
           <div className="mt-4 space-y-4 border-b border-border pb-4">
             {quote.items.map((item) => (
-              <div key={item.id} className="flex justify-between gap-3 text-sm">
+              <div
+                key={item.id}
+                className="flex justify-between gap-3 text-sm"
+              >
                 <div>
                   {item.imageUrl && (
                     <Image
@@ -241,19 +303,35 @@ export default function QuoteSubmittedPage() {
           <dl className="mt-4 space-y-3 text-sm">
             <div className="flex justify-between gap-3">
               <dt>Subtotal</dt>
-              <dd>{formatMoney(quote.subtotalCentAmount, quote.currencyCode, locale)}</dd>
+              <dd>
+                {formatMoney(
+                  quote.subtotalCentAmount,
+                  quote.currencyCode,
+                  locale,
+                )}
+              </dd>
             </div>
             <div className="flex justify-between gap-3">
               <dt>Tax</dt>
-              <dd>{formatMoney(quote.taxCentAmount, quote.currencyCode, locale)}</dd>
+              <dd>
+                {formatMoney(quote.taxCentAmount, quote.currencyCode, locale)}
+              </dd>
             </div>
             <div className="flex justify-between gap-3">
               <dt>Discount</dt>
-              <dd>{formatMoney(quote.discountCentAmount, quote.currencyCode, locale)}</dd>
+              <dd>
+                {formatMoney(
+                  quote.discountCentAmount,
+                  quote.currencyCode,
+                  locale,
+                )}
+              </dd>
             </div>
             <div className="flex justify-between border-t border-border pt-4 text-base font-semibold">
               <dt>Total</dt>
-              <dd>{formatMoney(quote.totalCentAmount, quote.currencyCode, locale)}</dd>
+              <dd>
+                {formatMoney(quote.totalCentAmount, quote.currencyCode, locale)}
+              </dd>
             </div>
           </dl>
         </aside>
