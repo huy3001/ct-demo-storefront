@@ -7,7 +7,9 @@ import Image from 'next/image';
 import { Link } from '@/i18n/routing';
 import { formatMoney } from '@/lib/utils';
 import { isQuote, type Quote } from '@/types/quote';
+import { classnames } from '@/helpers/utils/classnames';
 import Button from '@/components/ui/atoms/button';
+import TextArea from '@/components/ui/atoms/text-area';
 import Skeleton from '@/components/ui/atoms/skeleton';
 
 function addressLines(
@@ -219,7 +221,8 @@ export default function QuoteSubmittedPage() {
             <h2 className="mb-3 text-sm font-semibold uppercase">
               {translate('quotes.comment')}
             </h2>
-            <textarea
+            <TextArea
+              name="quote-comment"
               value={comment}
               onChange={(event) => {
                 const value = event.target.value;
@@ -242,7 +245,6 @@ export default function QuoteSubmittedPage() {
               maxLength={2000}
               aria-label={translate('quotes.comment')}
               placeholder={translate('quotes.comment-placeholder')}
-              className="w-full resize-y rounded-sm border border-border p-3 text-sm"
             />
             <p
               role="status"
@@ -272,63 +274,79 @@ export default function QuoteSubmittedPage() {
           <h2 className="text-lg font-semibold">
             {translate('quotes.items-quoted', { count: quote.items.length })}
           </h2>
-          <div className="mt-4 space-y-4 border-b border-border pb-4">
-            {quote.items.map((item) => (
+          <div className="border-b border-border">
+            {quote.items.map((item, index) => (
               <div
                 key={item.id}
-                className="flex justify-between gap-3 text-sm"
+                className={classnames(
+                  'flex justify-between items-center py-4',
+                  {
+                    'border-b border-neutral-400':
+                      quote.items && index !== quote.items.length - 1,
+                  },
+                )}
               >
-                <div>
+                <div className="flex items-center justify-start">
                   {item.imageUrl && (
                     <Image
                       src={item.imageUrl}
-                      alt=""
+                      alt={item.name}
                       width={48}
                       height={48}
                       unoptimized
-                      className="mb-2 size-12 rounded-sm object-contain"
+                      className="size-20 object-contain shrink-0"
                     />
                   )}
-                  <p className="font-medium">{item.name}</p>
-                  <p className="mt-1 text-xs text-charcoal-light">
-                    {item.sku} · Qty {item.quantity}
-                  </p>
+                  <div className="flex flex-col justify-center gap-2 pl-4">
+                    <p className="text-sm font-semibold text-gray-700">
+                      {item.name}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {formatMoney(
+                        item.totalCentAmount,
+                        item.currencyCode,
+                        locale,
+                      )}
+                    </p>
+                    <p className="text-sm text-gray-400">
+                      {item.sku} x {item.quantity}
+                    </p>
+                  </div>
                 </div>
-                <span className="shrink-0">
-                  {formatMoney(item.totalCentAmount, item.currencyCode, locale)}
-                </span>
               </div>
             ))}
           </div>
-          <dl className="mt-4 space-y-3 text-sm">
-            <div className="flex justify-between gap-3">
-              <dt>Subtotal</dt>
-              <dd>
-                {formatMoney(
-                  quote.subtotalCentAmount,
-                  quote.currencyCode,
-                  locale,
-                )}
-              </dd>
-            </div>
-            <div className="flex justify-between gap-3">
-              <dt>Tax</dt>
-              <dd>
-                {formatMoney(quote.taxCentAmount, quote.currencyCode, locale)}
-              </dd>
-            </div>
-            <div className="flex justify-between gap-3">
-              <dt>Discount</dt>
-              <dd>
-                {formatMoney(
-                  quote.discountCentAmount,
-                  quote.currencyCode,
-                  locale,
-                )}
-              </dd>
+          <dl className="mt-4 space-y-4 text-sm">
+            <div className="grid gap-2">
+              <div className="flex justify-between gap-2 text-gray-600">
+                <dt>{translate('quotes.subtotal')}</dt>
+                <dd>
+                  {formatMoney(
+                    quote.subtotalCentAmount,
+                    quote.currencyCode,
+                    locale,
+                  )}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-2 text-gray-600">
+                <dt>{translate('quotes.tax')}</dt>
+                <dd>
+                  {formatMoney(quote.taxCentAmount, quote.currencyCode, locale)}
+                </dd>
+              </div>
+              <div className="flex justify-between gap-2 text-gray-600">
+                <dt>{translate('quotes.discount')}</dt>
+                <dd>
+                  {formatMoney(
+                    quote.discountCentAmount,
+                    quote.currencyCode,
+                    locale,
+                  )}
+                </dd>
+              </div>
             </div>
             <div className="flex justify-between border-t border-border pt-4 text-base font-semibold">
-              <dt>Total</dt>
+              <dt>{translate('quotes.total')}</dt>
               <dd>
                 {formatMoney(quote.totalCentAmount, quote.currencyCode, locale)}
               </dd>
