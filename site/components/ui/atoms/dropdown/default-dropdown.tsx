@@ -38,7 +38,7 @@ const DefaultDropdown: FC<DropdownProps> = ({
   const containerClassNames = useClassNames(['grid', containerClassName]);
 
   const selectClassName = useClassNames([
-    'absolute appearance-none font-body z-1 h-10 text-sm border border-gray-300 focus:ring-0 focus:outline-none rounded-sm w-full focus:border-gray-400 bg-white disabled:bg-neutral-200 bg-none font-regular leading-loose pl-3 pr-0 py-0',
+    'absolute appearance-none font-body z-1 h-10 text-sm border border-gray-300 focus:ring-0 focus:outline-none rounded-sm w-full focus:border-gray-400 bg-white disabled:bg-neutral-200 bg-none font-regular leading-loose pl-3 pr-9 py-0 truncate',
     className,
     {
       'border-red-500': error,
@@ -50,13 +50,27 @@ const DefaultDropdown: FC<DropdownProps> = ({
   return (
     <div className={containerClassNames}>
       {label && (
-        <label htmlFor={props.name} className={labelClassNames}>{`${label}${props.required ? ' *' : ''}`}</label>
+        <label
+          htmlFor={props.name}
+          className={labelClassNames}
+        >
+          {`${label}${props.required ? ' *' : ''}`}
+        </label>
       )}
 
       <div className="relative h-10 min-w-16 overflow-hidden">
-        <select id={props.name} className={selectClassName} value={selectedValue} onChange={handleChange} {...props}>
+        <select
+          id={props.name}
+          className={selectClassName}
+          value={selectedValue}
+          onChange={handleChange}
+          {...props}
+        >
           {items.map(({ label, value }, index) => (
-            <option key={index} value={value}>
+            <option
+              key={index}
+              value={value}
+            >
               {label}
             </option>
           ))}
@@ -67,7 +81,11 @@ const DefaultDropdown: FC<DropdownProps> = ({
           className="absolute right-1 top-1/2 z-2 h-5 w-7.5 -translate-y-1/2 stroke-1 text-charcoal"
         />
       </div>
-      <p className="mt-0.5 text-xs font-medium text-red-500">{error && translate('common.fieldIsRequired')}</p>
+      {error && (
+        <p className="mt-0.5 text-xs font-medium text-red-500">
+          {translate('common.fieldIsRequired')}
+        </p>
+      )}
     </div>
   );
 };
