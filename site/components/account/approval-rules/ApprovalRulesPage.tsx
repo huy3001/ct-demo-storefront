@@ -8,22 +8,8 @@ import Button from '@/components/ui/atoms/button';
 import Dropdown from '@/components/ui/atoms/dropdown';
 import Tabs from '@/components/ui/organisms/tabs';
 import type { CompanyManagement } from '@/lib/company';
-import type { ApprovalRule } from '@/types/approval-rule';
+import { listApprovalRules } from '@/lib/approval-rules';
 import ApprovalRulesTable from './ApprovalRulesTable';
-
-// No approval rules data source exists yet, so the tables render without rows.
-const rules: ApprovalRule[] = [{
-  id: '1',
-  name: 'Rule 1',
-  requester: 'John Doe',
-  status: 'Active',
-},
-{
-  id: '2',
-  name: 'Rule 2',
-  requester: 'Jane Smith',
-  status: 'Inactive',
-}];
 
 const fetcher = async (url: string) => {
   const response = await fetch(url);
@@ -37,6 +23,7 @@ export default function ApprovalRulesPage() {
   const { data } = useSWR('/api/account/company', fetcher, {
     revalidateOnFocus: false,
   });
+  const rules = listApprovalRules();
   const [businessUnitId, setBusinessUnitId] = useState('');
   const selectedBusinessUnitId = businessUnitId || data?.company.id || '';
 
