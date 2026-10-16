@@ -116,17 +116,19 @@ export default function ApprovalRuleForm({ rule }: ApprovalRuleFormProps) {
   };
 
   return (
-    <div>
-      <h1 className="mb-6 text-xl font-semibold">
+    <div className="space-y-6">
+      <h1 className="text-xl font-semibold">
         {translate(
-          isEdit
-            ? 'account.approval-rules-edit'
-            : 'account.approval-rules-add',
+          isEdit ? 'account.approval-rules-edit' : 'account.approval-rules-add',
         )}
       </h1>
 
-      <form onSubmit={handleSubmit} className="space-y-8" noValidate>
-        <div className="max-w-xs space-y-4">
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6"
+        noValidate
+      >
+        <div className="w-full sm:max-w-xs space-y-4">
           <Input
             label={translate('account.approval-rule-name')}
             name="rule-name"
@@ -137,7 +139,6 @@ export default function ApprovalRuleForm({ rule }: ApprovalRuleFormProps) {
           />
           <Input
             label={translate('account.approval-rule-description')}
-            labelDesc={translate('common.optional').toLowerCase()}
             name="rule-description"
             value={description}
             hideCheckIcon
@@ -146,7 +147,9 @@ export default function ApprovalRuleForm({ rule }: ApprovalRuleFormProps) {
           <div>
             <InfoTooltip
               className="mb-2"
-              content={translate('account.approval-rule-requester-roles-tooltip')}
+              content={translate(
+                'account.approval-rule-requester-roles-tooltip',
+              )}
             >
               <span className="text-sm font-medium text-gray-600">
                 {translate('account.approval-rule-requester-roles')} *
@@ -162,7 +165,10 @@ export default function ApprovalRuleForm({ rule }: ApprovalRuleFormProps) {
               </MultiDropdown.Button>
               <MultiDropdown.Options>
                 {REQUESTER_ROLES.map((role) => (
-                  <MultiDropdown.Option key={role} value={role}>
+                  <MultiDropdown.Option
+                    key={role}
+                    value={role}
+                  >
                     {roleLabel(role)}
                   </MultiDropdown.Option>
                 ))}
@@ -201,29 +207,20 @@ export default function ApprovalRuleForm({ rule }: ApprovalRuleFormProps) {
             checked={active}
             onChange={setActive}
           />
-          <span className="text-sm text-gray-600">
-            {translate(
-              active
-                ? 'account.approval-rules-status-active'
-                : 'account.approval-rules-status-inactive',
-            )}
-          </span>
         </div>
 
         <div className="flex gap-3">
           <Button
             type="button"
             variant="secondary"
-            size="fit"
-            className="h-10 w-40 text-sm"
+            className="flex-1 sm:max-w-40"
             onClick={() => setIsLeaveModalOpen(true)}
           >
             {translate('common.cancel')}
           </Button>
           <Button
             type="submit"
-            size="fit"
-            className="h-10 w-40 text-sm"
+            className="flex-1 sm:max-w-40"
             disabled={!canSave}
           >
             {translate('common.save')}

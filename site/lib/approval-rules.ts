@@ -148,7 +148,7 @@ export function createTier(): ApproverTier {
 
 const SEED_RULES: ApprovalRuleDetails[] = [
   {
-    id: '1',
+    id: 'rule-1',
     name: 'Rule 1',
     requester: 'Admin',
     status: 'Active',
@@ -172,7 +172,7 @@ const SEED_RULES: ApprovalRuleDetails[] = [
     ],
   },
   {
-    id: '2',
+    id: 'rule-2',
     name: 'Rule 2',
     requester: 'Buyer',
     status: 'Inactive',

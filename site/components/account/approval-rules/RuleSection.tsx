@@ -99,7 +99,7 @@ function ConditionRow({
     onChange({ ...condition, ...changes, saved: false });
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-4">
       {index > 0 && (
         <ConnectorToggle
           value={condition.connector}
@@ -125,7 +125,9 @@ function ConditionRow({
                 value: '',
               },
               ...RULE_PREDICATES.map((predicate) => ({
-                label: translate(`account.approval-rule-predicate-${predicate}`),
+                label: translate(
+                  `account.approval-rule-predicate-${predicate}`,
+                ),
                 value: predicate,
               })),
             ]}
@@ -165,6 +167,7 @@ function ConditionRow({
               <Input
                 name={`${fieldName}-value`}
                 aria-label={translate('account.approval-rule-amount')}
+                labelPosition="inline"
                 type="text"
                 inputMode="decimal"
                 autoComplete="off"
@@ -200,8 +203,6 @@ function ConditionRow({
             <Button
               type="button"
               variant="secondary"
-              size="fit"
-              className="h-10 whitespace-nowrap px-4 text-sm"
               disabled={!isCompleteCondition(condition)}
               onClick={() => onChange({ ...condition, saved: true })}
             >
@@ -298,7 +299,10 @@ export default function RuleSection({
           {translate('account.approval-rule-rule-description')}
         </p>
         {showError && !isPreview && (
-          <p role="alert" className="mt-2 text-sm text-red-500">
+          <p
+            role="alert"
+            className="mt-2 text-sm text-red-500"
+          >
             {translate('account.approval-rule-rules-incomplete')}
           </p>
         )}
@@ -309,21 +313,17 @@ export default function RuleSection({
           <div className="h-10 flex-1 rounded-sm border border-gray-300 bg-white" />
           <Button
             type="button"
-            size="fit"
-            className="h-10 px-8 text-sm"
             onClick={() => onChange([createCondition()])}
           >
             {translate('account.approval-rule-add')}
           </Button>
         </div>
       ) : isPreview ? (
-        <div className="flex items-start justify-between gap-4 rounded-sm border border-gray-300 bg-white p-4">
+        <div className="flex items-center justify-between gap-4 rounded-sm border border-gray-300 bg-white p-4">
           <RulePreview conditions={conditions} />
           <Button
             type="button"
             variant="secondary"
-            size="fit"
-            className="h-8 px-4 text-sm"
             onClick={onEdit}
           >
             {translate('common.edit')}
@@ -348,8 +348,6 @@ export default function RuleSection({
           </div>
           <Button
             type="button"
-            size="fit"
-            className="h-10 px-8 text-sm"
             onClick={onPreview}
           >
             {translate('account.approval-rule-preview')}

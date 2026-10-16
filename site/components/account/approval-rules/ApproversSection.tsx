@@ -89,8 +89,6 @@ function ApproverRow({
           <Button
             type="button"
             variant="secondary"
-            size="fit"
-            className="h-10 whitespace-nowrap px-4 text-sm"
             disabled={!isCompleteApprover(approver)}
             onClick={() => onChange({ ...approver, saved: true })}
           >
@@ -146,11 +144,10 @@ function TierBox({
         {canRemove && (
           <button
             type="button"
-            className="flex items-center gap-1 text-xs hover:underline"
+            className="flex items-center"
             onClick={onRemove}
           >
-            {translate('common.remove')}
-            <TrashIcon className="size-4" aria-hidden="true" />
+            <TrashIcon className="size-5" />
           </button>
         )}
       </div>
@@ -236,21 +233,17 @@ export default function ApproversSection({
           <div className="h-10 flex-1 rounded-sm border border-gray-300 bg-white" />
           <Button
             type="button"
-            size="fit"
-            className="h-10 px-8 text-sm"
             onClick={() => onChange([createTier()])}
           >
             {translate('account.approval-rule-add')}
           </Button>
         </div>
       ) : isPreview ? (
-        <div className="flex items-start justify-between gap-4 rounded-sm border border-gray-300 bg-white p-4">
+        <div className="flex items-center justify-between gap-4 rounded-sm border border-gray-300 bg-white p-4">
           <ApproversPreview tiers={tiers} />
           <Button
             type="button"
             variant="secondary"
-            size="fit"
-            className="h-8 px-4 text-sm"
             onClick={onEdit}
           >
             {translate('common.edit')}
@@ -258,7 +251,7 @@ export default function ApproversSection({
         </div>
       ) : (
         <>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {tiers.map((tier, index) => (
               <TierBox
                 key={tier.id}
@@ -275,8 +268,6 @@ export default function ApproversSection({
           <div className="flex items-center justify-between gap-3">
             <Button
               type="button"
-              size="fit"
-              className="h-10 px-8 text-sm"
               onClick={onPreview}
             >
               {translate('account.approval-rule-preview')}
@@ -284,8 +275,6 @@ export default function ApproversSection({
             <Button
               type="button"
               variant="secondary"
-              size="fit"
-              className="h-10 px-4 text-sm"
               onClick={() => onChange([...tiers, createTier()])}
             >
               {translate('account.approval-rule-add-tier')}

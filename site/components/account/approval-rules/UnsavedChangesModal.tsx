@@ -28,8 +28,8 @@ export default function UnsavedChangesModal({
       closeButton
     >
       <div className="border-b border-gray-300 p-6">
-        <h3 className="text-lg font-semibold text-gray-700">{title}</h3>
-        <p className="mt-3 text-sm text-gray-700">
+        <h3 className="text-lg font-semibold">{title}</h3>
+        <p className="mt-3 text-sm text-gray-600">
           {translate('account.approval-rule-unsaved-message')}
         </p>
       </div>
@@ -37,8 +37,6 @@ export default function UnsavedChangesModal({
         <Button
           type="button"
           variant="secondary"
-          size="fit"
-          className="h-10 px-6 text-sm"
           onClick={onStay}
         >
           {translate('common.cancel')}
@@ -46,8 +44,6 @@ export default function UnsavedChangesModal({
         <Button
           type="button"
           variant="warning"
-          size="fit"
-          className="h-10 px-6 text-sm"
           onClick={onLeave}
         >
           {translate('account.approval-rule-leave')}
