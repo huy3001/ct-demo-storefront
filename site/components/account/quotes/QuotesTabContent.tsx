@@ -223,6 +223,7 @@ export default function QuotesTabContent({ quotes }: { quotes: Quote[] }) {
                   </Table.Cell>
                   <Table.Cell
                     cellHeading={translate('orders.action')}
+                    className="lg:text-right"
                     isButtonsCell
                   >
                     <Link

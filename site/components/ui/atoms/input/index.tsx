@@ -57,7 +57,6 @@ const Input: FC<InputProps> = ({
   );
 
   const labelClassName = useClassNames([
-    labelPosition ? 'leading-loose' : 'leading-normal',
     labelPosition === 'top' ? 'text-sm' : 'text-xxs',
     'font-medium',
     { ['text-gray-600']: labelPosition === 'top' },
