@@ -15,7 +15,7 @@ export const ctEnv = {
   scopes: () =>
     (
       process.env.CTP_SCOPES ??
-      'view_products view_categories view_project view_business_units view_quote_requests view_quotes view_approval_rules manage_approval_rules view_approval_flows manage_approval_flows manage_orders manage_customers manage_shopping_lists manage_sessions'
+      'view_products view_categories view_project view_business_units view_quote_requests view_quotes view_approval_rules manage_approval_rules view_approval_flows manage_approval_flows manage_orders manage_customers manage_types manage_shopping_lists manage_sessions'
     )
       .split(' ')
       .filter(Boolean),

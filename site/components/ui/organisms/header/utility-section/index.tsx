@@ -8,6 +8,7 @@ import CartIcon from '@/components/icons/cart';
 import WishlistIcon from '@/components/icons/wishlist';
 import CompareHeaderLink from '@/components/compare/CompareHeaderLink';
 import AccountButton from './components/account-button';
+import NotificationBell from '@/components/account/approval-flows/NotificationBell';
 import type { DiscountCode } from '@commercetools/platform-sdk';
 
 export interface Props {
@@ -60,6 +61,8 @@ const UtilitySection: React.FC<Props> = ({
     <div className="mt-3 flex h-10 items-center">
       <div className="flex justify-between gap-x-2 lg:gap-x-4">
         <AccountButton />
+
+        <NotificationBell />
 
         <div className="h-10 w-fit">
           <CompareHeaderLink />

@@ -1,6 +1,6 @@
 export const APPROVAL_FLOW_STATUSES = [
   'Pending approval',
-  'Accepted',
+  'Approved',
   'Rejected',
 ] as const;
 
@@ -19,4 +19,18 @@ export interface ApprovalFlow {
   businessUnitKey: string;
   skus: string[];
   total?: { centAmount: number; currencyCode: string };
+  /** True when the signed-in associate may approve or reject this pending flow. */
+  canDecide: boolean;
+  /** Reason given by the approver who rejected the flow. */
+  rejectionReason?: string;
+}
+
+export type ApprovalDecision = 'approve' | 'reject';
+
+export interface ApprovalFlowNotification {
+  flowId: string;
+  businessUnitKey: string;
+  orderNumber: string;
+  createdAt: string;
+  read: boolean;
 }

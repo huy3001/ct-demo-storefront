@@ -7,7 +7,7 @@ import ApprovalFlowStatusBadge from './ApprovalFlowStatusBadge';
 
 const DESCRIPTION_KEYS = {
   'Pending approval': 'account.approval-flows-status-description-pending',
-  Accepted: 'account.approval-flows-status-description-accepted',
+  Approved: 'account.approval-flows-status-description-accepted',
   Rejected: 'account.approval-flows-status-description-rejected',
 } as const;
 

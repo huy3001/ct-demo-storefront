@@ -1,18 +1,21 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useParams, useSearchParams } from 'next/navigation';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import { useTranslations } from 'use-intl';
 import { Link } from '@/i18n/routing';
+import Button from '@/components/ui/atoms/button';
 import Skeleton from '@/components/ui/atoms/skeleton';
+import TextArea from '@/components/ui/atoms/text-area';
 import Table from '@/components/ui/organisms/table';
 import { formatMoney, getLocalizedString } from '@/lib/utils';
 import type { Order } from '@commercetools/platform-sdk';
 import type { CompanyManagement } from '@/lib/company';
-import type { ApprovalFlow } from '@/types/approval-flow';
+import type { ApprovalDecision, ApprovalFlow } from '@/types/approval-flow';
 import ApprovalFlowStatusBadge from './ApprovalFlowStatusBadge';
+import { NOTIFICATIONS_KEY } from './NotificationBell';
 
 const flowsFetcher = async (url: string) => {
   const response = await fetch(url);
@@ -65,7 +68,11 @@ export default function ApprovalFlowDetailPage() {
   );
   const businessUnitKey = businessUnitKeyParam || company?.company.key || '';
 
-  const { data: flows, error: flowsError } = useSWR(
+  const {
+    data: flows,
+    error: flowsError,
+    mutate: mutateFlows,
+  } = useSWR(
     businessUnitKey
       ? `/api/account/approval-flows?businessUnitKey=${encodeURIComponent(businessUnitKey)}`
       : null,
@@ -73,6 +80,59 @@ export default function ApprovalFlowDetailPage() {
     { revalidateOnFocus: false },
   );
   const flow = flows?.find((candidate) => candidate.id === id);
+
+  const { mutate } = useSWRConfig();
+  const [isRejecting, setIsRejecting] = useState(false);
+  const [reason, setReason] = useState('');
+  const [reasonError, setReasonError] = useState('');
+  const [actionError, setActionError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const flowId = flow?.id;
+
+  // Opening the flow marks its notification as read.
+  useEffect(() => {
+    if (!flowId) return;
+    void fetch(NOTIFICATIONS_KEY, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ flowId }),
+    })
+      .then(() => mutate(NOTIFICATIONS_KEY))
+      .catch(() => undefined);
+  }, [flowId, mutate]);
+
+  async function decide(decision: ApprovalDecision) {
+    if (!flow) return;
+    if (decision === 'reject' && !reason.trim()) {
+      setReasonError(translate('account.approval-flows-reject-reason-required'));
+      return;
+    }
+    setReasonError('');
+    setActionError('');
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(
+        `/api/account/approval-flows/${encodeURIComponent(flow.id)}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            businessUnitKey: flow.businessUnitKey,
+            decision,
+            ...(decision === 'reject' ? { reason: reason.trim() } : {}),
+          }),
+        },
+      );
+      if (!response.ok) throw new Error('Unable to update approval flow');
+      setIsRejecting(false);
+      setReason('');
+      await mutateFlows();
+    } catch {
+      setActionError(translate('account.approval-flows-action-failed'));
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
 
   const { data: order } = useSWR(
     flow ? `/api/account/orders/${encodeURIComponent(flow.orderId)}` : null,
@@ -108,7 +168,6 @@ export default function ApprovalFlowDetailPage() {
   const items = (order?.lineItems ?? []).filter(
     (item) => item.variant?.sku && flow.skus.includes(item.variant.sku),
   );
-  console.log({ order, items });
 
   return (
     <div>
@@ -148,6 +207,82 @@ export default function ApprovalFlowDetailPage() {
           </Field>
         </div>
       </dl>
+
+      {flow.status === 'Rejected' && flow.rejectionReason ? (
+        <section className="mt-8 pt-8 border-t border-border">
+          <h2 className="mb-2 text-lg font-semibold">
+            {translate('account.approval-flows-rejection-reason')}
+          </h2>
+          <p className="text-sm text-charcoal-light">{flow.rejectionReason}</p>
+        </section>
+      ) : null}
+
+      {flow.canDecide ? (
+        <section className="mt-8 pt-8 border-t border-border">
+          <h2 className="mb-4 text-lg font-semibold">
+            {translate('account.approval-flows-actions-title')}
+          </h2>
+          {isRejecting ? (
+            <div className="max-w-xl space-y-4">
+              <TextArea
+                name="rejection-reason"
+                label={translate('account.approval-flows-reject-reason-label')}
+                placeholder={translate(
+                  'account.approval-flows-reject-reason-placeholder',
+                )}
+                value={reason}
+                onChange={(event) => setReason(event.target.value)}
+                error={reasonError}
+                required
+              />
+              <div className="flex gap-3">
+                <Button
+                  variant="warning"
+                  loading={isSubmitting}
+                  onClick={() => void decide('reject')}
+                >
+                  {translate('account.approval-flows-reject-confirm')}
+                </Button>
+                <Button
+                  variant="secondary"
+                  disabled={isSubmitting}
+                  onClick={() => {
+                    setIsRejecting(false);
+                    setReason('');
+                    setReasonError('');
+                  }}
+                >
+                  {translate('account.approval-flows-cancel')}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex gap-3">
+              <Button
+                loading={isSubmitting}
+                onClick={() => void decide('approve')}
+              >
+                {translate('account.approval-flows-action-approve')}
+              </Button>
+              <Button
+                variant="warning"
+                disabled={isSubmitting}
+                onClick={() => setIsRejecting(true)}
+              >
+                {translate('account.approval-flows-action-reject')}
+              </Button>
+            </div>
+          )}
+          {actionError ? (
+            <p
+              role="alert"
+              className="mt-3 text-sm text-red-700"
+            >
+              {actionError}
+            </p>
+          ) : null}
+        </section>
+      ) : null}
 
       {items.length > 0 && (
         <>

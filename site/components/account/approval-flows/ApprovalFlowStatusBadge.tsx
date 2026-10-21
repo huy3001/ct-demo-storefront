@@ -9,13 +9,13 @@ export const APPROVAL_FLOW_STATUS_LABEL_KEYS: Record<
   string
 > = {
   'Pending approval': 'account.approval-flows-status-pending',
-  Accepted: 'account.approval-flows-status-accepted',
+  Approved: 'account.approval-flows-status-accepted',
   Rejected: 'account.approval-flows-status-rejected',
 };
 
 const STATUS_CLASSNAMES: Record<ApprovalFlowStatus, string> = {
   'Pending approval': 'bg-amber-100 text-amber-800',
-  Accepted: 'bg-green-100 text-green-800',
+  Approved: 'bg-green-100 text-green-800',
   Rejected: 'bg-red-100 text-red-800',
 };
 

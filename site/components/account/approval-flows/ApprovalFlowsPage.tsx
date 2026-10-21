@@ -77,7 +77,7 @@ export default function ApprovalFlowsPage() {
             </Tabs.Panel>
             <Tabs.Panel>
               <ApprovalFlowsTabContent
-              status="Accepted"
+              status="Approved"
               flows={flows}
             />
             </Tabs.Panel>
