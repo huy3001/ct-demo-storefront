@@ -8,7 +8,7 @@ import Button from '@/components/ui/atoms/button';
 import Dropdown from '@/components/ui/atoms/dropdown';
 import Tabs from '@/components/ui/organisms/tabs';
 import type { CompanyManagement } from '@/lib/company';
-import { listApprovalRules } from '@/lib/approval-rules';
+import type { ApprovalRule } from '@/types/approval-rule';
 import ApprovalRulesTable from './ApprovalRulesTable';
 
 const fetcher = async (url: string) => {
@@ -17,15 +17,27 @@ const fetcher = async (url: string) => {
   return response.json() as Promise<CompanyManagement>;
 };
 
+const rulesFetcher = async (url: string) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Unable to load approval rules');
+  return response.json() as Promise<ApprovalRule[]>;
+};
+
 export default function ApprovalRulesPage() {
   const translate = useTranslations();
   const router = useRouter();
   const { data } = useSWR('/api/account/company', fetcher, {
     revalidateOnFocus: false,
   });
-  const rules = listApprovalRules();
-  const [businessUnitId, setBusinessUnitId] = useState('');
-  const selectedBusinessUnitId = businessUnitId || data?.company.id || '';
+  const [businessUnitKey, setBusinessUnitKey] = useState('');
+  const selectedBusinessUnitKey = businessUnitKey || data?.company.key || '';
+  const { data: rules = [] } = useSWR(
+    selectedBusinessUnitKey
+      ? `/api/account/approval-rules?businessUnitKey=${encodeURIComponent(selectedBusinessUnitKey)}`
+      : null,
+    rulesFetcher,
+    { revalidateOnFocus: false },
+  );
 
   return (
     <div className="space-y-6">
@@ -38,18 +50,23 @@ export default function ApprovalRulesPage() {
           <Dropdown
             label={translate('account.business-unit')}
             name="business-unit"
-            value={selectedBusinessUnitId}
-            onChange={(event) => setBusinessUnitId(event.target.value)}
+            value={selectedBusinessUnitKey}
+            onChange={(event) => setBusinessUnitKey(event.target.value)}
             items={(data?.businessUnits ?? []).map((businessUnit) => ({
               label: businessUnit.name,
-              value: businessUnit.id,
+              value: businessUnit.key,
             }))}
           />
         </div>
         <Button
           type="button"
           className="shrink-0 whitespace-nowrap"
-          onClick={() => router.push('/account/approval-rules/add')}
+          disabled={!selectedBusinessUnitKey}
+          onClick={() =>
+            router.push(
+              `/account/approval-rules/add?businessUnit=${encodeURIComponent(selectedBusinessUnitKey)}`,
+            )
+          }
         >
           {translate('account.approval-rules-add')}
         </Button>
@@ -69,12 +86,14 @@ export default function ApprovalRulesPage() {
             <Tabs.Panel>
               <ApprovalRulesTable
                 rules={rules}
+                businessUnitKey={selectedBusinessUnitKey}
                 status="Active"
               />
             </Tabs.Panel>
             <Tabs.Panel>
               <ApprovalRulesTable
                 rules={rules}
+                businessUnitKey={selectedBusinessUnitKey}
                 status="Inactive"
               />
             </Tabs.Panel>

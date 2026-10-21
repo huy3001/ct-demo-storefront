@@ -8,11 +8,13 @@ import type { ApprovalRule, ApprovalRuleStatus } from '@/types/approval-rule';
 
 interface ApprovalRulesTableProps {
   rules: ApprovalRule[];
+  businessUnitKey: string;
   status: ApprovalRuleStatus;
 }
 
 export default function ApprovalRulesTable({
   rules,
+  businessUnitKey,
   status,
 }: ApprovalRulesTableProps) {
   const translate = useTranslations();
@@ -74,7 +76,7 @@ export default function ApprovalRulesTable({
                 isButtonsCell
               >
                 <Link
-                  link={`/account/approval-rules/${rule.id}/edit`}
+                  link={`/account/approval-rules/${rule.id}/edit?businessUnit=${encodeURIComponent(businessUnitKey)}`}
                   aria-label={translate('account.approval-rules-edit')}
                   className="inline-flex text-terra hover:text-terra"
                 >

@@ -120,6 +120,7 @@
     "approval-rule-unsaved-message": "Are you sure you want to abandon your current work? Any unsaved changes will be lost",
     "approval-rule-leave": "Leave",
     "approval-rule-not-found": "This approval rule could not be found.",
+    "approval-rule-save-error": "The approval rule could not be saved.",
     "associates": "Associates",
     "become-member": "Become a member",
     "business-unit": "Business unit",

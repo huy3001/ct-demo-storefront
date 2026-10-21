@@ -223,6 +223,28 @@ export async function createQuoteCartInBusinessUnit(
   return { cart: quoteCart, businessUnitKey };
 }
 
+/**
+ * commercetools only evaluates Approval Rules for Orders that belong to a Business Unit, so
+ * the cart handed to Checkout must be a Business Unit cart. Customers without a Business Unit
+ * keep their plain cart.
+ */
+export async function ensureBusinessUnitCart(
+  apiRoot: ByProjectKeyRequestBuilder,
+  customerId: string,
+  cart: Cart,
+): Promise<Cart> {
+  if (cart.businessUnit) return cart;
+  const businessUnitKeys = await getBusinessUnitKeys(apiRoot, customerId);
+  if (businessUnitKeys.length === 0) return cart;
+  const { cart: businessUnitCart } = await createQuoteCartInBusinessUnit(
+    apiRoot,
+    customerId,
+    cart,
+    true,
+  );
+  return businessUnitCart;
+}
+
 export async function updateQuoteCartAddresses(
   apiRoot: ByProjectKeyRequestBuilder,
   customerId: string,

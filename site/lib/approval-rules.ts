@@ -1,11 +1,9 @@
 import { ASSOCIATE_ROLES } from '@/lib/company';
 import { COUNTRY_CONFIG } from '@/lib/utils';
 import type {
+  ApprovalRuleDraft,
   ApproverRole,
   ApproverTier,
-  ApprovalRule,
-  ApprovalRuleDetails,
-  ApprovalRuleDraft,
   RuleCondition,
   RuleOperator,
   RulePredicate,
@@ -146,88 +144,166 @@ export function createTier(): ApproverTier {
   return { id: createId('tier'), approvers: [createApprover()] };
 }
 
-const SEED_RULES: ApprovalRuleDetails[] = [
-  {
-    id: 'rule-1',
-    name: 'Rule 1',
-    requester: 'Admin',
-    status: 'Active',
-    description: '',
-    requesterRoles: ['admin'],
-    conditions: [
-      {
-        id: 'seed-condition-1',
-        connector: 'and',
+const AMOUNT_SYMBOLS: Partial<Record<RuleOperator, string>> = {
+  equal: '=',
+  more: '>',
+  'more-equal': '>=',
+  less: '<',
+  'less-equal': '<=',
+};
+
+const AMOUNT_OPERATORS_BY_SYMBOL = Object.fromEntries(
+  Object.entries(AMOUNT_SYMBOLS).map(([operator, symbol]) => [
+    symbol,
+    operator as RuleOperator,
+  ]),
+);
+
+const MEMBERSHIP_FIELDS: Record<'currency' | 'country', string> = {
+  currency: 'totalPrice.currencyCode',
+  country: 'shippingAddress.country',
+};
+
+const AMOUNT_FIELD = 'totalPrice.centAmount';
+
+function conditionToPredicate(condition: RuleCondition): string {
+  if (condition.predicate === 'cart-amount') {
+    const centAmount = Math.round(Number(condition.value) * 100);
+    return `${AMOUNT_FIELD} ${AMOUNT_SYMBOLS[condition.operator as RuleOperator]} ${centAmount}`;
+  }
+  const field = MEMBERSHIP_FIELDS[condition.predicate as 'currency' | 'country'];
+  return `${field} ${condition.operator === 'is' ? '=' : '!='} "${condition.value}"`;
+}
+
+/** Builds the commercetools Order Predicate evaluated against every new order of the business unit. */
+export function buildRulePredicate(conditions: RuleCondition[]): string {
+  return conditions
+    .map((condition, index) => {
+      const expression = conditionToPredicate(condition);
+      return index === 0 ? expression : `${condition.connector} ${expression}`;
+    })
+    .join(' ');
+}
+
+/** Inverse of buildRulePredicate. Returns [] when the predicate was authored elsewhere and cannot be edited as rows. */
+export function parseRulePredicate(predicate: string): RuleCondition[] {
+  const parts = predicate.trim().split(/\s+(and|or)\s+/);
+  const conditions: RuleCondition[] = [];
+
+  for (let index = 0; index < parts.length; index += 2) {
+    const connector = index === 0 ? 'and' : (parts[index - 1] as 'and' | 'or');
+    const expression = parts[index];
+    const amount = expression.match(
+      /^totalPrice\.centAmount\s*(>=|<=|=|>|<)\s*(\d+)$/,
+    );
+    const membership = expression.match(
+      /^(totalPrice\.currencyCode|shippingAddress\.country)\s*(!=|=)\s*"([^"]+)"$/,
+    );
+
+    if (amount) {
+      conditions.push({
+        ...createCondition(),
+        connector,
         predicate: 'cart-amount',
-        operator: 'more',
-        value: '1000',
+        operator: AMOUNT_OPERATORS_BY_SYMBOL[amount[1]],
+        value: String(Number(amount[2]) / 100),
         saved: true,
-      },
-    ],
-    tiers: [
-      {
-        id: 'seed-tier-1',
-        approvers: [{ id: 'seed-approver-1', role: 'approver', saved: true }],
-      },
-    ],
-  },
-  {
-    id: 'rule-2',
-    name: 'Rule 2',
-    requester: 'Buyer',
-    status: 'Inactive',
-    description: '',
-    requesterRoles: ['buyer'],
-    conditions: [
-      {
-        id: 'seed-condition-2',
-        connector: 'and',
-        predicate: 'currency',
-        operator: 'is',
-        value: 'USD',
+      });
+    } else if (membership) {
+      conditions.push({
+        ...createCondition(),
+        connector,
+        predicate:
+          membership[1] === MEMBERSHIP_FIELDS.currency ? 'currency' : 'country',
+        operator: membership[2] === '=' ? 'is' : 'is-not',
+        value: membership[3],
         saved: true,
-      },
-    ],
-    tiers: [
-      {
-        id: 'seed-tier-2',
-        approvers: [{ id: 'seed-approver-2', role: 'admin', saved: true }],
-      },
-    ],
-  },
-];
+      });
+    } else {
+      return [];
+    }
+  }
 
-// No approval rules data source exists yet, so rules live in memory for the session.
-const store: ApprovalRuleDetails[] = [...SEED_RULES];
+  return conditions;
+}
 
-export function listApprovalRules(): ApprovalRule[] {
-  return store.map(({ id, name, requester, status }) => ({
-    id,
+function invalid(message: string): never {
+  throw Object.assign(new Error(message), { statusCode: 400 });
+}
+
+function asRecord(value: unknown, field: string): Record<string, unknown> {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    invalid(`${field} is invalid`);
+  }
+  return value as Record<string, unknown>;
+}
+
+function asArray(value: unknown, field: string): unknown[] {
+  if (!Array.isArray(value)) invalid(`${field} is invalid`);
+  return value as unknown[];
+}
+
+/** Validates an untrusted request body into an approval rule draft. Throws an error carrying statusCode 400. */
+export function parseApprovalRuleDraft(input: unknown): ApprovalRuleDraft {
+  const body = asRecord(input, 'Approval rule');
+  const name = typeof body.name === 'string' ? body.name.trim() : '';
+  if (!name) invalid('Name is required');
+
+  const requesterRoles = [
+    ...new Set(asArray(body.requesterRoles, 'Requester roles')),
+  ];
+  if (
+    requesterRoles.length === 0 ||
+    requesterRoles.some(
+      (role) =>
+        typeof role !== 'string' ||
+        !REQUESTER_ROLES.includes(role as (typeof REQUESTER_ROLES)[number]),
+    )
+  ) {
+    invalid('At least one valid requester role is required');
+  }
+
+  const conditions = asArray(body.conditions, 'Conditions').map(
+    (item): RuleCondition => {
+      const condition = asRecord(item, 'Condition');
+      return {
+        id: createId('condition'),
+        connector: condition.connector === 'or' ? 'or' : 'and',
+        predicate: condition.predicate as RulePredicate,
+        operator: condition.operator as RuleOperator,
+        value: String(condition.value ?? ''),
+        saved: true,
+      };
+    },
+  );
+  if (!areConditionsComplete(conditions)) invalid('Rule conditions are incomplete');
+
+  const tiers = asArray(body.tiers, 'Tiers').map((item): ApproverTier => {
+    const tier = asRecord(item, 'Tier');
+    return {
+      id: createId('tier'),
+      approvers: asArray(tier.approvers, 'Approvers').map(
+        (approver): TierApprover => ({
+          id: createId('approver'),
+          role: asRecord(approver, 'Approver').role as ApproverRole,
+          saved: true,
+        }),
+      ),
+    };
+  });
+  if (!areTiersComplete(tiers)) invalid('Approver tiers are incomplete');
+
+  if (body.status !== 'Active' && body.status !== 'Inactive') {
+    invalid('Status is invalid');
+  }
+
+  return {
     name,
-    requester,
-    status,
-  }));
-}
-
-export function getApprovalRule(id: string): ApprovalRuleDetails | undefined {
-  return store.find((rule) => rule.id === id);
-}
-
-function capitalize(value: string): string {
-  return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
-export function saveApprovalRule(
-  draft: ApprovalRuleDraft,
-  id?: string,
-): ApprovalRuleDetails {
-  const rule: ApprovalRuleDetails = {
-    ...draft,
-    id: id ?? createId('rule'),
-    requester: draft.requesterRoles.map(capitalize).join(', '),
+    description:
+      typeof body.description === 'string' ? body.description.trim() : '',
+    requesterRoles: requesterRoles as string[],
+    conditions,
+    tiers,
+    status: body.status,
   };
-  const index = store.findIndex((item) => item.id === rule.id);
-  if (index === -1) store.push(rule);
-  else store[index] = rule;
-  return rule;
 }

@@ -120,6 +120,7 @@
     "approval-rule-unsaved-message": "Möchten Sie Ihre aktuelle Arbeit wirklich verwerfen? Nicht gespeicherte Änderungen gehen verloren",
     "approval-rule-leave": "Verlassen",
     "approval-rule-not-found": "Diese Genehmigungsregel wurde nicht gefunden.",
+    "approval-rule-save-error": "Die Genehmigungsregel konnte nicht gespeichert werden.",
     "associates": "Mitarbeiter",
     "become-member": "Mitglied werden",
     "business-unit": "Geschäftseinheit",

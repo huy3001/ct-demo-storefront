@@ -3,6 +3,7 @@ import { getSessionApiRoot, persistSession } from '@/lib/ct/session';
 import { getOrCreateCart, setCheckoutAddresses } from '@/lib/ct/cart';
 import { createCheckoutSession } from '@/lib/ct/checkout';
 import { getCustomerById } from '@/lib/ct/customer';
+import { ensureBusinessUnitCart, QuoteRequestError } from '@/lib/ct/quotes';
 import { customerPhone } from '@/lib/customer-profile';
 import { apiError } from '../../_utils';
 
@@ -15,11 +16,19 @@ export async function POST(req: NextRequest) {
   try {
     const { locale } = (await req.json().catch(() => ({}))) as { locale?: string };
     const { apiRoot, session } = await getSessionApiRoot();
-    const { cart, session: updatedSession } = await getOrCreateCart(apiRoot, session, locale ?? 'en-US');
+    const { cart: activeCart, session: updatedSession } = await getOrCreateCart(apiRoot, session, locale ?? 'en-US');
     await persistSession(updatedSession);
 
-    if (!cart.lineItems.length) {
+    if (!activeCart.lineItems.length) {
       return NextResponse.json({ message: 'Cart is empty' }, { status: 400 });
+    }
+
+    // Orders must belong to the customer's business unit so its approval rules apply.
+    const cart = session.customerId
+      ? await ensureBusinessUnitCart(apiRoot, session.customerId, activeCart)
+      : activeCart;
+    if (cart.id !== activeCart.id) {
+      await persistSession({ ...updatedSession, cartId: cart.id });
     }
 
     let checkoutCart = cart;
@@ -63,6 +72,9 @@ export async function POST(req: NextRequest) {
     const result = await createCheckoutSession(checkoutCart.id);
     return NextResponse.json({ ...result, profileContact });
   } catch (err) {
+    if (err instanceof QuoteRequestError) {
+      return NextResponse.json({ message: err.message }, { status: 400 });
+    }
     return apiError(err);
   }
 }

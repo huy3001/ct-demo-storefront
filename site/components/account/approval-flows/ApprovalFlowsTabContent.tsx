@@ -12,16 +12,27 @@ import Label from '@/components/ui/atoms/label';
 import MultiDropdown from '@/components/ui/atoms/multi-dropdown';
 import {
   APPROVAL_FLOW_STATUSES,
+  type ApprovalFlow,
   type ApprovalFlowStatus,
 } from '@/types/approval-flow';
 import { APPROVAL_FLOW_STATUS_LABEL_KEYS } from './ApprovalFlowStatusBadge';
 import ApprovalFlowStatusHelpModal from './ApprovalFlowStatusHelpModal';
 import ApprovalFlowsTable from './ApprovalFlowsTable';
 
+function matchesSearch(flow: ApprovalFlow, search: string): boolean {
+  const term = search.trim().toLowerCase();
+  if (!term) return true;
+  return [flow.orderNumber, flow.id, ...flow.skus].some((value) =>
+    value.toLowerCase().includes(term),
+  );
+}
+
 export default function ApprovalFlowsTabContent({
   status,
+  flows,
 }: {
   status: ApprovalFlowStatus;
+  flows: ApprovalFlow[];
 }) {
   const translate = useTranslations();
   const [search, setSearch] = useState('');
@@ -39,30 +50,6 @@ export default function ApprovalFlowsTabContent({
         : translate('account.approval-flows-status-selected', {
             count: statuses.length,
           });
-
-  const mockFlows = [
-    {
-      id: 'flow-1',
-      status: 'Pending approval' as ApprovalFlowStatus,
-      createdAt: new Date().toISOString(),
-      businessUnit: 'Liberty Crane Solutions LLC',
-      total: { centAmount: 100000, currencyCode: 'USD' },
-    },
-    {
-      id: 'flow-2',
-      status: 'Accepted' as ApprovalFlowStatus,
-      createdAt: new Date().toISOString(),
-      businessUnit: 'Liberty Crane Solutions LLC',
-      total: { centAmount: 200000, currencyCode: 'USD' },
-    },
-    {
-      id: 'flow-3',
-      status: 'Rejected' as ApprovalFlowStatus,
-      createdAt: new Date().toISOString(),
-      businessUnit: 'Liberty Crane Solutions LLC',
-      total: { centAmount: 300000, currencyCode: 'USD' },
-    }
-  ];
 
   return (
     <div>
@@ -138,7 +125,7 @@ export default function ApprovalFlowsTabContent({
       <ApprovalFlowsTable
         status={status}
         statusFilter={statuses}
-        flows={mockFlows}
+        flows={flows.filter((flow) => matchesSearch(flow, search))}
       />
 
       <ApprovalFlowStatusHelpModal

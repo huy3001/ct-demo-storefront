@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
-import { render, screen, within } from '@/__test__/utils';
+import { render, screen, waitFor, within } from '@/__test__/utils';
 import { useRouter } from '@/i18n/routing';
-import { getApprovalRule } from '@/lib/approval-rules';
+import type { ApprovalRuleDetails } from '@/types/approval-rule';
 import ApprovalRuleForm from './ApprovalRuleForm';
 
 const t = (key: string) => `account.approval-rule-${key}`;
@@ -20,7 +20,7 @@ async function fillBasics(user: ReturnType<typeof userEvent.setup>) {
 
 describe('[Component] Approval rule form', () => {
   it('starts empty with Save disabled and both sections showing an Add button', () => {
-    render(<ApprovalRuleForm />);
+    render(<ApprovalRuleForm businessUnitKey="test-unit" />);
 
     expect(screen.getByRole('heading', { name: 'account.approval-rules-add' })).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: t('add') })).toHaveLength(2);
@@ -29,7 +29,7 @@ describe('[Component] Approval rule form', () => {
 
   it('enables the operator dropdown and value field after a predicate is chosen', async () => {
     const user = userEvent.setup();
-    render(<ApprovalRuleForm />);
+    render(<ApprovalRuleForm businessUnitKey="test-unit" />);
 
     await user.click(screen.getAllByRole('button', { name: t('add') })[0]);
 
@@ -64,7 +64,7 @@ describe('[Component] Approval rule form', () => {
 
   it('saves a row, adds another with "+", then previews and edits the rule set', async () => {
     const user = userEvent.setup();
-    render(<ApprovalRuleForm />);
+    render(<ApprovalRuleForm businessUnitKey="test-unit" />);
 
     await user.click(screen.getAllByRole('button', { name: t('add') })[0]);
     await user.selectOptions(screen.getByLabelText(t('select-predicate')), 'cart-amount');
@@ -93,7 +93,7 @@ describe('[Component] Approval rule form', () => {
 
   it('manages approver tiers', async () => {
     const user = userEvent.setup();
-    render(<ApprovalRuleForm />);
+    render(<ApprovalRuleForm businessUnitKey="test-unit" />);
 
     await user.click(screen.getAllByRole('button', { name: t('add') })[1]);
     expect(screen.getByText('account.approval-rule-tier')).toBeInTheDocument();
@@ -118,7 +118,9 @@ describe('[Component] Approval rule form', () => {
   it('saves a complete rule and returns to the list', async () => {
     const user = userEvent.setup();
     const router = useRouter();
-    render(<ApprovalRuleForm />);
+    const fetchMock = jest.fn().mockResolvedValue({ ok: true, json: async () => ({}) });
+    global.fetch = fetchMock as unknown as typeof fetch;
+    render(<ApprovalRuleForm businessUnitKey="test-unit" />);
 
     await fillBasics(user);
 
@@ -137,14 +139,20 @@ describe('[Component] Approval rule form', () => {
     await user.click(screen.getByRole('checkbox'));
     await user.click(screen.getByRole('button', { name: 'common.save' }));
 
-    expect(router.push).toHaveBeenCalledWith('/account/approval-rules');
+    await waitFor(() =>
+      expect(router.push).toHaveBeenCalledWith('/account/approval-rules'),
+    );
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/account/approval-rules',
+      expect.objectContaining({ method: 'POST' }),
+    );
   });
 
   it('asks for confirmation when cancelling', async () => {
     const user = userEvent.setup();
     const router = useRouter();
     (router.push as jest.Mock).mockClear();
-    render(<ApprovalRuleForm />);
+    render(<ApprovalRuleForm businessUnitKey="test-unit" />);
 
     await user.click(screen.getByRole('button', { name: 'common.cancel' }));
     expect(screen.getByText(t('unsaved-title'))).toBeInTheDocument();
@@ -161,8 +169,36 @@ describe('[Component] Approval rule form', () => {
   });
 
   it('prefills an existing rule when editing', () => {
-    const rule = getApprovalRule('1');
-    render(<ApprovalRuleForm rule={rule} />);
+    const rule: ApprovalRuleDetails = {
+      id: 'rule-1',
+      name: 'Rule 1',
+      requester: 'Admin',
+      status: 'Active',
+      description: '',
+      requesterRoles: ['admin'],
+      conditions: [
+        {
+          id: 'condition-1',
+          connector: 'and',
+          predicate: 'cart-amount',
+          operator: 'more',
+          value: '1000',
+          saved: true,
+        },
+      ],
+      tiers: [
+        {
+          id: 'tier-1',
+          approvers: [{ id: 'approver-1', role: 'approver', saved: true }],
+        },
+      ],
+    };
+    render(
+      <ApprovalRuleForm
+        businessUnitKey="test-unit"
+        rule={rule}
+      />,
+    );
 
     expect(screen.getByRole('heading', { name: 'account.approval-rules-edit' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: /rule-name/ })).toHaveValue('Rule 1');

@@ -7,9 +7,14 @@ export const APPROVAL_FLOW_STATUSES = [
 export type ApprovalFlowStatus = (typeof APPROVAL_FLOW_STATUSES)[number];
 
 export interface ApprovalFlow {
+  /** Approval flow id, used for the detail route. */
   id: string;
+  orderId: string;
+  /** Shown in the ID column; falls back to the order id when the order has no number. */
+  orderNumber: string;
   status: ApprovalFlowStatus;
   createdAt: string;
   businessUnit: string;
-  total: { centAmount: number; currencyCode: string };
+  skus: string[];
+  total?: { centAmount: number; currencyCode: string };
 }

@@ -12,7 +12,6 @@ import {
   REQUESTER_ROLES,
   areConditionsComplete,
   areTiersComplete,
-  saveApprovalRule,
 } from '@/lib/approval-rules';
 import type {
   ApprovalRuleDetails,
@@ -26,10 +25,14 @@ import UnsavedChangesModal from './UnsavedChangesModal';
 const LIST_PATH = '/account/approval-rules';
 
 interface ApprovalRuleFormProps {
+  businessUnitKey: string;
   rule?: ApprovalRuleDetails;
 }
 
-export default function ApprovalRuleForm({ rule }: ApprovalRuleFormProps) {
+export default function ApprovalRuleForm({
+  businessUnitKey,
+  rule,
+}: ApprovalRuleFormProps) {
   const translate = useTranslations();
   const router = useRouter();
   const isEdit = !!rule;
@@ -49,6 +52,8 @@ export default function ApprovalRuleForm({ rule }: ApprovalRuleFormProps) {
   const [showApproversError, setShowApproversError] = useState(false);
   const [active, setActive] = useState(rule ? rule.status === 'Active' : true);
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   // A section only counts once it has been previewed (committed).
   const canSave =
@@ -57,7 +62,8 @@ export default function ApprovalRuleForm({ rule }: ApprovalRuleFormProps) {
     isRulePreview &&
     conditions.length > 0 &&
     isApproversPreview &&
-    tiers.length > 0;
+    tiers.length > 0 &&
+    !!businessUnitKey;
 
   const roleLabel = (role: string) =>
     translate(`account.approval-rule-role-${role}`);
@@ -98,21 +104,45 @@ export default function ApprovalRuleForm({ rule }: ApprovalRuleFormProps) {
     setIsApproversPreview(true);
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!canSave) return;
-    saveApprovalRule(
-      {
-        name: name.trim(),
-        description: description.trim(),
-        requesterRoles,
-        conditions,
-        tiers,
-        status: active ? 'Active' : 'Inactive',
-      },
-      rule?.id,
-    );
-    router.push(LIST_PATH);
+    if (!canSave || isSaving) return;
+    setIsSaving(true);
+    setSaveError('');
+    try {
+      const response = await fetch(
+        rule
+          ? `/api/account/approval-rules/${encodeURIComponent(rule.id)}`
+          : '/api/account/approval-rules',
+        {
+          method: rule ? 'PATCH' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            businessUnitKey,
+            name: name.trim(),
+            description: description.trim(),
+            requesterRoles,
+            conditions,
+            tiers,
+            status: active ? 'Active' : 'Inactive',
+          }),
+        },
+      );
+      if (!response.ok) {
+        const body = (await response.json().catch(() => ({}))) as {
+          message?: string;
+        };
+        throw new Error(body.message);
+      }
+      router.push(LIST_PATH);
+    } catch (error) {
+      setSaveError(
+        error instanceof Error && error.message
+          ? error.message
+          : translate('account.approval-rule-save-error'),
+      );
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -209,6 +239,15 @@ export default function ApprovalRuleForm({ rule }: ApprovalRuleFormProps) {
           />
         </div>
 
+        {saveError && (
+          <p
+            role="alert"
+            className="text-sm text-red-700"
+          >
+            {saveError}
+          </p>
+        )}
+
         <div className="flex gap-3">
           <Button
             type="button"
@@ -221,7 +260,8 @@ export default function ApprovalRuleForm({ rule }: ApprovalRuleFormProps) {
           <Button
             type="submit"
             className="flex-1 sm:max-w-40"
-            disabled={!canSave}
+            disabled={!canSave || isSaving}
+            loading={isSaving}
           >
             {translate('common.save')}
           </Button>

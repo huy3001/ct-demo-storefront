@@ -61,7 +61,7 @@ export default function ApprovalFlowsTable({
               <Table.Cell
                 cellHeading={translate('account.approval-flows-column-id')}
               >
-                <span>{flow.id}</span>
+                <span>{flow.orderNumber}</span>
               </Table.Cell>
               <Table.Cell
                 cellHeading={translate('account.approval-flows-column-date')}
@@ -81,11 +81,13 @@ export default function ApprovalFlowsTable({
                 cellHeading={translate('account.approval-flows-column-total')}
               >
                 <span>
-                  {formatMoney(
-                    flow.total.centAmount,
-                    flow.total.currencyCode,
-                    locale,
-                  )}
+                  {flow.total
+                    ? formatMoney(
+                        flow.total.centAmount,
+                        flow.total.currencyCode,
+                        locale,
+                      )
+                    : '—'}
                 </span>
               </Table.Cell>
               <Table.Cell

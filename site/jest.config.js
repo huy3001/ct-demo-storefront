@@ -26,6 +26,8 @@ const config = {
     '^next-intl/(.*)$': '<rootDir>/jest/mocks/next-intl.tsx',
     '^use-intl$': '<rootDir>/jest/mocks/use-intl.ts',
     '^use-intl/(.*)$': '<rootDir>/jest/mocks/use-intl.ts',
+    '^@/i18n/routing$': '<rootDir>/jest/mocks/i18n-routing.tsx',
+    '^@/(.*)$': '<rootDir>/$1',
     '^types$': '<rootDir>/types',
     '^types/(.*)$': '<rootDir>/types/$1',
     '\\.(css|less|sass|scss)$': '<rootDir>/jest/config/styleMock.js',
