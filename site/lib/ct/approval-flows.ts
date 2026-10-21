@@ -26,6 +26,7 @@ function businessUnitApi(
 function toApprovalFlow(
   flow: CtApprovalFlow,
   businessUnitName: string,
+  businessUnitKey: string,
 ): ApprovalFlow {
   const order: Order | undefined = flow.order.obj;
   return {
@@ -35,6 +36,7 @@ function toApprovalFlow(
     status: STATUS_MAP[flow.status],
     createdAt: flow.createdAt,
     businessUnit: businessUnitName,
+    businessUnitKey,
     skus: (order?.lineItems ?? []).flatMap(({ variant }) =>
       variant.sku ? [variant.sku] : [],
     ),
@@ -76,7 +78,7 @@ export async function listApprovalFlows(
         .get()
         .execute(),
     ]);
-    return flows.results.map((flow) => toApprovalFlow(flow, unit.name));
+    return flows.results.map((flow) => toApprovalFlow(flow, unit.name, businessUnitKey));
   } catch (error) {
     // commercetools answers 403 when the associate cannot update approval flows.
     if ((error as { statusCode?: number }).statusCode === 403) return [];

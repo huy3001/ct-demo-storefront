@@ -61,7 +61,7 @@ export default function ApprovalFlowsTable({
               <Table.Cell
                 cellHeading={translate('account.approval-flows-column-id')}
               >
-                <span>{flow.orderNumber}</span>
+                <span>{flow.id}</span>
               </Table.Cell>
               <Table.Cell
                 cellHeading={translate('account.approval-flows-column-date')}
@@ -97,7 +97,7 @@ export default function ApprovalFlowsTable({
               >
                 <Link
                   variant="primary"
-                  link={`/account/approval-flows/${flow.id}`}
+                  link={`/account/approval-flows/${flow.id}?businessUnitKey=${encodeURIComponent(flow.businessUnitKey)}`}
                   className="text-terra hover:underline whitespace-nowrap"
                 >
                   {translate('account.approval-flows-view')}

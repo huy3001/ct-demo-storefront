@@ -261,7 +261,6 @@ export default function ApprovalRuleForm({
             type="submit"
             className="flex-1 sm:max-w-40"
             disabled={!canSave || isSaving}
-            loading={isSaving}
           >
             {translate('common.save')}
           </Button>

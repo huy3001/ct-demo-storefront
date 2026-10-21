@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'use-intl';
@@ -10,6 +10,15 @@ import { formatMoney } from '@/lib/utils';
 import { isQuote, type Quote } from '@/types/quote';
 import QuoteStatusBadge from './QuoteStatusBadge';
 import Skeleton from '@/components/ui/atoms/skeleton';
+
+function Field({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div>
+      <dt className="text-sm font-semibold text-charcoal">{label}</dt>
+      <dd className="mt-1 text-sm text-charcoal-light">{children}</dd>
+    </div>
+  );
+}
 
 export default function QuoteDetailPage() {
   const translate = useTranslations();
@@ -109,56 +118,24 @@ export default function QuoteDetailPage() {
 
       <dl className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <div className="space-y-4">
-          <div>
-            <dt className="text-sm font-semibold text-charcoal">
-              {translate('quotes.quote-request-id')}
-            </dt>
-            <dd className="mt-1 text-sm text-charcoal-light">{quote.id}</dd>
-          </div>
-          <div>
-            <dt className="text-sm font-semibold text-charcoal">
-              {translate('quotes.last-modified')}
-            </dt>
-            <dd className="mt-1 text-sm text-charcoal-light">
-              {new Date(quote.lastModifiedAt).toLocaleDateString(locale)}
-            </dd>
-          </div>
+          <Field label={translate('quotes.quote-request-id')}>{quote.id}</Field>
+          <Field label={translate('quotes.last-modified')}>
+            {new Date(quote.lastModifiedAt).toLocaleDateString(locale)}
+          </Field>
         </div>
 
         <div className="space-y-4">
-          <div>
-            <dt className="text-sm font-semibold text-charcoal">
-              {translate('quotes.creation-date')}
-            </dt>
-            <dd className="mt-1 text-sm text-charcoal-light">
-              {new Date(quote.createdAt).toLocaleDateString(locale)}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm font-semibold text-charcoal">
-              {translate('quotes.status')}
-            </dt>
-            <dd className="mt-1">
-              <QuoteStatusBadge status={quote.status} />
-            </dd>
-          </div>
+          <Field label={translate('quotes.creation-date')}>
+            {new Date(quote.createdAt).toLocaleDateString(locale)}
+          </Field>
+          <Field label={translate('quotes.status')}>
+            <QuoteStatusBadge status={quote.status} />
+          </Field>
         </div>
 
         <div className="space-y-4">
-          <div>
-            <dt className="text-sm font-semibold text-charcoal">
-              {translate('quotes.po-number')}
-            </dt>
-            <dd className="mt-1 text-sm text-charcoal-light">
-              {quote.poNumber}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-sm font-semibold text-charcoal">
-              {translate('quotes.owner')}
-            </dt>
-            <dd className="mt-1 text-sm text-charcoal-light">{quote.owner}</dd>
-          </div>
+          <Field label={translate('quotes.po-number')}>{quote.poNumber}</Field>
+          <Field label={translate('quotes.owner')}>{quote.owner}</Field>
         </div>
       </dl>
 
@@ -191,7 +168,7 @@ export default function QuoteDetailPage() {
         <h2 className="mb-4 text-lg font-semibold">
           {translate('quotes.items-quoted', { count: quote.items.length })}
         </h2>
-        
+
         <Table>
           <Table.Container>
             <Table.Head>

@@ -15,6 +15,8 @@ export interface ApprovalFlow {
   status: ApprovalFlowStatus;
   createdAt: string;
   businessUnit: string;
+  /** Key of the business unit the flow belongs to; needed to look the flow up. */
+  businessUnitKey: string;
   skus: string[];
   total?: { centAmount: number; currencyCode: string };
 }
