@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { gql } from '@apollo/client';
 import {
+  useMcLazyQuery,
   useMcMutation,
   useMcQuery,
 } from '@commercetools-frontend/application-shell';
@@ -17,10 +18,44 @@ const FETCH_PRODUCT_REVIEWS = gql`
           current {
             masterVariant {
               id
+              sku
               attributesRaw {
                 name
                 value
               }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+const FETCH_PRODUCT_BY_SKU = gql`
+  query FetchProductBySku($where: String!) {
+    products(where: $where, limit: 20) {
+      results {
+        id
+        version
+        productType {
+          attributeDefinitions(limit: 500) {
+            results {
+              name
+            }
+          }
+        }
+        masterData {
+          current {
+            masterVariant {
+              id
+              sku
+              attributesRaw {
+                name
+                value
+              }
+            }
+            variants {
+              sku
             }
           }
         }
@@ -42,8 +77,16 @@ const UPDATE_PRODUCT_REVIEWS = gql`
   }
 `;
 
+export class SkuNotFoundError extends Error {
+  constructor() {
+    super('No Merchant Center product matches this SKU');
+    this.name = 'SkuNotFoundError';
+  }
+}
+
 type StoredReview = {
   id: string;
+  sku?: string;
   rating: number;
   author: string;
   title: string;
@@ -56,7 +99,7 @@ type StoredReview = {
 type ProductReviewSource = {
   id: string;
   version: number;
-  masterVariantId: number;
+  masterSku: string;
   reviews: StoredReview[];
 };
 
@@ -69,8 +112,32 @@ type ProductReviewQuery = {
         current: {
           masterVariant: {
             id: number;
+            sku?: string | null;
             attributesRaw: Array<{ name: string; value: unknown }>;
           };
+        };
+      };
+    }>;
+  };
+};
+
+type ProductBySkuResult = ProductBySkuQuery['products']['results'][number];
+
+type ProductBySkuQuery = {
+  products: {
+    results: Array<{
+      id: string;
+      version: number;
+      productType: {
+        attributeDefinitions: { results: Array<{ name: string }> };
+      };
+      masterData: {
+        current: {
+          masterVariant: {
+            sku?: string | null;
+            attributesRaw: Array<{ name: string; value: unknown }>;
+          };
+          variants: Array<{ sku?: string | null }>;
         };
       };
     }>;
@@ -114,6 +181,9 @@ function parseReviews(value: unknown): StoredReview[] {
       return [
         {
           id: review.id,
+          ...(typeof review.sku === 'string' && review.sku
+            ? { sku: review.sku }
+            : {}),
           rating,
           author: review.author,
           title: review.title,
@@ -129,10 +199,14 @@ function parseReviews(value: unknown): StoredReview[] {
   }
 }
 
-function toRecord(productId: string, review: StoredReview): ReviewRecord {
+function toRecord(
+  source: ProductReviewSource,
+  review: StoredReview
+): ReviewRecord {
   return {
     id: review.id,
-    productId,
+    productId: source.id,
+    sku: review.sku ?? source.masterSku,
     rating: review.rating,
     title: review.title,
     text: review.content,
@@ -145,6 +219,7 @@ function toRecord(productId: string, review: StoredReview): ReviewRecord {
 function toStoredReview(draft: ReviewDraft, id: string): StoredReview {
   return {
     id,
+    sku: draft.sku,
     rating: draft.rating,
     author: draft.reviewerName,
     title: draft.title,
@@ -166,6 +241,14 @@ export const useProductReviews = () => {
     UPDATE_PRODUCT_REVIEWS
   );
 
+  const [fetchProductBySku] = useMcLazyQuery<ProductBySkuQuery>(
+    FETCH_PRODUCT_BY_SKU,
+    {
+      context: { target: GRAPHQL_TARGETS.COMMERCETOOLS_PLATFORM },
+      fetchPolicy: 'network-only',
+    }
+  );
+
   const sources = useMemo<ProductReviewSource[]>(() => {
     const values: ProductReviewQuery['products']['results'] =
       data?.products.results ?? [];
@@ -177,7 +260,7 @@ export const useProductReviews = () => {
       return {
         id: product.id,
         version: product.version,
-        masterVariantId: masterVariant.id,
+        masterSku: masterVariant.sku ?? '',
         reviews: parseReviews(reviewsValue),
       };
     });
@@ -187,7 +270,7 @@ export const useProductReviews = () => {
     () =>
       sources
         .flatMap((source) =>
-          source.reviews.map((review) => toRecord(source.id, review))
+          source.reviews.map((review) => toRecord(source, review))
         )
         .sort(
           (left, right) =>
@@ -196,21 +279,22 @@ export const useProductReviews = () => {
     [sources]
   );
 
-  const persist = async (productId: string, reviews: StoredReview[]) => {
-    const source = sources.find((item) => item.id === productId);
-    if (!source) throw new Error('The selected product could not be found');
-
+  const persistReviews = async (
+    product: { id: string; version: number },
+    reviews: StoredReview[]
+  ) => {
+    // The attribute is SameForAll, so it must be set on every variant of the current projection
     await updateProduct({
       context: { target: GRAPHQL_TARGETS.COMMERCETOOLS_PLATFORM },
       variables: {
-        id: source.id,
-        version: source.version,
+        id: product.id,
+        version: product.version,
         actions: [
           {
-            setAttribute: {
-              variantId: source.masterVariantId,
+            setAttributeInAllVariants: {
               name: 'reviews',
               value: JSON.stringify(reviews),
+              staged: false,
             },
           },
         ],
@@ -219,20 +303,59 @@ export const useProductReviews = () => {
     await refetch();
   };
 
+  const persist = async (productId: string, reviews: StoredReview[]) => {
+    const source = sources.find((item) => item.id === productId);
+    if (!source) throw new Error('The selected product could not be found');
+    await persistReviews(source, reviews);
+  };
+
+  const findProductBySku = async (rawSku: string) => {
+    const sku = rawSku.trim();
+    if (!sku) throw new SkuNotFoundError();
+    const escaped = sku.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    const { data: lookup, error: lookupError } = await fetchProductBySku({
+      variables: {
+        where: `masterData(current(masterVariant(sku="${escaped}") or variants(sku="${escaped}")))`,
+      },
+    });
+    if (lookupError) throw lookupError;
+    const product = lookup?.products.results.find(
+      ({ masterData }: ProductBySkuResult) =>
+        [masterData.current.masterVariant, ...masterData.current.variants].some(
+          (variant) => variant.sku === sku
+        )
+    );
+    if (!product) throw new SkuNotFoundError();
+    return { product, sku };
+  };
+
   return {
     records,
     loading,
     error,
     create: async (draft: ReviewDraft) => {
-      const source = sources.find((item) => item.id === draft.productId);
-      if (!source) throw new Error('The selected product could not be found');
-      await persist(draft.productId, [
-        ...source.reviews,
-        toStoredReview(draft, crypto.randomUUID()),
+      const { product, sku } = await findProductBySku(draft.sku);
+      const hasReviewsAttribute =
+        product.productType.attributeDefinitions.results.some(
+          ({ name }: { name: string }) => name === 'reviews'
+        );
+      if (!hasReviewsAttribute) {
+        throw new Error(
+          'The product type of this product has no "reviews" attribute. Add a text attribute named "reviews" to the product type first.'
+        );
+      }
+      const existing = parseReviews(
+        product.masterData.current.masterVariant.attributesRaw.find(
+          (attribute: { name: string }) => attribute.name === 'reviews'
+        )?.value
+      );
+      await persistReviews(product, [
+        ...existing,
+        toStoredReview({ ...draft, sku }, crypto.randomUUID()),
       ]);
     },
     update: async (record: ReviewRecord, draft: ReviewDraft) => {
-      if (record.productId !== draft.productId) {
+      if (record.sku !== draft.sku) {
         throw new Error('A review cannot be moved to a different product');
       }
       const source = sources.find((item) => item.id === record.productId);

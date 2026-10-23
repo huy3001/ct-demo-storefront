@@ -4,6 +4,7 @@ import { FormModalPage } from '@commercetools-frontend/application-components';
 import { ApplicationPageTitle } from '@commercetools-frontend/application-shell';
 import Constraints from '@commercetools-uikit/constraints';
 import DataTable from '@commercetools-uikit/data-table';
+import DateField from '@commercetools-uikit/date-field';
 import FlatButton from '@commercetools-uikit/flat-button';
 import PrimaryButton from '@commercetools-uikit/primary-button';
 import SelectField from '@commercetools-uikit/select-field';
@@ -12,16 +13,21 @@ import Text from '@commercetools-uikit/text';
 import TextField from '@commercetools-uikit/text-field';
 import { ContentNotification } from '@commercetools-uikit/notifications';
 import {
+  REVIEW_RATINGS,
+  REVIEW_STATUS_LABELS,
   REVIEW_STATUSES,
   type ReviewDraft,
   type ReviewRecord,
   type ReviewStatus,
 } from '../../types';
-import { useProductReviews } from '../../hooks/use-product-reviews';
+import {
+  SkuNotFoundError,
+  useProductReviews,
+} from '../../hooks/use-product-reviews';
 
 const columns = [
   { key: 'reviewerName', label: 'Reviewer' },
-  { key: 'productId', label: 'Product ID' },
+  { key: 'sku', label: 'Product SKU' },
   { key: 'rating', label: 'Rating' },
   { key: 'title', label: 'Title' },
   { key: 'reviewDate', label: 'Review date' },
@@ -33,21 +39,48 @@ const statusOptions = [
   { value: '', label: 'All statuses' },
   ...REVIEW_STATUSES.map((status) => ({
     value: status,
-    label: status.charAt(0).toUpperCase() + status.slice(1),
+    label: REVIEW_STATUS_LABELS[status],
   })),
 ];
 
+const ratingOptions = REVIEW_RATINGS.map((rating) => ({
+  value: String(rating),
+  label: String(rating),
+}));
+
 const emptyDraft = (): ReviewDraft => ({
-  productId: '',
+  sku: '',
   rating: 5,
   title: '',
   text: '',
   reviewDate: new Date().toISOString(),
   reviewerName: '',
-  status: 'pending',
+  status: 'approved',
 });
 
-const toDateTimeLocal = (date: string) => date.slice(0, 16);
+const toDateInputValue = (isoDate: string) => {
+  const date = new Date(isoDate);
+  if (Number.isNaN(date.getTime())) return '';
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+    date.getDate()
+  )}`;
+};
+
+// Keep the stored timestamp when the picked day is unchanged so same-day reviews keep their order
+const fromDateInputValue = (day: string, previousIso: string) => {
+  if (day === toDateInputValue(previousIso)) return previousIso;
+  const [year, month, date] = day.split('-').map(Number);
+  const now = new Date();
+  return new Date(
+    year,
+    month - 1,
+    date,
+    now.getHours(),
+    now.getMinutes(),
+    now.getSeconds()
+  ).toISOString();
+};
 
 const ReviewEditor = ({
   review,
@@ -56,14 +89,14 @@ const ReviewEditor = ({
 }: {
   review?: ReviewRecord;
   onClose: () => void;
-  onSave: (draft: ReviewDraft) => Promise<void>;
+  onSave: (draft: ReviewDraft) => Promise<'sku' | undefined>;
 }) => {
   const formik = useFormik<ReviewDraft>({
     initialValues: review ? { ...review } : emptyDraft(),
     enableReinitialize: true,
     validate: (values) => {
       const errors: Partial<Record<keyof ReviewDraft, string>> = {};
-      if (!values.productId.trim()) errors.productId = 'Product ID is required';
+      if (!values.sku.trim()) errors.sku = 'Product SKU is required';
       if (
         !Number.isInteger(values.rating) ||
         values.rating < 1 ||
@@ -77,19 +110,25 @@ const ReviewEditor = ({
         errors.reviewerName = 'Reviewer name is required';
       }
       if (!values.reviewDate || Number.isNaN(Date.parse(values.reviewDate))) {
-        errors.reviewDate = 'A valid ISO 8601 review date is required';
+        errors.reviewDate = 'A valid review date is required';
       }
       return errors;
     },
     onSubmit: async (values) => {
-      await onSave({
+      const error = await onSave({
         ...values,
-        productId: values.productId.trim(),
+        sku: values.sku.trim(),
         title: values.title.trim(),
         text: values.text.trim(),
         reviewerName: values.reviewerName.trim(),
         reviewDate: new Date(values.reviewDate).toISOString(),
       });
+      if (error === 'sku') {
+        formik.setFieldError(
+          'sku',
+          'No Merchant Center product matches this SKU'
+        );
+      }
     },
   });
 
@@ -106,13 +145,14 @@ const ReviewEditor = ({
     >
       <Spacings.Stack scale="l">
         <TextField
-          name="productId"
-          title="Product ID"
-          value={formik.values.productId}
+          name="sku"
+          title="Product SKU"
+          value={formik.values.sku}
           onChange={formik.handleChange}
           onBlur={formik.handleBlur}
-          errors={TextField.toFieldErrors<ReviewDraft>(formik.errors).productId}
-          touched={formik.touched.productId}
+          errors={TextField.toFieldErrors<ReviewDraft>(formik.errors).sku}
+          touched={formik.touched.sku}
+          isDisabled={Boolean(review)}
           isRequired
         />
         <TextField
@@ -127,15 +167,16 @@ const ReviewEditor = ({
           touched={formik.touched.reviewerName}
           isRequired
         />
-        <TextField
+        <SelectField
           name="rating"
-          title="Rating (1–5)"
+          title="Rating (1-5)"
           value={String(formik.values.rating)}
+          options={ratingOptions}
           onChange={(event) =>
             formik.setFieldValue('rating', Number(event.target.value))
           }
           onBlur={formik.handleBlur}
-          errors={TextField.toFieldErrors<ReviewDraft>(formik.errors).rating}
+          errors={SelectField.toFieldErrors<ReviewDraft>(formik.errors).rating}
           touched={formik.touched.rating}
           isRequired
         />
@@ -159,21 +200,26 @@ const ReviewEditor = ({
           touched={formik.touched.text}
           isRequired
         />
-        <TextField
+        <DateField
           name="reviewDate"
-          title="Review date (ISO 8601)"
-          value={toDateTimeLocal(formik.values.reviewDate)}
+          title="Review date"
+          value={toDateInputValue(formik.values.reviewDate)}
           onChange={(event) =>
             formik.setFieldValue(
               'reviewDate',
-              new Date(event.target.value).toISOString()
+              event.target.value
+                ? fromDateInputValue(
+                    event.target.value,
+                    formik.values.reviewDate
+                  )
+                : ''
             )
           }
           onBlur={formik.handleBlur}
           errors={
-            TextField.toFieldErrors<ReviewDraft>(formik.errors).reviewDate
+            DateField.toFieldErrors<ReviewDraft>(formik.errors).reviewDate
           }
-          touched={formik.touched.reviewDate}
+          touched={Boolean(formik.touched.reviewDate)}
           isRequired
         />
         <SelectField
@@ -226,10 +272,12 @@ const ReviewManager = () => {
       }
       setEditingReview(undefined);
     } catch (saveError) {
+      if (saveError instanceof SkuNotFoundError) return 'sku' as const;
       setOperationError(
         saveError instanceof Error ? saveError.message : 'Unable to save review'
       );
     }
+    return undefined;
   };
 
   const changeStatus = async (review: ReviewRecord, status: ReviewStatus) => {
@@ -311,10 +359,11 @@ const ReviewManager = () => {
             itemRenderer={(review, column) => {
               switch (column.key) {
                 case 'reviewerName':
-                case 'productId':
+                case 'sku':
                 case 'title':
-                case 'status':
                   return review[column.key];
+                case 'status':
+                  return REVIEW_STATUS_LABELS[review.status];
                 case 'rating':
                   return `${review.rating} / 5`;
                 case 'reviewDate':

@@ -34,6 +34,7 @@ export interface Product {
 
 export interface Review {
   id: string;
+  sku?: string;
   rating: number;
   author: string;
   title: string;

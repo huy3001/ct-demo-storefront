@@ -145,6 +145,7 @@ export function mapReviews(value: unknown): Review[] {
 
     return [{
       id: typeof review.id === 'string' ? review.id : `existing-review-${index}`,
+      ...(typeof review.sku === 'string' && review.sku ? { sku: review.sku } : {}),
       rating,
       author,
       title,
@@ -154,6 +155,13 @@ export function mapReviews(value: unknown): Review[] {
       ...(media?.length ? { media } : {}),
     }];
   });
+}
+
+// Only approved reviews may reach the storefront, newest review date first
+export function mapPublishedReviews(value: unknown): Review[] {
+  return mapReviews(value)
+    .filter((review) => review.status === 'approved')
+    .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
 }
 
 export function mapProductProjection(
@@ -179,6 +187,6 @@ export function mapProductProjection(
       getAssetUrl(brandLogoAsset?.sources),
     categories: (product.categories ?? []).map((c) => ({ id: c.id })),
     variants,
-    reviews: mapReviews(getAttributeValue(product.masterVariant, 'reviews')),
+    reviews: mapPublishedReviews(getAttributeValue(product.masterVariant, 'reviews')),
   };
 }

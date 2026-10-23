@@ -254,7 +254,8 @@ export function ReviewsProvider({
   async function submitReview(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (rating === 0) return;
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const reviewInput = {
       rating,
       author: String(form.get('author') ?? '').trim(),
@@ -282,6 +283,7 @@ export function ReviewsProvider({
       if (!response.ok || !result.review)
         throw new Error(result.message ?? 'Unable to send review');
 
+      // Storefront submissions are pending, so they stay hidden until approved in Merchant Center
       if (result.review.status === 'approved') {
         setReviews((current) => [
           {
@@ -299,12 +301,13 @@ export function ReviewsProvider({
           ...current,
         ]);
       }
+      formElement.reset();
       setRating(0);
       setPendingMedia([]);
       setSubmitSuccess(
         result.review.status === 'approved'
           ? 'Your review was published.'
-          : 'Your review was submitted for moderation.',
+          : 'Thank you! Your review was submitted and will appear here once it is approved.',
       );
     } catch (error) {
       setSubmitError(
@@ -356,7 +359,7 @@ export function ReviewsProvider({
             className="mt-6 space-y-6"
           >
             <fieldset className="form-field w-full">
-              <legend className="mb-2 text-sm">Rating</legend>
+              <legend className="mb-2 text-sm">Rating (1-5)</legend>
               <Stars
                 rating={rating}
                 interactive
@@ -369,7 +372,7 @@ export function ReviewsProvider({
               )}
             </fieldset>
             {[
-              { name: 'author', label: 'Author name' },
+              { name: 'author', label: 'Reviewer name' },
               { name: 'title', label: 'Review title' },
             ].map((field) => (
               <div
@@ -389,7 +392,7 @@ export function ReviewsProvider({
                 htmlFor="content"
                 className="mb-2 block text-sm leading-loose font-medium text-gray-600"
               >
-                Review
+                Review text *
               </label>
               <textarea
                 id="content"

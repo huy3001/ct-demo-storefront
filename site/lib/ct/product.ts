@@ -261,8 +261,10 @@ export async function createProductReview(
   const reviewsAttribute = product.masterData.current.masterVariant.attributes
     ?.find((attribute) => attribute.name === 'reviews');
   const existingReviews = mapReviews(reviewsAttribute?.value);
+  const sku = product.masterData.current.masterVariant.sku;
   const review: Review = {
     ...input,
+    ...(sku ? { sku } : {}),
     id: crypto.randomUUID(),
     createdAt: new Date().toISOString(),
     status: 'pending',

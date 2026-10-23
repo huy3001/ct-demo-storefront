@@ -39,6 +39,7 @@
     "@commercetools-frontend/permissions": "^27.10.0",
     "@commercetools-uikit/constraints": "^20.6.7",
     "@commercetools-uikit/data-table": "^20.6.7",
+    "@commercetools-uikit/date-field": "^20.6.7",
     "@commercetools-uikit/flat-button": "^20.6.7",
     "@commercetools-uikit/grid": "^20.6.7",
     "@commercetools-uikit/hooks": "^20.6.7",
