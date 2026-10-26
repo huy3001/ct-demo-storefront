@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useFormik } from 'formik';
+import { useShowNotification } from '@commercetools-frontend/actions-global';
 import { FormModalPage } from '@commercetools-frontend/application-components';
 import { ApplicationPageTitle } from '@commercetools-frontend/application-shell';
+import { DOMAINS } from '@commercetools-frontend/constants';
 import Constraints from '@commercetools-uikit/constraints';
 import DataTable from '@commercetools-uikit/data-table';
 import DateField from '@commercetools-uikit/date-field';
@@ -82,6 +84,8 @@ const fromDateInputValue = (day: string, previousIso: string) => {
   ).toISOString();
 };
 
+type SaveResult = { field: 'sku' } | { message: string } | undefined;
+
 const ReviewEditor = ({
   review,
   onClose,
@@ -89,10 +93,17 @@ const ReviewEditor = ({
 }: {
   review?: ReviewRecord;
   onClose: () => void;
-  onSave: (draft: ReviewDraft) => Promise<'sku' | undefined>;
+  onSave: (draft: ReviewDraft) => Promise<SaveResult>;
 }) => {
+  const [saveError, setSaveError] = useState<string | null>(null);
+  // Must be referentially/deeply stable: emptyDraft() embeds a new timestamp on every call,
+  // which would make enableReinitialize reset the form on every render
+  const initialValues = useMemo<ReviewDraft>(
+    () => (review ? { ...review } : emptyDraft()),
+    [review]
+  );
   const formik = useFormik<ReviewDraft>({
-    initialValues: review ? { ...review } : emptyDraft(),
+    initialValues,
     enableReinitialize: true,
     validate: (values) => {
       const errors: Partial<Record<keyof ReviewDraft, string>> = {};
@@ -115,7 +126,8 @@ const ReviewEditor = ({
       return errors;
     },
     onSubmit: async (values) => {
-      const error = await onSave({
+      setSaveError(null);
+      const result = await onSave({
         ...values,
         sku: values.sku.trim(),
         title: values.title.trim(),
@@ -123,11 +135,13 @@ const ReviewEditor = ({
         reviewerName: values.reviewerName.trim(),
         reviewDate: new Date(values.reviewDate).toISOString(),
       });
-      if (error === 'sku') {
+      if (result && 'field' in result) {
         formik.setFieldError(
           'sku',
           'No Merchant Center product matches this SKU'
         );
+      } else if (result) {
+        setSaveError(result.message);
       }
     },
   });
@@ -144,6 +158,11 @@ const ReviewEditor = ({
       labelSecondaryButton="Cancel"
     >
       <Spacings.Stack scale="l">
+        {saveError && (
+          <ContentNotification type="error">
+            <Text.Body>{saveError}</Text.Body>
+          </ContentNotification>
+        )}
         <TextField
           name="sku"
           title="Product SKU"
@@ -238,11 +257,11 @@ const ReviewEditor = ({
 };
 
 const ReviewManager = () => {
-  const [reviews, setReviews] = useState<ReviewRecord[]>([]);
   const [statusFilter, setStatusFilter] = useState<ReviewStatus | undefined>();
   const [editingReview, setEditingReview] = useState<
     ReviewRecord | null | undefined
   >(undefined);
+  const showNotification = useShowNotification();
   const [operationError, setOperationError] = useState<string | null>(null);
   const {
     records,
@@ -254,15 +273,15 @@ const ReviewManager = () => {
     remove,
   } = useProductReviews();
 
-  useEffect(() => {
-    setReviews(
+  const reviews = useMemo(
+    () =>
       records.filter(
         (review) => !statusFilter || review.status === statusFilter
-      )
-    );
-  }, [records, statusFilter]);
+      ),
+    [records, statusFilter]
+  );
 
-  const saveReview = async (draft: ReviewDraft) => {
+  const saveReview = async (draft: ReviewDraft): Promise<SaveResult> => {
     setOperationError(null);
     try {
       if (editingReview) {
@@ -271,11 +290,19 @@ const ReviewManager = () => {
         await create(draft);
       }
       setEditingReview(undefined);
+      showNotification({
+        kind: 'success',
+        domain: DOMAINS.SIDE,
+        text: editingReview ? 'Review saved' : 'Review created',
+      });
     } catch (saveError) {
-      if (saveError instanceof SkuNotFoundError) return 'sku' as const;
-      setOperationError(
-        saveError instanceof Error ? saveError.message : 'Unable to save review'
-      );
+      if (saveError instanceof SkuNotFoundError) return { field: 'sku' };
+      return {
+        message:
+          saveError instanceof Error
+            ? saveError.message
+            : 'Unable to save review',
+      };
     }
     return undefined;
   };

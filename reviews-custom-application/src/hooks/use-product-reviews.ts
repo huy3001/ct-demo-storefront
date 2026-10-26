@@ -8,6 +8,8 @@ import {
 import { GRAPHQL_TARGETS } from '@commercetools-frontend/constants';
 import type { ReviewDraft, ReviewRecord, ReviewStatus } from '../types';
 
+// Do not select the variant `id` here: Apollo would normalize every master variant (id: 1)
+// into the same cache entry, mixing reviews across products and duplicating rows.
 const FETCH_PRODUCT_REVIEWS = gql`
   query FetchProductReviews($limit: Int!, $offset: Int!) {
     products(limit: $limit, offset: $offset) {
@@ -17,7 +19,6 @@ const FETCH_PRODUCT_REVIEWS = gql`
         masterData {
           current {
             masterVariant {
-              id
               sku
               attributesRaw {
                 name
@@ -111,7 +112,6 @@ type ProductReviewQuery = {
       masterData: {
         current: {
           masterVariant: {
-            id: number;
             sku?: string | null;
             attributesRaw: Array<{ name: string; value: unknown }>;
           };
@@ -293,7 +293,9 @@ export const useProductReviews = () => {
           {
             setAttributeInAllVariants: {
               name: 'reviews',
-              value: JSON.stringify(reviews),
+              // The GraphQL `value` is a JSON-encoded attribute value; the "reviews" attribute is of
+              // type text, so the serialized array must itself be encoded as a JSON string
+              value: JSON.stringify(JSON.stringify(reviews)),
               staged: false,
             },
           },
