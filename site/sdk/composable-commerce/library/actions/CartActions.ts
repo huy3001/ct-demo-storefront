@@ -26,11 +26,11 @@ import {
   UpdateCartAction,
   UpdateCartItemAction,
 } from '../../types/actions/CartActions';
-import { Cart, ShippingMethod, Order } from 'shared/types/cart';
+import { Cart, ShippingMethod, Order } from '@/types/cart';
 import { ComposableCommerceEvents } from '../../types/events/ComposableCommerceEvents';
 import { QueryOrdersQuery, GetOrderQuery } from '../../types/queries/CartQueries';
-import { PaginatedResult } from 'shared/types/result';
-import { Token } from 'shared/types/Token';
+import { PaginatedResult } from '@/types/result';
+import { Token } from '@/types/Token';
 
 export type CartActions = {
   getCart: GetCartAction;

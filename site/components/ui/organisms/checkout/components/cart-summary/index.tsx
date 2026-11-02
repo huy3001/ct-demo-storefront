@@ -1,10 +1,9 @@
-import React from 'react';
 import { useParams } from 'next/navigation';
 import Image from '@/components/ui/atoms/image';
 import Costs from '@/components/ui/organisms/order-payment-section/components/costs';
-import { CurrencyHelpers } from '@/helpers/currencyHelpers';
 import { useRouter } from '@/i18n/routing';
 import useCart from '@/frontastic/hooks/useCart';
+import { formatMoney } from '@/lib/utils';
 
 const CartSummary = () => {
   const router = useRouter();
@@ -24,19 +23,18 @@ const CartSummary = () => {
           >
             <div className="flex items-start gap-16 py-16 md:gap-32">
               <div className="relative h-104 w-89 shrink-0">
-                <Image fill src={lineItem.variant?.images?.[0]} alt={lineItem.name} style={{ objectFit: 'contain' }} />
+                <Image fill src={lineItem.variant?.images?.[0].url} alt={lineItem.name} style={{ objectFit: 'contain' }} />
               </div>
               <div className="mt-10 grow overflow-hidden">
                 <span className="block max-w-full truncate text-12 capitalize md:text-14">{lineItem.name}</span>
                 <span className="mt-8 block text-12 font-medium md:hidden">
-                  {CurrencyHelpers.formatForCurrency(lineItem.price ?? {}, locale)}
+                  {formatMoney(lineItem?.price?.value?.centAmount ?? 0, lineItem?.price?.value?.currencyCode ?? 'USD', locale)}
                 </span>
-                {/* eslint-disable-next-line react/jsx-no-literals */}
                 <span className="mt-12 block text-14 text-gray-600">x {lineItem.count}</span>
               </div>
             </div>
             <span className="mt-8 hidden text-16 font-medium md:block">
-              {CurrencyHelpers.formatForCurrency(lineItem.price ?? {}, locale)}
+              {formatMoney(lineItem?.price?.value?.centAmount ?? 0, lineItem?.price?.value?.currencyCode ?? 'USD', locale)}
             </span>
           </div>
         ))}

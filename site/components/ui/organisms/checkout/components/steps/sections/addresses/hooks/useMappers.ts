@@ -1,5 +1,5 @@
 import { useCallback, useContext } from 'react';
-import { Address as AccountAddress } from 'shared/@/types/account';
+import { Address as AccountAddress } from '@/types/account';
 import { AccountContext } from '@/context/account';
 import { Address } from '../types';
 

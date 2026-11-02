@@ -24,18 +24,20 @@ const ThankYouContent: React.FC<ThankYouProps> = ({ order, shippingMethods }) =>
     <div className="bg-neutral-200 lg:gap-26 lg:p-50">
       <div className="flex flex-col lg:flex-row lg:items-start lg:gap-26 lg:px-20 lg:py-48 xl:px-48">
         <div className="bg-white px-16 md:px-24 lg:w-[65%] lg:rounded-md lg:py-36">
-          <ThankYouHeader email={order?.email} onPrint={handlePrint} />
+          <ThankYouHeader
+            email={order?.customerEmail}
+            onPrint={handlePrint}
+          />
           <ThankYouOrderInfo
             firstName={order?.shippingAddress?.firstName}
             order={order}
             shippingMethods={shippingMethods}
           />
-          <ThankYouFooter loading={!order?.sum} />
+          <ThankYouFooter loading={!order?.totalPrice} />
         </div>
 
         <OrderSummary
           discounts={[]}
-          onApplyDiscountCode={async () => {}}
           onRemoveDiscountCode={async () => {}}
           className="bg-white px-16 pb-24 md:px-24 lg:mt-0 lg:block lg:min-w-[35%] lg:p-36"
           title={translate('thank-you.order-details')}
@@ -43,7 +45,11 @@ const ThankYouContent: React.FC<ThankYouProps> = ({ order, shippingMethods }) =>
           dataReference="order"
           includeItemsList
           button={
-            <PrintButton asSkeleton={!order?.sum} onPrint={handlePrint} className="mt-16 hidden w-full lg:block" />
+            <PrintButton
+              asSkeleton={!order?.totalPrice}
+              onPrint={handlePrint}
+              className="mt-16 hidden w-full lg:block"
+            />
           }
           classNames={{
             infoContainer: 'border-none p-0 pt-16',

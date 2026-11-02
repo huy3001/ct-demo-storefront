@@ -8,7 +8,6 @@ import useClassNames from '@/hooks/useClassNames';
 import useTouchDevice from '@/hooks/useTouchDevice';
 import { mediumDesktop, tablet } from '@/helpers/utils/screensizes';
 import { Cart, ShippingMethod } from '@/types/entity/cart';
-import { LineItem, Wishlist } from '@/types/entity/wishlist';
 import { Reference } from '@/types/reference';
 import useTrack from './useTrack';
 import Link from '../../content/link';
@@ -16,7 +15,6 @@ import type { Product, Variant } from '@/lib/types';
 
 export interface ProductSliderProps extends Partial<SwiperProps> {
   products: Product[];
-  wishlist?: Wishlist;
   cart?: Cart;
   shippingMethods?: ShippingMethod[];
   title: string;
@@ -37,14 +35,11 @@ export interface ProductSliderProps extends Partial<SwiperProps> {
     title?: string;
   };
   variant?: 'normal' | 'cart';
-  addToWishlist?: (lineItem: LineItem, count: number) => Promise<void>;
-  removeLineItem?: (item: LineItem) => Promise<void>;
   onAddToCart?: (variant: Variant, quantity: number) => Promise<void>;
 }
 
 const ProductSlider: FC<ProductSliderProps> = ({
   products,
-  wishlist,
   cart,
   shippingMethods,
   title,
@@ -61,8 +56,6 @@ const ProductSlider: FC<ProductSliderProps> = ({
   solidArrows = true,
   breakpoints = {},
   classNames = {},
-  addToWishlist,
-  removeLineItem,
   onProductClick,
   onAddToCart,
   spaceBetween = 8,
@@ -136,7 +129,6 @@ const ProductSlider: FC<ProductSliderProps> = ({
           {products.map((product, index) => (
             <ProductTile
               key={product.id}
-              wishlist={wishlist}
               cart={cart}
               shippingMethods={shippingMethods}
               disableQuickView={disableProductQuickView}
@@ -147,8 +139,6 @@ const ProductSlider: FC<ProductSliderProps> = ({
                 trackClick(product, index + 1);
                 onProductClick?.(product);
               }}
-              addToWishlist={addToWishlist}
-              removeLineItem={removeLineItem}
               onAddToCart={onAddToCart}
             />
           ))}

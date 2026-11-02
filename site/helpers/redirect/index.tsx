@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
-import { useRouter } from 'i18n/routing';
-import { Reference } from 'types/reference';
+import { useRouter } from '@/i18n/routing';
+import { Reference } from '@/types/reference';
 import { resolveReferenceTarget } from '../reference';
 
 export interface RedirectProps {

@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Account } from 'shared/@/types/account';
+import { Account } from '@/types/account';
 import { useTranslations } from 'use-intl';
 import PrintButton from './printButton';
 

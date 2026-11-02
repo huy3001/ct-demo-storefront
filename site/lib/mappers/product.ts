@@ -185,8 +185,15 @@ export function mapProductProjection(
     brandLogo:
       getAssetUrl(getAttributeValue(product.masterVariant, 'brandLogo')) ??
       getAssetUrl(brandLogoAsset?.sources),
-    categories: (product.categories ?? []).map((c) => ({ id: c.id })),
+    categories: (product.categories ?? []).map((c) => ({
+      id: c.id,
+      name: getLocalizedString(c.obj?.name, locale),
+      slug: getLocalizedString(c.obj?.slug, locale),
+      showInNavigation: true,
+    })),
     variants,
-    reviews: mapPublishedReviews(getAttributeValue(product.masterVariant, 'reviews')),
+    reviews: mapPublishedReviews(
+      getAttributeValue(product.masterVariant, 'reviews'),
+    ),
   };
 }

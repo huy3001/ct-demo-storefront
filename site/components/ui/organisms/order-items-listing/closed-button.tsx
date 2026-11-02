@@ -1,6 +1,6 @@
 import { FC, useMemo } from 'react';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
-import { LineItem } from 'shared/@/types/cart/LineItem';
+import { LineItem } from '@/types/cart/LineItem';
 import { useTranslations } from 'use-intl';
 import Image from '@/components/ui/atoms/image';
 import useClassNames from '@/hooks/useClassNames';
@@ -34,7 +34,7 @@ const ClosedButton: FC<ClosedButtonProps> = ({ lineItems, hiddenItemsCount, open
               <div key={lineItem?.lineItemId} className="pr-16">
                 {lineItem?.variant?.images?.[0] && (
                   <div key={lineItem?.lineItemId} className="relative mr-12 h-104 w-88 shrink-0">
-                    <Image fill src={lineItem.variant.images[0]} style={{ objectFit: 'contain' }} alt={lineItem.name} />
+                    <Image fill src={lineItem.variant.images[0].url} style={{ objectFit: 'contain' }} alt={lineItem.name} />
                   </div>
                 )}
               </div>

@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useInView } from 'react-intersection-observer';
 import { trackEvent } from '@/helpers/analytics';
 import { PRODUCT_VIEWED } from '@/helpers/constants/events';
-// import { Product } from '@/types/entity/product';
 import type { Product } from '@/lib/types';
 
 interface Options {
@@ -19,7 +18,7 @@ const useTrack = ({ product }: Options) => {
 
   const trackView = useCallback(async () => {
     if (inView && !trackedView.current) {
-      trackEvent(PRODUCT_VIEWED, product);
+      trackEvent(PRODUCT_VIEWED, { ...product });
 
       trackedView.current = true;
     }

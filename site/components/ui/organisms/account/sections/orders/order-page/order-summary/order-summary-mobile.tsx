@@ -10,6 +10,7 @@ import { CurrencyHelpers } from '@/helpers/currencyHelpers';
 import useClassNames from '@/hooks/useClassNames';
 import useI18n from '@/hooks/useI18n';
 import mapCosts from '@/helpers/utils/mapCosts';
+import { getLocalizedString, formatMoney } from '@/lib/utils';
 
 export interface Props {
   order?: Order;
@@ -55,27 +56,46 @@ const OrderSummaryMobile: FC<Props> = ({ order }) => {
   }, [accordionContentClassNames, translate, order, currency, arrowClassNames, open]);
 
   return (
-    <Accordion customClosedButton={orderSummaryAccordion} className={accordionClassNames} buttonClassName="w-full">
+    <Accordion
+      customClosedButton={orderSummaryAccordion}
+      className={accordionClassNames}
+      buttonClassName="w-full"
+    >
       <div className="grid max-h-400 w-full grid-cols-1 overflow-auto px-16 md:px-24 lg:px-44">
         {order?.lineItems?.map((lineItem, index) => (
-          <div key={lineItem.lineItemId} className={lineItemClassNames(order, index)}>
+          <div
+            key={lineItem.id}
+            className={lineItemClassNames(order, index)}
+          >
             {lineItem.variant?.images?.[0] && (
               <div className="relative h-104 w-88 shrink-0">
-                <Image fill src={lineItem.variant.images[0]} alt={lineItem?.name ?? 'Product image'} style={{ objectFit: 'contain' }} />
+                <Image
+                  fill
+                  src={lineItem.variant.images[0].url}
+                  alt={getLocalizedString(lineItem?.name, locale) ?? 'Product image'}
+                  style={{ objectFit: 'contain' }}
+                />
               </div>
             )}
             <div className="flex flex-col justify-center pl-16">
-              <p className="text-14 uppercase text-primary">{lineItem?.name}</p>
+              <p className="text-14 uppercase text-primary">{getLocalizedString(lineItem?.name, locale)}</p>
               <p className="mt-8 text-14 font-medium text-primary">
-                {CurrencyHelpers.formatForCurrency(lineItem?.price as number, locale)}
+                {formatMoney(
+                  lineItem?.price.value.centAmount,
+                  lineItem?.price.value.currencyCode,
+                  locale,
+                )}
               </p>
-              <p className="mt-8 text-14 text-primary">{`x ${lineItem?.count}`}</p>
+              <p className="mt-8 text-14 text-primary">{`x ${lineItem?.quantity}`}</p>
             </div>
           </div>
         ))}
       </div>
 
-      <Costs className="bg-neutral-200 p-16 md:px-24 lg:px-44" order={order} />
+      <Costs
+        className="bg-neutral-200 p-16 md:px-24 lg:px-44"
+        order={order}
+      />
     </Accordion>
   );
 };

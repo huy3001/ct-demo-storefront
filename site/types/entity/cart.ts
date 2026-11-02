@@ -1,5 +1,6 @@
 import { Address } from './account';
-import { ProductDiscountedPrice, Money, Variant } from './product';
+import { ProductDiscountedPrice, Money } from './product';
+import { Variant } from '@/types/product/Variant';
 
 export interface TaxRate {
   taxRateId?: string;

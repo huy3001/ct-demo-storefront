@@ -1,4 +1,4 @@
-import { Reference } from 'types/reference';
+import { Reference } from '@/types/reference';
 
 export const resolveReferenceTarget = (reference: Reference) => {
   switch (reference.type) {

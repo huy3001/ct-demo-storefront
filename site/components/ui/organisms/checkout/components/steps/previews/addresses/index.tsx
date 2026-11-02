@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslations } from 'next-intl';
-import { Cart } from '@/types/entity/cart';
 import Skeleton from '@/components/ui/atoms/skeleton';
+import type { Cart } from '@commercetools/platform-sdk';
 
 interface Props {
   cart?: Cart;

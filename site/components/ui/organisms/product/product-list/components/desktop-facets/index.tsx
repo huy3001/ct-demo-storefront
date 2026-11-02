@@ -19,7 +19,7 @@ const DesktopFacets: React.FC = () => {
         {({ open }) => (
           <>
             <PopoverButton>
-              <div className="flex min-w-80 items-center gap-8 rounded-md border border-transparent bg-white px-12 py-6 text-14 leading-[20px] transition hover:border-gray-500">
+              <div className="flex min-w-80 items-center gap-8 rounded-md border border-transparent bg-white px-12 py-6 text-14 leading-5 transition hover:border-gray-500">
                 <span className="text-14">{facetsConfiguration[attribute].label}</span>
                 <ArrowIcon className="mt-2 w-16 stroke-gray-600" />
               </div>
@@ -33,7 +33,7 @@ const DesktopFacets: React.FC = () => {
               leaveTo="transform origin-top scale-y-0"
             >
               <PopoverPanel
-                className={`absolute left-0 max-h-316 min-w-320 origin-top-right translate-y-10 overflow-auto rounded-md bg-white px-36 py-24 shadow-lg transition ${
+                className={`absolute left-0 max-h-316 min-w-7xl origin-top-right translate-y-10 overflow-auto rounded-md bg-white px-36 py-24 shadow-lg transition ${
                   styles.desktop_facet_container
                 } ${open ? 'z-20 scale-100' : 'z-[-1] scale-95 opacity-0'}`}
               >

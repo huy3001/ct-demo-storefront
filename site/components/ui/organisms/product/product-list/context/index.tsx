@@ -8,11 +8,11 @@ import usePath from '@/hooks/usePath';
 import { useRouter } from '@/i18n/routing';
 import { ShippingMethod } from '@/types/entity/cart';
 import { Category } from '@/types/entity/category';
-import { Variant } from '@/types/entity/product';
 import { LineItem as WishlistLineItem, Wishlist } from '@/types/entity/wishlist';
 import { refinementRemovedEventName, refinementsClearedEventName } from './constants';
 import { ActiveRefinement, ProductListContextShape, RefinementRemovedEvent, Sort, UiState } from './types';
 import { BooleanFacet, FacetConfiguration, PriceConfiguration, RangeFacet, TermFacet } from '../types';
+import type { Variant } from '@/lib/types';
 
 export const ProductListContext = createContext<ProductListContextShape>({
   categories: [],

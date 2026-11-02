@@ -1,15 +1,15 @@
 import { ProductDiscountedPrice } from '../cart/Discount';
 import { Attributes } from './Attributes';
-import { Money } from './Money';
+import type { Image, Price } from '@commercetools/platform-sdk';
 
 export interface Variant {
-  id?: string;
-  sku: string;
+  id?: string | number;
+  sku?: string;
   groupId?: string;
-  price?: Money;
+  price?: Price;
   discountedPrice?: ProductDiscountedPrice;
   attributes?: Attributes;
-  images?: string[];
+  images?: Image[];
   isOnStock?: boolean;
   restockableInDays?: number;
   availableQuantity?: number;

@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { ShipmentState } from 'shared/@/types/cart';
+import { ShipmentState } from '@/types/cart';
 import { useTranslations } from 'use-intl';
 import useClassNames from '@/hooks/useClassNames';
 
@@ -34,7 +34,7 @@ const OrderStatusBar: FC<Props> = ({
       <div className="relative w-4/5 justify-center pb-16 md:w-[70%] 2xl:ml-80 2xl:w-3/5">
         <div className="h-1 w-full bg-primary" />
         <div className="absolute left-0 size-20 -translate-y-1/2 rounded-full bg-primary md:size-24 lg:size-32" />
-        <div className="absolute -left-32 top-20 flex flex-col items-center md:-left-56 md:top-24 md:w-144 lg:top-28">
+        <div className="absolute -left-32 top-20 flex flex-col items-center md:-left-56 md:top-24 md:w-xl lg:top-28">
           <p className="w-64 text-center text-14 font-medium text-primary lg:text-16">{translate('orders.ordered')}</p>
 
           <p className="mt-4 text-center text-14 text-gray-600 lg:text-16">{orderDate}</p>
@@ -60,7 +60,7 @@ const OrderStatusBar: FC<Props> = ({
         </div>
 
         <div className={statePointer3ClassNames} />
-        <div className="absolute -right-32 top-20 md:-right-60 md:top-24 md:w-144 lg:top-28">
+        <div className="absolute -right-32 top-20 md:-right-60 md:top-24 md:w-xl lg:top-28">
           {orderState === 'Complete' ? (
             <p className="text-center text-14 font-medium text-primary lg:text-16">{translate('orders.delivered')}</p>
           ) : (

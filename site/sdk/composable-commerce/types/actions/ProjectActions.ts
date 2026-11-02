@@ -1,4 +1,4 @@
-import { ProjectSettings } from 'shared/types/ProjectSettings';
+import { ProjectSettings } from '@/types/ProjectSettings';
 import { SDKResponse, ServerOptions } from '@commercetools/frontend-sdk';
 
 type GetProjectSettingsAction = (options?: {

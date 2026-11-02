@@ -6,9 +6,9 @@ import {
   ProductQueryAction,
   QueryProductCategoriesAction,
 } from '../../types/actions/ProductActions';
-import { Product, FilterField, Category } from 'shared/types/product';
+import { Product, FilterField, Category } from '@/types/product';
 import { ComposableCommerceEvents } from '../../types/events/ComposableCommerceEvents';
-import { PaginatedResult, ProductPaginatedResult } from 'shared/types/result';
+import { PaginatedResult, ProductPaginatedResult } from '@/types/result';
 
 export type ProductActions = {
   getProduct: GetProductAction;

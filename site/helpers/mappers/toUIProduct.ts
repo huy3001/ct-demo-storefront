@@ -1,20 +1,22 @@
-import { UIColor, UIProduct, UISize } from 'components/commercetools-ui/organisms/product/product-details/types';
-import { Product, Variant } from 'types/entity/product';
+import type { UIColor, UIProduct, UISize } from '@/components/ui/organisms/product/product-details/types';
+import type { Product, Variant } from '@/lib/types';
+import { getVariantAttribute, toOptionValue } from './toUIColor';
 
 export const toUIProduct = (product: Product, variant: Variant, colors: UIColor[], sizes: UISize[]) => {
+  const designer = toOptionValue(getVariantAttribute(variant, 'designer'));
+  const gender = toOptionValue(getVariantAttribute(variant, 'gender'));
+  const madeInItaly = getVariantAttribute(variant, 'madeInItaly');
+
   const mappedProduct: UIProduct = {
-    productId: product.productId,
-    productKey: product.productKey,
-    productRef: product.productRef,
-    name: product?.name ?? '',
-    variants: product?.variants,
+    ...product,
+    name: product.name ?? '',
+    variants: product.variants,
     price: variant?.price ?? {},
-    categories: product?.categories,
     images:
-      variant?.images?.map((img: string, id: number) => ({
-        id: `${variant?.sku}-${id}`,
-        src: img,
-        alt: variant?.sku,
+      variant?.images?.map((src, id) => ({
+        id: `${variant.sku}-${id}`,
+        src,
+        alt: variant.sku,
       })) ?? [],
     colors,
     sizes,
@@ -23,10 +25,10 @@ export const toUIProduct = (product: Product, variant: Variant, colors: UIColor[
       {
         name: 'Features',
         items: [
-          variant?.attributes?.designer && `Designer: ${variant?.attributes.designer.label}`,
-          variant?.attributes?.gender && `Collection: ${variant?.attributes.gender.label}`,
-          variant?.attributes?.madeInItaly && `Made in Italy`,
-        ],
+          designer && `Designer: ${designer.label}`,
+          gender && `Collection: ${gender.label}`,
+          madeInItaly && 'Made in Italy',
+        ].filter((item): item is string => typeof item === 'string'),
       },
     ],
   };

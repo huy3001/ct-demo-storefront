@@ -13,7 +13,6 @@ import type { DiscountCode } from '@commercetools/platform-sdk';
 
 export interface Props {
   isEmpty?: boolean;
-  onApplyDiscountCode?: (code: string) => Promise<void>;
   onRemoveDiscountCode?: (discount: DiscountCode) => Promise<void>;
   totalCartItems?: number;
   totalWishlistItems?: number;
@@ -29,7 +28,6 @@ export interface Props {
 
 const UtilitySection: React.FC<Props> = ({
   isEmpty,
-  onApplyDiscountCode,
   onRemoveDiscountCode,
   totalCartItems = 0,
   totalWishlistItems = 0,
@@ -104,7 +102,6 @@ const UtilitySection: React.FC<Props> = ({
       >
         <Slideout
           isEmpty={isEmpty}
-          onApplyDiscountCode={onApplyDiscountCode}
           onRemoveDiscountCode={onRemoveDiscountCode}
           state={menuState}
           onClose={() => setIsDrawerOpen(false)}

@@ -34,7 +34,7 @@ import {
   UpdateAccountAddressAction,
   DeleteAccountAction,
 } from '../../types/actions/AccountActions';
-import { Account, Address } from 'shared/types/account';
+import { Account, Address } from '@/types/account';
 import { ComposableCommerceEvents } from '../../types/events/ComposableCommerceEvents';
 
 export type AccountActions = {

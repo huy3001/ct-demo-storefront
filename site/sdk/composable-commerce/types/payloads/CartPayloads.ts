@@ -1,4 +1,4 @@
-import { Address } from 'shared/types/account';
+import { Address } from '@/types/account';
 
 type AddCartItemPayload = {
   variant: {

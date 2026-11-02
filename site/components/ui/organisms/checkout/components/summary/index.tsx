@@ -4,7 +4,7 @@ import Button from '@/components/ui/atoms/button';
 import OrderItemsListing from '@/components/ui/organisms/order-items-listing';
 import OrderPaymentSection from '@/components/ui/organisms/order-payment-section';
 import DiscountForm from '@/components/ui/organisms/order-payment-section/components/discount-form';
-import { useCart } from 'frontastic';
+import useCart from '@/frontastic/hooks/useCart';
 import { useCheckout } from '../../provider';
 
 interface Props {
@@ -30,7 +30,7 @@ const Summary: React.FC<Props> = ({ isFinalStep, onPurchase, isCtPaymentOnly }) 
 
   return (
     <div className="bg-white lg:mt-0 lg:min-w-[35%] lg:p-36">
-      <h3 className="p-16 leading-[22px] text-primary md:p-24 md:text-18 lg:px-0 lg:pt-0">
+      <h3 className="p-16 leading-5.5 text-primary md:p-24 md:text-18 lg:px-0 lg:pt-0">
         {translate('cart.order-summary')}
       </h3>
 
@@ -38,7 +38,6 @@ const Summary: React.FC<Props> = ({ isFinalStep, onPurchase, isCtPaymentOnly }) 
 
       <OrderPaymentSection
         discounts={[]}
-        onApplyDiscountCode={async () => {}}
         onRemoveDiscountCode={async () => {}}
         className="mt-16 hidden bg-white py-16 pb-24 text-16 lg:block lg:pb-0"
         classNames={{
@@ -68,7 +67,6 @@ const Summary: React.FC<Props> = ({ isFinalStep, onPurchase, isCtPaymentOnly }) 
 
       <DiscountForm
         discounts={[]}
-        onApplyDiscountCode={async () => {}}
         onRemoveDiscountCode={async () => {}}
         className="border-transparent lg:hidden"
         accordionProps={{

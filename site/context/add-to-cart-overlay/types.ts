@@ -6,6 +6,6 @@ export interface AddToCartOverlayContextShape {
   fetchRelatedProducts: (product: Product) => Promise<void>;
 }
 
-export interface StateProduct extends Product, Variant {
+export interface StateProduct extends Product {
   count: number;
 }

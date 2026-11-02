@@ -1,5 +1,6 @@
 import { AbsoluteDiscountValue, RelativeDiscountValue } from './cart';
 import { Category } from './category';
+import { Variant } from '@/types/product/Variant';
 
 export interface Money {
   fractionDigits?: number;
@@ -18,21 +19,6 @@ export interface ProductDiscount {
 export interface ProductDiscountedPrice {
   value?: Money;
   discount?: ProductDiscount;
-}
-
-export interface Variant {
-  id?: string;
-  sku: string;
-  groupId?: string;
-  price?: Money;
-  discountedPrice?: ProductDiscountedPrice;
-  // discounts?: DiscountValue[];
-  attributes?: Record<string, any>; //eslint-disable-line
-  images?: string[];
-  isOnStock?: boolean;
-  restockableInDays?: number;
-  availableQuantity?: number;
-  isMatchingVariant?: boolean;
 }
 
 export interface Product {

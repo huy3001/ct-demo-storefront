@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { Cart } from '@/types/cart';
+import type { Cart as CommercetoolsCart } from '@commercetools/platform-sdk';
 import { DiscountCode } from '@/types/cart/Discount';
 import { Order } from '@/types/cart/Order';
 import { Variant } from '@/types/product';
@@ -49,7 +50,7 @@ const useCart = (): UseCartReturn => {
   );
 
   const transaction = useMemo(
-    () => mapCosts({ cart: data.data, currency }),
+    () => mapCosts({ cart: data.data as unknown as Partial<CommercetoolsCart>, currency }),
     [data.data, currency],
   );
 
@@ -58,7 +59,7 @@ const useCart = (): UseCartReturn => {
 
     const payload = {
       variant: {
-        sku: variant.sku,
+        sku: variant.sku as string,
         count: quantity,
       },
     };

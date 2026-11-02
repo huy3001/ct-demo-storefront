@@ -1,4 +1,4 @@
-import { Wishlist } from 'shared/types/wishlist';
+import { Wishlist } from '@/types/wishlist';
 import { SDKResponse, ServerOptions } from '@commercetools/frontend-sdk';
 import {
   AddToWishlistPayload,
