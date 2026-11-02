@@ -1,5 +1,6 @@
 import React, { useCallback, useContext } from 'react';
 import { useTranslations } from 'next-intl';
+import { Address as AccountAddress } from '@/types/account';
 import Select from '@/components/ui/atoms/dropdown/option-dropdown';
 import { AccountContext } from '@/context/account';
 import { isOnlyCountryFilled } from '@/helpers/utils/fieldsCheck';
@@ -47,7 +48,10 @@ const AccountAddresses: React.FC<Props> = ({
       addNewLabel: translate('checkout.add-new-shipping-address'),
       onAddNew: () => onRequestAddAddress('shipping'),
       addresses: shippingAddresses,
-      value: { name: formatAddress(shippingAddress), value: shippingAddress.addressId },
+      value: {
+        name: formatAddress(shippingAddress),
+        value: shippingAddress.addressId,
+      },
       onSelect: (address: Address) => {
         onSelectShippingAddress(address);
       },
@@ -58,7 +62,10 @@ const AccountAddresses: React.FC<Props> = ({
       addNewLabel: translate('checkout.add-new-billing-address'),
       onAddNew: () => onRequestAddAddress('billing'),
       addresses: billingAddresses,
-      value: { name: formatAddress(billingAddress), value: billingAddress.addressId },
+      value: {
+        name: formatAddress(billingAddress),
+        value: billingAddress.addressId,
+      },
       onSelect: (address: Address) => {
         onSelectBillingAddress(address);
       },
@@ -68,37 +75,59 @@ const AccountAddresses: React.FC<Props> = ({
 
   return (
     <div className={`flex flex-col gap-20 ${className}`}>
-      {sections.map(({ label, onAddNew, addNewLabel, addresses, value, hasError, onSelect }, index) => (
-        <div key={index}>
-          <div className="flex w-full items-center justify-between pb-16">
-            <span className="text-sm font-semibold uppercase text-gray-700">{label}</span>
-            <button className="text-sm font-semibold text-gray-700 underline" onClick={onAddNew}>
-              {addNewLabel} {'+'}
-            </button>
-          </div>
+      {sections.map(
+        (
+          {
+            label,
+            onAddNew,
+            addNewLabel,
+            addresses,
+            value,
+            hasError,
+            onSelect,
+          },
+          index,
+        ) => (
+          <div key={index}>
+            <div className="flex w-full items-center justify-between pb-16">
+              <span className="text-sm font-semibold uppercase text-gray-700">
+                {label}
+              </span>
+              <button
+                className="text-sm font-semibold text-gray-700 underline"
+                onClick={onAddNew}
+              >
+                {addNewLabel} {'+'}
+              </button>
+            </div>
 
-          <Select
-            label={translate('checkout.select-an-address')}
-            labelClassName="text-sm text-gray-600 font-normal"
-            options={addresses.map((address: Address) => ({
-              name: formatAddress(accountAddressToAddress(address)),
-              value: address.addressId as string,
-            }))}
-            value={value}
-            onChange={({ value }) => {
-              onSelect(
-                accountAddressToAddress(addresses.find((address: Address) => address.addressId === value) as Address),
-              );
-            }}
-            error={hasError}
-          />
-          {hasError && (
-            <span className="text-12 font-medium leading-4 text-red-500">
-              {translate('checkout.invalidAddressError')}
-            </span>
-          )}
-        </div>
-      ))}
+            <Select
+              label={translate('checkout.select-an-address')}
+              labelClassName="text-sm text-gray-600 font-normal"
+              options={addresses.map((address: AccountAddress) => ({
+                name: formatAddress(accountAddressToAddress(address)),
+                value: address.addressId as string,
+              }))}
+              value={value}
+              onChange={({ value }) => {
+                onSelect(
+                  accountAddressToAddress(
+                    addresses.find(
+                      (address: AccountAddress) => address.addressId === value,
+                    ) as AccountAddress,
+                  ),
+                );
+              }}
+              error={hasError}
+            />
+            {hasError && (
+              <span className="text-12 font-medium leading-4 text-red-500">
+                {translate('checkout.invalidAddressError')}
+              </span>
+            )}
+          </div>
+        ),
+      )}
     </div>
   );
 };

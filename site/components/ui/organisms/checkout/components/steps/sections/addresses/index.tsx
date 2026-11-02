@@ -10,13 +10,30 @@ import useAddressValidationSchema from '@/hooks/useAddressValidationSchema';
 import useI18n from '@/hooks/useI18n';
 import useProcessing from '@/hooks/useProcessing';
 import { isOnlyCountryFilled } from '@/helpers/utils/fieldsCheck';
-import { Cart } from '@/types/entity/cart';
 import { CartDetails } from '@/types/cart/Cart';
 import AccountAddresses from './components/account-addresses';
 import AddressForm from './components/address-form';
 import useMappers from './hooks/useMappers';
 import { Address } from './types';
 import CreateAddress from '../../../create-address';
+import type { Address as CartAddress, Cart } from '@commercetools/platform-sdk';
+
+const cartAddressToAddress = (addr: CartAddress, email?: string): Address => ({
+  addressId: addr.id ?? '',
+  firstName: addr.firstName,
+  lastName: addr.lastName,
+  email: email ?? addr.email,
+  phone: addr.phone,
+  country: addr.country,
+  streetName: addr.streetName ?? '',
+  streetNumber: addr.streetNumber ?? '',
+  apartment: addr.apartment ?? '',
+  line2: addr.additionalStreetInfo,
+  additionalAddressInfo: addr.additionalAddressInfo,
+  postalCode: addr.postalCode ?? '',
+  city: addr.city ?? '',
+  state: addr.state,
+});
 
 export interface Props {
   isCompleted: boolean;
@@ -67,17 +84,15 @@ const Addresses: React.FC<Props> = ({ isCompleted, goToNextStep, goToReview, onU
 
   const resolvedDefaultShipping: Address = useMemo(() => {
     if (cart?.shippingAddress) {
-      const addr = cart.shippingAddress as Address;
-      return { ...addr, email: cart.email ?? addr.email };
+      return cartAddressToAddress(cart.shippingAddress, cart.customerEmail);
     }
     if (defaultShippingAddress) return accountAddressToAddress(defaultShippingAddress);
     return initialAddressData;
-  }, [cart?.shippingAddress, cart?.email, defaultShippingAddress, accountAddressToAddress, initialAddressData]);
+  }, [cart, defaultShippingAddress, accountAddressToAddress, initialAddressData]);
 
   const resolvedDefaultBilling: Address = useMemo(() => {
     if (cart?.billingAddress) {
-      const addr = cart.billingAddress as Address;
-      return { ...addr, email: cart.email ?? addr.email };
+      return cartAddressToAddress(cart.billingAddress, cart.customerEmail);
     }
     if (defaultBillingAddress) return accountAddressToAddress(defaultBillingAddress);
     return initialAddressData;
@@ -119,14 +134,23 @@ const Addresses: React.FC<Props> = ({ isCompleted, goToNextStep, goToReview, onU
     setBillingAddress(resolvedDefaultBilling);
   }, [resolvedDefaultBilling, setBillingAddress]);
 
-  const shippingAddress = useWatch({
+  const watchedShippingAddress = useWatch({
     control: shippingControl,
     defaultValue: resolvedDefaultShipping,
   });
-  const billingAddress = useWatch({
+  const watchedBillingAddress = useWatch({
     control: billingControl,
     defaultValue: resolvedDefaultBilling,
   });
+
+  const shippingAddress: Address = useMemo(
+    () => ({ ...resolvedDefaultShipping, ...watchedShippingAddress }),
+    [resolvedDefaultShipping, watchedShippingAddress],
+  );
+  const billingAddress: Address = useMemo(
+    () => ({ ...resolvedDefaultBilling, ...watchedBillingAddress }),
+    [resolvedDefaultBilling, watchedBillingAddress],
+  );
 
   const currentBillingAddress = sameShippingAddress ? shippingAddress : billingAddress;
 
@@ -158,11 +182,11 @@ const Addresses: React.FC<Props> = ({ isCompleted, goToNextStep, goToReview, onU
     const data = {
       account: { email: account?.email || shippingAddress.email || currentBillingAddress.email },
       shipping: {
-        ...addressToAccountAddress(shippingAddress as Address),
+        ...addressToAccountAddress(shippingAddress),
         isDefaultShippingAddress: addressDefaults.shipping,
       },
       billing: {
-        ...addressToAccountAddress(currentBillingAddress as Address),
+        ...addressToAccountAddress(currentBillingAddress),
         isDefaultBillingAddress: addressDefaults.billing,
       },
     } as CartDetails;
@@ -171,7 +195,8 @@ const Addresses: React.FC<Props> = ({ isCompleted, goToNextStep, goToReview, onU
 
     stopProcessing();
 
-    if (res?.cartId) {
+    if (res?.id) {
+      
       if (isCompleted) goToReview();
       else goToNextStep();
     } else toast.error(translate('checkout.update-addresses-error'), { position: 'bottom-left' });
@@ -213,8 +238,8 @@ const Addresses: React.FC<Props> = ({ isCompleted, goToNextStep, goToReview, onU
                 onSelectShippingAddress={onSelectShippingAddress}
                 onSelectBillingAddress={onSelectBillingAddress}
                 onRequestAddAddress={onRequestAddAddress}
-                shippingAddress={shippingAddress as Address}
-                billingAddress={currentBillingAddress as Address}
+                shippingAddress={shippingAddress}
+                billingAddress={currentBillingAddress}
                 shippingAddressHasError={shippingAddressHasError}
                 billingAddressHasError={billingAddressHasError}
               />
@@ -225,7 +250,7 @@ const Addresses: React.FC<Props> = ({ isCompleted, goToNextStep, goToReview, onU
             <p className="pb-32 text-sm font-semibold uppercase">{translate('checkout.shipping-address')}</p>
 
             <AddressForm
-              address={shippingAddress as Address}
+              address={shippingAddress}
               onSubmit={submit}
               errors={shippingErrors}
               register={registerShippingInput}
@@ -251,7 +276,7 @@ const Addresses: React.FC<Props> = ({ isCompleted, goToNextStep, goToReview, onU
               />
             </div>
             {!sameShippingAddress && (
-              <AddressForm address={billingAddress as Address} register={registerBillingInput} errors={billingErrors}>
+              <AddressForm address={billingAddress} register={registerBillingInput} errors={billingErrors}>
                 <div className="mt-16">
                   <Checkbox
                     label={translate('checkout.save-as-default-billing')}
@@ -278,22 +303,22 @@ const Addresses: React.FC<Props> = ({ isCompleted, goToNextStep, goToReview, onU
 
                   try {
                     await addShippingAddress({
-                      ...addressToAccountAddress(shippingAddress as Address),
+                      ...addressToAccountAddress(shippingAddress),
                       isDefaultShippingAddress,
                     });
 
                     await addBillingAddress({
-                      ...addressToAccountAddress(currentBillingAddress as Address),
+                      ...addressToAccountAddress(currentBillingAddress),
                       isDefaultBillingAddress,
                     });
 
                     const cartAddress = {
                       shipping: {
-                        ...addressToAccountAddress(shippingAddress as Address),
+                        ...addressToAccountAddress(shippingAddress),
                         isDefaultShippingAddress,
                       },
                       billing: {
-                        ...addressToAccountAddress(currentBillingAddress as Address),
+                        ...addressToAccountAddress(currentBillingAddress),
                         isDefaultBillingAddress,
                       },
                     };
@@ -320,7 +345,7 @@ const Addresses: React.FC<Props> = ({ isCompleted, goToNextStep, goToReview, onU
 
           <AddressForm
             register={registerShippingInput}
-            address={shippingAddress as Address}
+            address={shippingAddress}
             errors={shippingErrors}
             onSubmit={submit}
           />
@@ -338,7 +363,7 @@ const Addresses: React.FC<Props> = ({ isCompleted, goToNextStep, goToReview, onU
             <div className="mt-48">
               <p className="pb-32 text-14 font-semibold uppercase">{translate('checkout.billingAddress')}</p>
               <AddressForm
-                address={billingAddress as Address}
+                address={billingAddress}
                 errors={billingErrors}
                 register={registerBillingInput}
                 onSubmit={submit}

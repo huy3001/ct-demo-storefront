@@ -10,9 +10,10 @@ import { Guid } from '@/helpers/utils/guid';
 import { useRouter } from '@/i18n/routing';
 import { getLocalizationInfo } from '@/project.config';
 import { sdk } from '@/sdk';
-import { Cart } from '@/types/entity/cart';
 import { Transaction } from '@/types/cart/Cart';
 import { useCheckout } from '../provider';
+import { getLocalizedString } from '@/lib/utils';
+import type { Cart } from '@commercetools/platform-sdk';
 
 interface Options {
   cart?: Cart;
@@ -61,7 +62,7 @@ const usePurchase = ({ cart, transaction, hasOutOfStockItems, callbackUrl }: Opt
     if (!cart?.shippingAddress || !cart?.billingAddress || !cart?.shippingInfo) return;
 
     if (hasOutOfStockItems) {
-      const outOfStockItems = cart?.lineItems?.filter((lineItem) => lineItem.variant?.isOnStock) ?? [];
+      const outOfStockItems = cart?.lineItems?.filter((lineItem) => lineItem.variant.availability?.isOnStock) ?? [];
 
       toast.error(
         `${translate('checkout.items-outOfStock')}:\n\n
@@ -86,7 +87,10 @@ const usePurchase = ({ cart, transaction, hasOutOfStockItems, callbackUrl }: Opt
 
     if (paymentData?.type === 'scheme') {
       response = await makePayment({
-        amount: { currency: transaction.total.currencyCode, value: transaction.total.centAmount },
+        amount: {
+          currency: transaction.total.currencyCode,
+          value: transaction.total.centAmount,
+        },
         returnUrl: `${window.location.origin}/thank-you?orderId=${orderNumber}`,
         reference: orderNumber,
         channel: 'web',
@@ -108,27 +112,30 @@ const usePurchase = ({ cart, transaction, hasOutOfStockItems, callbackUrl }: Opt
           timeZoneOffset: new Date().getTimezoneOffset(),
           userAgent: navigator.userAgent,
         },
-        metadata: { cartId: cart.cartId },
+        metadata: { cartId: cart.id },
       });
     }
 
     if (paymentData?.type === 'klarna_paynow') {
       response = await makeKlarnaPayment({
-        amount: { currency: transaction.total.currencyCode, value: transaction.total.centAmount },
+        amount: {
+          currency: transaction.total.currencyCode,
+          value: transaction.total.centAmount,
+        },
         returnUrl: `${window.location.origin}/thank-you?orderId=${orderNumber}`,
         reference: orderNumber,
         shopperReference: account?.accountId ?? v4(),
         countryCode: country,
         shopperLocale: getLocalizationInfo(locale).locale,
         lineItems: (cart?.lineItems ?? []).map((lineItem) => ({
-          id: lineItem.lineItemId as string,
-          quantity: (lineItem.count ?? 1).toString(),
-          description: lineItem.name ?? '',
+          id: lineItem.id,
+          quantity: (lineItem.quantity ?? 1).toString(),
+          description: getLocalizedString(lineItem.name, locale) ?? '',
           amountIncludingTax: lineItem.totalPrice?.centAmount ?? 0,
-          productUrl: lineItem._url,
-          imageUrl: lineItem.variant?.images?.[0],
+          productUrl: getLocalizedString(lineItem.productSlug, locale) || undefined,
+          imageUrl: lineItem.variant?.images?.[0].url,
         })),
-        metadata: { cartId: cart.cartId },
+        metadata: { cartId: cart.id },
       });
     }
 

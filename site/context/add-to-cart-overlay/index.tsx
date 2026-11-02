@@ -5,8 +5,6 @@ import Link from '@/components/ui/atoms/link';
 import Overlay from '@/components/ui/atoms/overlay';
 import ProductSlider from '@/components/ui/organisms/product/product-slider';
 import useCart from '@/frontastic/hooks/useCart';
-import useProduct from '@/frontastic/hooks/useProduct';
-import useWishlist from '@/frontastic/hooks/useWishlist';
 import useScrollBlock from '@/hooks/useScrollBlock';
 import useTouchDevice from '@/hooks/useTouchDevice';
 import { mediumDesktop, tablet } from '@/helpers/utils/screensizes';
@@ -28,8 +26,6 @@ const AddToCartOverlayContext = React.createContext<AddToCartOverlayContextShape
 const AddToCartOverlayProvider = ({ children }: React.PropsWithChildren) => {
   const { locale } = useParams();
 
-  const { data, addToWishlist, removeLineItem } = useWishlist();
-
   const { shippingMethods } = useCart();
 
   const { isTouchDevice } = useTouchDevice();
@@ -37,8 +33,6 @@ const AddToCartOverlayProvider = ({ children }: React.PropsWithChildren) => {
   const translate = useTranslations();
 
   const { blockScroll } = useScrollBlock();
-
-  const { query } = useProduct();
 
   const [product, setProduct] = useState<StateProduct>();
 
@@ -50,13 +44,20 @@ const AddToCartOverlayProvider = ({ children }: React.PropsWithChildren) => {
 
       if (!category) return;
 
-      const response = await query({ categories: [category], limit: 15 });
+      const params = new URLSearchParams({
+        categoryId: category,
+        limit: '15',
+        locale: String(locale),
+      });
+      const response = await fetch(`/api/products/related?${params}`);
 
-      if (response.isError) return;
+      if (!response.ok) return;
 
-      setRelatedProducts(response.data.items as Product[]);
+      const data = (await response.json()) as { products: Product[] };
+
+      setRelatedProducts(data.products);
     },
-    [query],
+    [locale],
   );
 
   const show = useCallback(
@@ -108,7 +109,7 @@ const AddToCartOverlayProvider = ({ children }: React.PropsWithChildren) => {
                     <Image
                       width={135}
                       height={150}
-                      src={product?.images?.[0]}
+                      src={product?.variants?.[0].images?.[0]}
                       style={{ objectFit: 'contain' }}
                       alt={product?.name ?? ''}
                       suffix={'small'}
@@ -124,10 +125,10 @@ const AddToCartOverlayProvider = ({ children }: React.PropsWithChildren) => {
                       </Link>
                       <span className="mt-8 block text-12 font-medium md:hidden">
                         {formatMoney(
-                          product?.price?.discounted?.centAmount ??
-                            product?.price?.centAmount ??
+                          product?.variants?.[0].price?.discounted?.centAmount ??
+                            product?.variants?.[0].price?.centAmount ??
                             0,
-                          product?.price?.discounted?.currencyCode ?? 'USD',
+                          product?.variants?.[0].price?.discounted?.currencyCode ?? 'USD',
                           locale,
                         )}
                       </span>
@@ -138,10 +139,10 @@ const AddToCartOverlayProvider = ({ children }: React.PropsWithChildren) => {
                     </div>
                     <span className="hidden text-14 font-medium md:block">
                       {formatMoney(
-                        product?.price?.discounted?.centAmount ??
-                          product?.price?.centAmount ??
+                        product?.variants?.[0].price?.discounted?.centAmount ??
+                          product?.variants?.[0].price?.centAmount ??
                           0,
-                        product?.price?.discounted?.currencyCode ?? 'USD',
+                        product?.variants?.[0].price?.discounted?.currencyCode ?? 'USD',
                         locale,
                       )}
                     </span>
@@ -175,14 +176,7 @@ const AddToCartOverlayProvider = ({ children }: React.PropsWithChildren) => {
               <ProductSlider
                 clearDefaultWrapperStyles
                 products={relatedProducts}
-                wishlist={data}
                 shippingMethods={shippingMethods.data}
-                addToWishlist={async (lineItem, count) => {
-                  if (data) await addToWishlist(data, lineItem, count);
-                }}
-                removeLineItem={async (lineItem) => {
-                  if (data) await removeLineItem(data, lineItem);
-                }}
                 title={translate('product.bought-together')}
                 titleVariant="xs"
                 innerArrows={false}

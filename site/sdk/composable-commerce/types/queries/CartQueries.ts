@@ -1,4 +1,4 @@
-import { OrderState } from 'shared/types/cart';
+import { OrderState } from '@/types/cart';
 
 type SortAttribute = {
   [key: string]: 'asc' | 'desc';

@@ -3,8 +3,8 @@ import { useSearchParams } from 'next/navigation';
 import { TrashIcon } from '@heroicons/react/24/outline';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { Account } from 'shared/@/types/account';
-import { Address } from 'shared/@/types/account/Address';
+import { Account } from '@/types/account';
+import { Address } from '@/types/account/Address';
 import { useTranslations } from 'use-intl';
 import Button from '@/components/ui/atoms/button';
 import Checkbox from '@/components/ui/atoms/checkbox';
@@ -12,7 +12,7 @@ import Dropdown from '@/components/ui/atoms/dropdown';
 import Input from '@/components/ui/atoms/input';
 import { AccountContext } from '@/context/account';
 import useI18n from '@/hooks/useI18n';
-import countryStates from 'public/static/states.json';
+import countryStates from '@/frontastic/utils/states.json';
 import DeleteModal from './deleteModal';
 import usePropsToAddressType from './mapPropsToAddressType';
 import AccountForm from '../../account-atoms/account-form';
@@ -96,6 +96,7 @@ const AddressForm: React.FC<AddressFormProps> = ({ editedAddressId, countries = 
     },
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const data = watch();
 
   const closeModal = () => {

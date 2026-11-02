@@ -1,14 +1,16 @@
-import React from 'react';
+import { useParams } from 'next/navigation';
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import Skeleton from 'react-loading-skeleton';
 import Image from '@/components/ui/atoms/image';
-import { CurrencyHelpers } from '@/helpers/currencyHelpers';
 import { accordionFAQMockItems, accordionMockItems } from '@/helpers/mocks/mockAtomsData';
 import { lineItems } from '@/helpers/mocks/mockCommonData';
 import { variant } from '@/helpers/mocks/mockData';
 import Accordion from '../index';
+import { formatMoney } from '@/lib/utils';
 
 const AccordionContent = () => {
+  const { locale } = useParams();
+
   return (
     <div className="ml-44">
       <p className="mt-40 w-2/5 text-28 font-bold text-black">Accordion</p>
@@ -64,7 +66,7 @@ const AccordionContent = () => {
                 {lineItems?.map((lineItem) => (
                   <div key={lineItem.lineItemId} className="relative h-104 w-88 shrink-0">
                     {lineItem?.variant?.images?.[0] ? (
-                      <Image fill src={variant?.images?.[0]} alt={lineItem.name ?? 'product image'} style={{ objectFit: 'contain' }} />
+                      <Image fill src={variant?.images?.[0].url} alt={lineItem.name ?? 'product image'} style={{ objectFit: 'contain' }} />
                     ) : (
                       <Skeleton className="size-full" />
                     )}
@@ -85,7 +87,7 @@ const AccordionContent = () => {
                 <div className="flex items-start gap-16 py-16 md:gap-32">
                   <div className="relative h-104 w-89 shrink-0">
                     {lineItem?.variant?.images?.[0] ? (
-                      <Image fill src={variant?.images?.[0]} alt={lineItem.name ?? 'product image'} style={{ objectFit: 'contain' }} />
+                      <Image fill src={variant?.images?.[0].url} alt={lineItem.name ?? 'product image'} style={{ objectFit: 'contain' }} />
                     ) : (
                       <Skeleton className="size-full" />
                     )}
@@ -95,13 +97,13 @@ const AccordionContent = () => {
                       {lineItem.name ?? 'product name'}
                     </p>
                     <p className="mt-8 block text-12 font-medium md:hidden lg:block lg:text-14">
-                      {CurrencyHelpers.formatForCurrency(lineItem.price ?? 111, 'en')}
+                      {formatMoney(lineItem?.price?.value?.centAmount ?? 0, lineItem?.price?.value?.currencyCode ?? 'USD', locale)}
                     </p>
                     <p className="mt-12 text-14 text-gray-600">{'x ' + (lineItem.count ?? '2')}</p>
                   </div>
                 </div>
                 <p className="mt-8 hidden font-medium md:block lg:hidden">
-                  {CurrencyHelpers.formatForCurrency(lineItem.price ?? 111, 'en')}
+                  {formatMoney(lineItem?.price?.value?.centAmount ?? 0, lineItem?.price?.value?.currencyCode ?? 'USD', locale)}
                 </p>
               </div>
             ))}

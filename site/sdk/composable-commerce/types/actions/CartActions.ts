@@ -1,4 +1,4 @@
-import { Cart, Order, ShippingMethod } from 'shared/types/cart';
+import { Cart, Order, ShippingMethod } from '@/types/cart';
 import { SDKResponse, ServerOptions } from '@commercetools/frontend-sdk';
 import {
   AddCartItemPayload,
@@ -12,8 +12,8 @@ import {
   RemoveDiscountCodePayload,
 } from '../payloads/CartPayloads';
 import { QueryOrdersQuery, GetOrderQuery } from '../queries/CartQueries';
-import { PaginatedResult } from 'shared/types/result';
-import { Token } from 'shared/types/Token';
+import { PaginatedResult } from '@/types/result';
+import { Token } from '@/types/Token';
 
 type GetCartAction = (options?: {
   /**

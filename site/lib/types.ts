@@ -27,9 +27,10 @@ export interface Product {
   description?: string;
   brand?: string;
   brandLogo?: string;
-  categories: Array<{ id: string }>;
+  categories: Category[];
   variants: Variant[];
   reviews: Review[];
+  _url?: string;
 }
 
 export interface Review {

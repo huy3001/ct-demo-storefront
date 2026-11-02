@@ -1,4 +1,5 @@
 import type { Cart } from '@commercetools/platform-sdk';
+import type { Payment } from '@/components/ui/organisms/account/sections/payment-methods';
 
 export interface ReturnLineItem {
   returnLineItemId?: string;
@@ -34,4 +35,5 @@ export interface Order extends Cart {
   returnInfo?: ReturnInfo[];
   purchaseOrderNumber?: string;
   shipmentState?: ShipmentState;
+  payments?: Payment[];
 }

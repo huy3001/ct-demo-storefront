@@ -43,10 +43,10 @@ const useTrack = ({ product, inModalVersion }: Options) => {
         ? QUICK_VIEW_PRODUCT_ADDED_TO_CART_AFTER_SEARCH
         : QUICK_VIEW_PRODUCT_ADDED_TO_CART;
 
-      trackEvent(eventName, product);
+      trackEvent(eventName, { ...product });
     } else {
       const eventName = isAfterSearch ? PDP_PRODUCT_ADDED_TO_CART_AFTER_SEARCH : PDP_PRODUCT_ADDED_TO_CART;
-      trackEvent(eventName, product);
+      trackEvent(eventName, { ...product });
     }
   }, [product, isAfterSearch, inModalVersion]);
 

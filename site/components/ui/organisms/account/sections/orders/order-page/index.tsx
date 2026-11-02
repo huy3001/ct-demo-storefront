@@ -46,7 +46,6 @@ const OrderPage: FC<Props> = ({ order, shippingMethods }) => {
 
             <OrderSummary
               discounts={[]}
-              onApplyDiscountCode={async () => {}}
               onRemoveDiscountCode={async () => {}}
               order={order}
               includeItemsList

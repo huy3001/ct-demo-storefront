@@ -5,7 +5,7 @@ import { classnames } from '@/helpers/utils/classnames';
 import { useRouter } from '@/i18n/routing';
 import { useSearchParams } from 'next/navigation';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Cart, ShippingMethod } from '@/types/entity/cart';
+import { ShippingMethod } from '@/types/entity/cart';
 import { useTranslations } from 'use-intl';
 import { useCheckout } from '../../provider';
 import Step from '../step';
@@ -16,6 +16,7 @@ import Addresses from './sections/addresses';
 import CommercetoolsPayment from './sections/ct-payment';
 import Payment from './sections/payment';
 import Shipping from './sections/shipping';
+import type { Cart } from '@commercetools/platform-sdk';
 
 interface Props {
   cart?: Cart;

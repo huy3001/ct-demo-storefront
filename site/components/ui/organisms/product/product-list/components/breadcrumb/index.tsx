@@ -70,7 +70,7 @@ const Breadcrumbs: React.FC<Props> = ({ categoryId, categories }) => {
         <Breadcrumb className="mx-auto mt-32 py-6 lg:py-8" listClassName="gap-x-8">
           <Link
             link={currentCategory._url}
-            className="rounded-md border border-gray-700 bg-gray-700 px-16 py-8 text-12 leading-[16px] text-white lg:text-16"
+            className="rounded-md border border-gray-700 bg-gray-700 px-16 py-8 text-12 leading-4 text-white lg:text-16"
           >
             {translate('product.items-all')}
           </Link>
@@ -78,7 +78,7 @@ const Breadcrumbs: React.FC<Props> = ({ categoryId, categories }) => {
             <Link
               key={category.categoryId}
               link={category._url}
-              className="rounded-md border border-gray-700 bg-transparent px-16 py-8 text-12 leading-[16px] text-primary transition hover:bg-gray-700 hover:text-white lg:text-16"
+              className="rounded-md border border-gray-700 bg-transparent px-16 py-8 text-12 leading-4 text-primary transition hover:bg-gray-700 hover:text-white lg:text-16"
             >
               {category.name}
             </Link>
@@ -90,7 +90,7 @@ const Breadcrumbs: React.FC<Props> = ({ categoryId, categories }) => {
         <Breadcrumb className="mx-auto mt-32 py-6 lg:py-8" listClassName="gap-x-8">
           <Link
             link={parentCategory?._url}
-            className="rounded-md border border-gray-700 bg-transparent px-16 py-8 text-12 leading-[16px] text-primary transition hover:bg-gray-700 hover:text-white lg:text-16"
+            className="rounded-md border border-gray-700 bg-transparent px-16 py-8 text-12 leading-4 text-primary transition hover:bg-gray-700 hover:text-white lg:text-16"
           >
             {translate('product.items-all')}
           </Link>
@@ -98,7 +98,7 @@ const Breadcrumbs: React.FC<Props> = ({ categoryId, categories }) => {
             <Link
               key={category.categoryId}
               link={category._url}
-              className={`rounded-md border border-gray-700 px-16 py-8 text-12 leading-[16px] transition lg:text-16 ${
+              className={`rounded-md border border-gray-700 px-16 py-8 text-12 leading-4 transition lg:text-16 ${
                 category.categoryId === currentCategory.categoryId
                   ? 'bg-gray-700 text-white'
                   : 'bg-transparent text-primary hover:bg-gray-700 hover:text-white'

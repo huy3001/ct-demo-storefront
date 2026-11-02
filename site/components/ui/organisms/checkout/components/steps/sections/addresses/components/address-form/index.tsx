@@ -4,8 +4,8 @@ import { FieldErrors, UseFormRegister } from 'react-hook-form';
 import Dropdown from '@/components/ui/atoms/dropdown';
 import Input from '@/components/ui/atoms/input';
 import { AccountContext } from '@/context/account';
-import { getLocalizationInfo, i18nConfig } from 'project.config';
-import countryStates from 'public/static/states.json';
+import { getLocalizationInfo, i18nConfig } from '@/project.config';
+import countryStates from '@/frontastic/utils/states.json';
 import { Address } from '../../types';
 
 interface Props {
@@ -122,7 +122,7 @@ const AddressForm = ({
         </div>
 
         <div className="col-span-3 grid grid-cols-10 gap-16">
-          <div className="col-span-10 min-w-112 md:col-span-2">
+          <div className="col-span-10 min-w-md md:col-span-2">
             <Input
               type="string"
               label={translate('common.street-number')}

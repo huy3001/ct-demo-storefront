@@ -1,6 +1,6 @@
 import React, { useContext, useMemo, useState } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { type Resolver, SubmitHandler, useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { useTranslations } from 'use-intl';
 import Button from '@/components/ui/atoms/button';
@@ -42,7 +42,7 @@ const CreateAddress = ({ addressType, onAfterSubmit, onSelectBillingAddress, onS
     handleSubmit,
   } = useForm<Address>({
     defaultValues: initialData,
-    resolver: yupResolver(addressValidationSchema),
+    resolver: yupResolver(addressValidationSchema) as unknown as Resolver<Address>,
   });
 
   const onSubmit: SubmitHandler<Address> = async (data) => {
@@ -101,6 +101,7 @@ const CreateAddress = ({ addressType, onAfterSubmit, onSelectBillingAddress, onS
       </p>
       <AddressForm
         className="mt-32"
+        // eslint-disable-next-line react-hooks/incompatible-library
         address={watch()}
         register={register}
         errors={errors}

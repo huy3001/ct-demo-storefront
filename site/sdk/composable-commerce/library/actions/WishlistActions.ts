@@ -10,7 +10,7 @@ import {
   RemoveFromWishlistAction,
   UpdateWishlistItemAction,
 } from '../../types/actions/WishlistActions';
-import { Wishlist } from 'shared/types/wishlist';
+import { Wishlist } from '@/types/wishlist';
 import { ComposableCommerceEvents } from '../../types/events/ComposableCommerceEvents';
 
 export type WishlistActions = {

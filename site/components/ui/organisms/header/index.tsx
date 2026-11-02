@@ -14,7 +14,6 @@ const CommercetoolsSearch = dynamic(() => import('@/components/ui/atoms/search')
 const Header: React.FC<HeaderProps> = ({
   isEmpty,
   onRemoveDiscountCode,
-  onApplyDiscountCode,
   totalCartItems,
   totalWishlistItems,
   navLinks,
@@ -79,7 +78,6 @@ const Header: React.FC<HeaderProps> = ({
 
             <UtilitySection
               onRemoveDiscountCode={onRemoveDiscountCode}
-              onApplyDiscountCode={onApplyDiscountCode}
               isEmpty={isEmpty}
               totalCartItems={totalCartItems}
               totalWishlistItems={totalWishlistItems}

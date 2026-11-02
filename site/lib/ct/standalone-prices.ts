@@ -22,12 +22,12 @@ function scopeRank(
   currency: string,
   country: string,
   priceChannel?: string,
-  now: number,
+  now?: number,
 ): number {
   if (
     price.value.currencyCode !== currency ||
     price.customerGroup ||
-    !isCurrentlyValid(price, now)
+    !isCurrentlyValid(price, now ?? Date.now())
   ) {
     return -1;
   }

@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
-import Wrapper from 'components/HOC/wrapper';
+import Wrapper from '@/components/HOC/wrapper';
 import { Cart } from '@/types/entity/cart';
-import { Product } from '@/types/entity/product';
 import AccumalativeTrace from './components/accumalative-trace';
 import Breadcrumbs from './components/breadcrumb';
 import CurrentRefinements from './components/current-refinements';
@@ -10,6 +9,7 @@ import List from './components/list';
 import MobileFacets from './components/mobile-facets';
 import SearchHeader from './components/search-header';
 import { useProductList } from './context';
+import type { Product } from '@/lib/types';
 
 export interface ProductListProps {
   products: Product[];

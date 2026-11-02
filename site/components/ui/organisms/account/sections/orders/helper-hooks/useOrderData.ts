@@ -33,7 +33,8 @@ const useOrderData = ({ order, shippingMethods }: UseOrderDataProps) => {
 
   const shippingName = useMemo(() => {
     return shippingMethods.find(
-      (shippingMethod: ShippingMethod) => shippingMethod.shippingMethodId === order?.shippingInfo?.shippingMethodId,
+      (shippingMethod: ShippingMethod) =>
+        shippingMethod.shippingMethodId === order?.shippingInfo?.shippingMethod?.id,
     )?.name;
   }, [order, shippingMethods]);
 

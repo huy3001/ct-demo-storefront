@@ -20,19 +20,21 @@ const useOrderInfoData = ({ order, shippingMethods }: UseOrderInfoDataProps) => 
 
   const updateDeliveryMethod = useCallback(() => {
     const shippingMethod = shippingMethods?.find(
-      (method) => method.shippingMethodId === order?.shippingInfo?.shippingMethodId,
+      (method) => method.shippingMethodId === order?.shippingInfo?.shippingMethod?.id,
     ) as ShippingMethod;
 
     setDeliveryMethod(shippingMethod.name ?? '');
-  }, [order?.shippingInfo?.shippingMethodId, shippingMethods]);
+  }, [order?.shippingInfo?.shippingMethod?.id, shippingMethods]);
+
+  const orderShippingAddress = order?.shippingAddress;
 
   const updateShippingAddress = useCallback(() => {
-    if (order?.shippingAddress) {
-      const { streetName, city, postalCode } = order.shippingAddress;
+    if (orderShippingAddress) {
+      const { streetName, city, postalCode } = orderShippingAddress;
       const label = `${streetName}, ${city}, ${postalCode}`;
       setShippingAddress(label);
     }
-  }, [order?.shippingAddress]);
+  }, [orderShippingAddress]);
 
   const updatePaymentInfo = useCallback(() => {
     const payment = order?.payments?.[0];
@@ -45,6 +47,7 @@ const useOrderInfoData = ({ order, shippingMethods }: UseOrderInfoDataProps) => 
 
   useEffect(() => {
     if (order) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       updateOrderNumber();
       updateDeliveryMethod();
       updateShippingAddress();

@@ -14,7 +14,6 @@ const Cart = ({
   cart,
   isEmpty,
   hasOutOfStockItems,
-  onApplyDiscountCode,
   onRemoveDiscountCode,
   paymentMethods,
   login,
@@ -103,7 +102,6 @@ const Cart = ({
             />
           }
           discounts={discountCodes ?? []}
-          onApplyDiscountCode={onApplyDiscountCode}
           onRemoveDiscountCode={onRemoveDiscountCode}
           login={login}
           requestConfirmationEmail={requestConfirmationEmail}

@@ -1164,10 +1164,24 @@ export const variant: Variant = {
   groupId: '78695',
   id: '1',
   images: [
-    'https://2eca75039cf911b9bbe5-79bfd3e36f011d786971804e873c4354.ssl.cf3.rackcdn.com/AdobeStock_378975371-myB5QCrw.jpeg',
+    {
+      url: 'https://2eca75039cf911b9bbe5-79bfd3e36f011d786971804e873c4354.ssl.cf3.rackcdn.com/AdobeStock_378975371-myB5QCrw.jpeg',
+      dimensions: {
+        w: 1920,
+        h: 1080,
+      },
+    },
   ],
   sku: 'M0E20000000DSDJ',
-  price: { centAmount: 71820, currencyCode: 'EUR', fractionDigits: 2 },
+  price: {
+    id: 'price-id',
+    value: {
+      centAmount: 71820,
+      currencyCode: 'EUR',
+      fractionDigits: 2,
+      type: 'centPrecision',
+    },
+  },
   isOnStock: true,
   attributes: {
     articleNumberManufacturer: '621540423 V0065',
@@ -1186,8 +1200,21 @@ export const lineItemsOrderHistory: CartLineItem[] = [
     count: 2,
     variant: variant,
     isGift: false,
-    totalPrice: { centAmount: 71820, currencyCode: 'EUR', fractionDigits: 2 },
-    price: { centAmount: 71820, currencyCode: 'EUR', fractionDigits: 2 },
+    totalPrice: {
+      centAmount: 71820,
+      currencyCode: 'EUR',
+      fractionDigits: 2,
+      type: 'centPrecision',
+    },
+    price: {
+      id: 'price-id',
+      value: {
+        centAmount: 71820,
+        currencyCode: 'EUR',
+        fractionDigits: 2,
+        type: 'centPrecision',
+      },
+    },
     //taxedPrice: {},
   },
   {
@@ -1198,8 +1225,21 @@ export const lineItemsOrderHistory: CartLineItem[] = [
     count: 2,
     variant: variant,
     isGift: false,
-    totalPrice: { centAmount: 71820, currencyCode: 'EUR', fractionDigits: 2 },
-    price: { centAmount: 71820, currencyCode: 'EUR', fractionDigits: 2 },
+    totalPrice: {
+      centAmount: 71820,
+      currencyCode: 'EUR',
+      fractionDigits: 2,
+      type: 'centPrecision',
+    },
+    price: {
+      id: 'price-id',
+      value: {
+        centAmount: 71820,
+        currencyCode: 'EUR',
+        fractionDigits: 2,
+        type: 'centPrecision',
+      },
+    },
     //taxedPrice: {},
   },
 ];
@@ -1227,7 +1267,13 @@ const lineItems: LineItem[] = [
     variant: {
       sku: 'SKU',
       images: [
-        'https://2eca75039cf911b9bbe5-79bfd3e36f011d786971804e873c4354.ssl.cf3.rackcdn.com/AdobeStock_308570068-ftaFzBEg.jpeg',
+        {
+          url: 'https://2eca75039cf911b9bbe5-79bfd3e36f011d786971804e873c4354.ssl.cf3.rackcdn.com/AdobeStock_308570068-ftaFzBEg.jpeg',
+          dimensions: {
+            w: 1920,
+            h: 1080,
+          },
+        },
       ],
     },
   },
@@ -1241,7 +1287,13 @@ const lineItems: LineItem[] = [
     variant: {
       sku: 'SKU',
       images: [
-        'https://2eca75039cf911b9bbe5-79bfd3e36f011d786971804e873c4354.ssl.cf3.rackcdn.com/AdobeStock_308570077-dEUwL6Ta.jpeg',
+        {
+          url: 'https://2eca75039cf911b9bbe5-79bfd3e36f011d786971804e873c4354.ssl.cf3.rackcdn.com/AdobeStock_308570077-dEUwL6Ta.jpeg',
+          dimensions: {
+            w: 1920,
+            h: 1080,
+          },
+        },
       ],
     },
   },
@@ -1255,7 +1307,13 @@ const lineItems: LineItem[] = [
     variant: {
       sku: 'SKU',
       images: [
-        'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-01-product-01.jpg',
+        {
+          url: 'https://tailwindui.com/img/ecommerce-images/shopping-cart-page-01-product-01.jpg',
+          dimensions: {
+            w: 1920,
+            h: 1080,
+          },
+        },
       ],
     },
   },

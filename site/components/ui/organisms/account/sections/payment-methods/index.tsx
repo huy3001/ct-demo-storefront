@@ -9,6 +9,9 @@ export interface Payment {
   cardNumber: string;
   cardExpiryMonth: Option;
   cardExpiryYear: Option;
+  paymentProvider?: string;
+  paymentMethod?: string;
+  paymentStatus?: string;
 }
 
 export const payments: Payment[] = [

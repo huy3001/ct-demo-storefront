@@ -3,7 +3,7 @@ import { useTranslations } from 'use-intl';
 import Button from '@/components/ui/atoms/button';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { desktop } from '@/helpers/utils/screensizes';
-import { Cart, DiscountCode, ShippingMethod } from '@/types/entity/cart';
+import { ShippingMethod } from '@/types/entity/cart';
 import { CartDetails, Transaction } from '@/types/cart/Cart';
 import Footer from './components/footer';
 import Header, { Props as HeaderProps } from './components/header';
@@ -12,13 +12,13 @@ import Steps from './components/steps';
 import usePurchase from './hooks/usePurchase';
 import CheckoutProvider, { useCheckout } from './provider';
 import OrderSummary from '../order-summary';
+import type { Cart, DiscountCode } from '@commercetools/platform-sdk';
 
 export type CheckoutWrappedProps = HeaderProps & {
   cart?: Cart;
   transaction: Transaction;
   hasOutOfStockItems?: boolean;
   shippingMethods: ShippingMethod[];
-  onApplyDiscountCode?: (code: string) => Promise<void>;
   onRemoveDiscountCode?: (discount: DiscountCode) => Promise<void>;
   onUpdateCart?: (payload: CartDetails) => Promise<Cart>;
   isCtPaymentOnly?: boolean;
@@ -33,7 +33,6 @@ export const CheckoutWrapped = ({
   totalCartItems,
   hasOutOfStockItems,
   shippingMethods,
-  onApplyDiscountCode,
   onRemoveDiscountCode,
   onUpdateCart,
   callbackUrl,
@@ -48,6 +47,13 @@ export const CheckoutWrapped = ({
 
   const { purchase } = usePurchase({ cart, transaction, hasOutOfStockItems, callbackUrl });
 
+  const discountCodes = cart?.discountCodes
+    ?.map((discount) => discount.discountCode?.obj)
+    .filter(
+      (discount): discount is NonNullable<typeof discount> =>
+        discount !== undefined,
+    );
+
   return (
     <div className="min-h-screen bg-neutral-200">
       <Header logo={logo} totalCartItems={totalCartItems} />
@@ -56,8 +62,7 @@ export const CheckoutWrapped = ({
         <div className="flex flex-col gap-24 p-16 md:p-24 lg:flex-row-reverse lg:items-start lg:p-0">
           <OrderSummary
             cart={cart}
-            discounts={cart?.discountCodes ?? []}
-            onApplyDiscountCode={onApplyDiscountCode}
+            discounts={discountCodes ?? []}
             onRemoveDiscountCode={onRemoveDiscountCode}
             className="lg:min-w-[30%]"
             includeSummaryAccordion

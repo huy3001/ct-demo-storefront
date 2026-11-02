@@ -5,7 +5,8 @@ import toast from 'react-hot-toast';
 import { useTranslations } from 'use-intl';
 import { AccountContext } from '@/context/account';
 import { useRouter } from '@/i18n/routing';
-import { useProjectSettings, useCheckout } from 'frontastic';
+import useProjectSettings from '@/frontastic/hooks/useProjectSettings';
+import useCheckout from '@/frontastic/hooks/useCheckout';
 import { CheckoutWrappedProps } from '..';
 import Header from '../components/header';
 
@@ -38,7 +39,7 @@ const CommercetoolsCheckout = ({ logo, callbackUrl }: Pick<CheckoutWrappedProps,
       projectKey,
       sessionId: session.token,
       locale,
-      showTaxes: locale === 'en',
+      // showTaxes: locale === 'en',
       styles: {
         '--font-family': "'Inter', sans-serif",
         '--button': '#212121',
@@ -78,7 +79,7 @@ const CommercetoolsCheckout = ({ logo, callbackUrl }: Pick<CheckoutWrappedProps,
         }
       },
     });
-  }, [projectKey, region, locale, session, pushRoute, translate]);
+  }, [projectKey, region, locale, session, pushRoute, translate, callbackUrl]);
 
   const errorTriggered = useRef(false);
 
@@ -108,7 +109,6 @@ const CommercetoolsCheckout = ({ logo, callbackUrl }: Pick<CheckoutWrappedProps,
     <div className="min-h-screen lg:bg-neutral-200">
       <Header logo={logo} />
       <div className="relative pt-6">
-        {/* eslint-disable-next-line tailwindcss/no-custom-classname*/}
         <div data-ctc className="checkout-Container" />
       </div>
       {isLoading && (

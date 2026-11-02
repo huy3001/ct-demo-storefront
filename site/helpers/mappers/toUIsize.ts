@@ -1,15 +1,15 @@
-import { UISize } from 'components/commercetools-ui/organisms/product/product-details/types';
-import { Product, Variant } from 'types/entity/product';
+import type { UISize } from '@/components/ui/organisms/product/product-details/types';
+import type { Product } from '@/lib/types';
+import { getVariantAttribute, toOptionValue } from './toUIColor';
 
 export const toUISize = (product: Product) => {
-  const mappedSizes: UISize[] = [
-    ...new Map(
-      product.variants?.map((variant: Variant) => [
-        variant.attributes?.commonSize?.label,
-        variant.attributes?.commonSize,
-      ]),
-    ).values(),
-  ];
+  const sizes = new Map<string, UISize>();
 
-  return mappedSizes;
+  product.variants?.forEach((variant) => {
+    const size = toOptionValue(getVariantAttribute(variant, 'commonSize'));
+
+    if (size && !sizes.has(size.label)) sizes.set(size.label, size);
+  });
+
+  return [...sizes.values()];
 };

@@ -3,9 +3,9 @@ import { useTranslations } from 'use-intl';
 import { trackEvent } from '@/helpers/analytics';
 import { PLP_PRODUCT_CLICKED } from '@/helpers/constants/events';
 import { Cart } from '@/types/entity/cart';
-import { Product } from '@/types/entity/product';
 import { useProductList } from '../../context';
 import PlpProductTileWrapper from '../plp-product-tile-wrapper';
+import type { Product } from '@/lib/types';
 
 interface Props {
   products: Product[];
@@ -24,12 +24,12 @@ const List: React.FC<Props> = ({ products, cart }) => {
       <div className="grid grid-cols-2 gap-16 pt-32 md:grid-cols-3 lg:grid-cols-4 lg:gap-24">
         {products.map((product) => (
           <PlpProductTileWrapper
-            key={product.productId}
+            key={product.id}
             product={product}
             cart={cart}
             isSearchResult={!!searchQuery}
             onClick={() => {
-              trackEvent(PLP_PRODUCT_CLICKED, product);
+              trackEvent(PLP_PRODUCT_CLICKED, { ...product });
             }}
           />
         ))}

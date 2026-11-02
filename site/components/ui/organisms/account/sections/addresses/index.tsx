@@ -1,5 +1,5 @@
 import React, { useCallback, useContext } from 'react';
-import { Address as AddressType } from 'shared/@/types/account';
+import { Address as AddressType } from '@/types/account';
 import { useTranslations } from 'use-intl';
 import Link from '@/components/ui/atoms/link';
 import { AccountContext } from '@/context/account';

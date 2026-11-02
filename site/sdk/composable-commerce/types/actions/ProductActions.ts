@@ -1,7 +1,7 @@
 import { GetProductQuery, ProductQueryQuery, QueryProductCategoriesQuery } from '../queries/ProductQueries';
-import { Category, FilterField, Product } from 'shared/types/product';
+import { Category, FilterField, Product } from '@/types/product';
 import { SDKResponse, ServerOptions } from '@commercetools/frontend-sdk';
-import { PaginatedResult, ProductPaginatedResult } from 'shared/types/result';
+import { PaginatedResult, ProductPaginatedResult } from '@/types/result';
 
 type GetProductAction = (
   query: GetProductQuery,

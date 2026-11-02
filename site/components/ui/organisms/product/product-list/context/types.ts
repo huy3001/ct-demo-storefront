@@ -1,8 +1,8 @@
 import { ShippingMethod } from '@/types/entity/cart';
 import { Category } from '@/types/entity/category';
-import { Variant } from '@/types/entity/product';
 import { LineItem as WishlistLineItem, Wishlist } from '@/types/entity/wishlist';
 import { FacetConfiguration, PriceConfiguration } from '../types';
+import type { Variant } from '@/lib/types';
 
 export interface RefinementRemovedEvent {
   attribute: string;

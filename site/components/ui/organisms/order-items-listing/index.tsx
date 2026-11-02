@@ -2,7 +2,7 @@ import React, { FC, useMemo, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import Accordion from '@/components/ui/atoms/accordion';
 import useClassNames from '@/hooks/useClassNames';
-import { LineItem } from '@/types/entity/cart';
+import { LineItem } from '@/types/cart/LineItem';
 import ClosedButton from './closed-button';
 import OrderItem from './order-item';
 import OrderItemsList from './order-items-list';

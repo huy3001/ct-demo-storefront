@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Order } from 'shared/@/types/cart/Order';
-import { useCart } from 'frontastic';
+import { Order } from '@/types/cart/Order';
+import useCart from '@/frontastic/hooks/useCart';
 
 const useOrderFetch = () => {
   const { orderHistory, shippingMethods } = useCart();
@@ -9,6 +9,7 @@ const useOrderFetch = () => {
 
   useEffect(() => {
     if (orderHistory) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(true);
 
       orderHistory()

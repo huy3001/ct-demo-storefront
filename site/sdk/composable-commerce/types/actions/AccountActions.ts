@@ -1,4 +1,4 @@
-import { Account } from 'shared/types/account';
+import { Account } from '@/types/account';
 import { SDKResponse, ServerOptions } from '@commercetools/frontend-sdk';
 import {
   LoginAccountPayload,
