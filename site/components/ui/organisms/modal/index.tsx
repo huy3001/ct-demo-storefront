@@ -1,0 +1,59 @@
+'use client';
+
+import { FC, useEffect } from 'react';
+import { XMarkIcon as CloseIcon } from '@heroicons/react/24/solid';
+import ReactModal, { Props as ReactModalProps } from 'react-modal';
+import useMediaQuery from '@/hooks/useMediaQuery';
+import { desktop } from '@/helpers/utils/screensizes';
+
+export interface ModalProps extends ReactModalProps {
+  closeButton?: boolean;
+}
+
+const Modal: FC<ModalProps> = ({ children, style, preventScroll, closeButton, className = '', ...props }) => {
+  const [isDesktopSize] = useMediaQuery(desktop);
+
+  const modalStyle: ReactModalProps['style'] = {
+    overlay: {
+      zIndex: 51,
+      backgroundColor: 'rgba(127 ,127, 127, .3)',
+      ...style?.overlay,
+    },
+    content: {
+      top: '50%',
+      left: '50%',
+      right: 'auto',
+      bottom: 'auto',
+      transform: 'translate(-50%, -50%)',
+      maxWidth: isDesktopSize ? 800 : '100%',
+      position: 'relative',
+      padding: 0,
+      outline: 'none',
+      ...style?.content,
+    },
+  };
+
+  useEffect(() => {
+    if (preventScroll) document.body.style.overflow = props.isOpen ? 'hidden' : 'auto';
+  }, [props.isOpen, preventScroll]);
+
+  return (
+    <ReactModal
+      {...props}
+      ariaHideApp={false}
+      style={modalStyle}
+      preventScroll={preventScroll}
+      className={`${className} relative overflow-hidden rounded-lg bg-white`}
+      parentSelector={() => document.getElementById('react-modal-custom-portal') ?? document.body}
+    >
+      {closeButton && (
+        <button onClick={props.onRequestClose} className="absolute right-5 top-5 focus:ring-1">
+          <CloseIcon className="size-6 text-gray-600" />
+        </button>
+      )}
+      {children}
+    </ReactModal>
+  );
+};
+
+export default Modal;

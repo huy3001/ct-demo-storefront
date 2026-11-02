@@ -1,0 +1,11 @@
+{
+	"mcpServers": {
+		"my-mcp-server-ff48fb4e": {
+			"type": "http",
+			"url": "https://docs.commercetools.com/apis/mcp",
+			"tools": [
+				"*"
+			]
+		}
+	}
+}
