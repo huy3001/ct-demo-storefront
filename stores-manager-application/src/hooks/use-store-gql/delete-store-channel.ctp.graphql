@@ -1,0 +1,5 @@
+mutation DeleteStoreChannel($id: String!, $version: Long!) {
+  deleteChannel(id: $id, version: $version) {
+    id
+  }
+}

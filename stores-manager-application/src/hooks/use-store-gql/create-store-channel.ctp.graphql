@@ -1,0 +1,7 @@
+mutation CreateStoreChannel($draft: ChannelDraft!) {
+  createChannel(draft: $draft) {
+    id
+    version
+    key
+  }
+}

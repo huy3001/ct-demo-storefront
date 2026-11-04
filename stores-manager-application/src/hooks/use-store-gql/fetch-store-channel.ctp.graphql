@@ -1,0 +1,18 @@
+query FetchStoreChannel($id: String!) {
+  channel(id: $id) {
+    id
+    version
+    key
+    roles
+    nameAllLocales {
+      locale
+      value
+    }
+    custom {
+      customFieldsRaw {
+        name
+        value
+      }
+    }
+  }
+}

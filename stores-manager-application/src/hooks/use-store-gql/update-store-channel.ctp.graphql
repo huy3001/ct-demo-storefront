@@ -1,0 +1,11 @@
+mutation UpdateStoreChannel(
+  $id: String!
+  $version: Long!
+  $actions: [ChannelUpdateAction!]!
+) {
+  updateChannel(id: $id, version: $version, actions: $actions) {
+    id
+    version
+    key
+  }
+}
