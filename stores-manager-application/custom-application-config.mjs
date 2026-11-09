@@ -13,10 +13,8 @@ const config = {
       initialProjectKey: 'test-b2b-project',
     },
     production: {
-      applicationId: process.env.APPLICATION_ID ?? 'application-id-placeholder',
-      url:
-        process.env.APPLICATION_URL ??
-        'https://stores-manager-application.vercel.app',
+      applicationId: 'cmw92d890000101vi729qxmsl',
+      url: 'https://stores-manager-application.vercel.app',
     },
   },
   headers: {
