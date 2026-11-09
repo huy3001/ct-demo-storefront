@@ -4,14 +4,19 @@ import {
   type ServerError,
 } from '@apollo/client';
 import {
+  ADDRESS_FORM_FIELDS,
+  ADDRESS_PRESERVED_FIELDS,
   STORE_CHANNEL_ROLE,
   STORE_METADATA_TYPE_KEY,
   WEEK_DAYS,
 } from './constants';
 import type {
+  TAddress,
+  TAddressFormValues,
   TChannelDraft,
   TChannelUpdateAction,
   TCustomFieldInput,
+  TGeometryInput,
   TLocalizedField,
   TOpeningHours,
   TStore,
@@ -19,6 +24,15 @@ import type {
   TStoreFormValues,
   TStoreMarker,
 } from './types';
+
+const MISSING_TYPE_MESSAGE = /The type with the key '.+' was not found/;
+
+export const isMissingMetadataTypeError = (errors: unknown) =>
+  (Array.isArray(errors) ? errors : [errors]).some(
+    (error) =>
+      typeof (error as Error | undefined)?.message === 'string' &&
+      MISSING_TYPE_MESSAGE.test((error as Error).message)
+  );
 
 export const getErrorMessage = (error: ApolloError) =>
   error.graphQLErrors?.map((e) => e.message).join('\n') || error.message;
@@ -80,6 +94,11 @@ export const channelToStore = (channel: TStoreChannel): TStore => {
     Record<string, unknown>
   >((acc, { name, value }) => ({ ...acc, [name]: value }), {});
 
+  // The channel's native geoLocation is the source of truth; custom fields are a legacy fallback
+  const [nativeLongitude, nativeLatitude] =
+    channel.geoLocation?.coordinates ?? [];
+  const address = channel.address ?? {};
+
   return {
     id: channel.id,
     version: channel.version,
@@ -90,10 +109,11 @@ export const channelToStore = (channel: TStoreChannel): TStore => {
       typeof fields.phoneNumber === 'string' ? fields.phoneNumber : '',
     storeManager:
       typeof fields.storeManager === 'string' ? fields.storeManager : '',
-    latitude: toNumberOrNull(fields.latitude),
-    longitude: toNumberOrNull(fields.longitude),
+    latitude: toNumberOrNull(nativeLatitude ?? fields.latitude),
+    longitude: toNumberOrNull(nativeLongitude ?? fields.longitude),
     openingHours:
       typeof fields.openingHours === 'string' ? fields.openingHours : '',
+    address: { ...address, state: address.state || address.region || null },
   };
 };
 
@@ -126,6 +146,18 @@ export const toStoreMarkers = (
         ]
   );
 
+const emptyAddress = (): TAddressFormValues =>
+  ADDRESS_FORM_FIELDS.reduce(
+    (acc, field) => ({ ...acc, [field]: '' }),
+    {} as TAddressFormValues
+  );
+
+const toAddressFormValues = (address?: TAddress): TAddressFormValues =>
+  ADDRESS_FORM_FIELDS.reduce(
+    (acc, field) => ({ ...acc, [field]: address?.[field] ?? '' }),
+    emptyAddress()
+  );
+
 export const storeToFormValues = (
   store: TStore | undefined,
   projectLanguages: string[],
@@ -141,7 +173,43 @@ export const storeToFormValues = (
   openingHours: store ? store.openingHours : defaultOpeningHours,
   latitude: store?.latitude === null || !store ? '' : String(store.latitude),
   longitude: store?.longitude === null || !store ? '' : String(store.longitude),
+  address: toAddressFormValues(store?.address),
 });
+
+const hasAddress = (address: TAddressFormValues) =>
+  ADDRESS_FORM_FIELDS.some((field) => address[field].trim() !== '');
+
+// Form fields override the stored address; fields the form does not edit are preserved
+const buildAddressInput = (
+  address: TAddressFormValues,
+  original?: TAddress
+): TAddress | null => {
+  if (!hasAddress(address)) return null;
+  // Only whitelisted fields are kept: Apollo adds __typename, which AddressInput rejects
+  const preserved = Object.fromEntries(
+    ADDRESS_PRESERVED_FIELDS.map((field) => [field, original?.[field]]).filter(
+      ([, value]) => Boolean(value)
+    )
+  );
+  const edited = Object.fromEntries(
+    ADDRESS_FORM_FIELDS.map((field) => [field, address[field].trim()]).filter(
+      ([, value]) => value !== ''
+    )
+  );
+  return {
+    ...preserved,
+    ...edited,
+    ...(edited.state ? { region: edited.state } : {}),
+  };
+};
+
+const buildGeoLocation = (values: TStoreFormValues): TGeometryInput | null =>
+  values.latitude.trim() === '' || values.longitude.trim() === ''
+    ? null
+    : {
+        type: 'Point',
+        coordinates: [Number(values.longitude), Number(values.latitude)],
+      };
 
 const normalizeOpeningHours = (value: string) => {
   const trimmed = value.trim();
@@ -156,12 +224,6 @@ const buildCustomFields = (values: TStoreFormValues): TCustomFieldInput[] => {
       value: JSON.stringify(normalizeOpeningHours(values.openingHours)),
     },
   ];
-  if (values.latitude.trim() !== '') {
-    fields.push({ name: 'latitude', value: String(Number(values.latitude)) });
-  }
-  if (values.longitude.trim() !== '') {
-    fields.push({ name: 'longitude', value: String(Number(values.longitude)) });
-  }
   if (values.phoneNumber.trim() !== '') {
     fields.push({
       name: 'phoneNumber',
@@ -177,21 +239,29 @@ const buildCustomFields = (values: TStoreFormValues): TCustomFieldInput[] => {
   return fields;
 };
 
-export const buildCreateDraft = (values: TStoreFormValues): TChannelDraft => ({
-  key: values.key.trim(),
-  roles: [STORE_CHANNEL_ROLE],
-  name: recordToLocalizedField(values.name),
-  custom: {
-    typeKey: STORE_METADATA_TYPE_KEY,
-    fields: buildCustomFields(values),
-  },
-});
+export const buildCreateDraft = (values: TStoreFormValues): TChannelDraft => {
+  const geoLocation = buildGeoLocation(values);
+  const address = buildAddressInput(values.address);
+  return {
+    key: values.key.trim(),
+    roles: [STORE_CHANNEL_ROLE],
+    name: recordToLocalizedField(values.name),
+    custom: {
+      typeKey: STORE_METADATA_TYPE_KEY,
+      fields: buildCustomFields(values),
+    },
+    ...(geoLocation ? { geoLocation } : {}),
+    ...(address ? { address } : {}),
+  };
+};
 
 const normalizedFormValues = (values: TStoreFormValues) =>
   JSON.stringify({
     key: values.key.trim(),
     name: recordToLocalizedField(values.name),
     custom: buildCustomFields(values),
+    geoLocation: buildGeoLocation(values),
+    address: buildAddressInput(values.address),
   });
 
 export const buildUpdateActions = (
@@ -223,6 +293,23 @@ export const buildUpdateActions = (
       setCustomType: {
         typeKey: STORE_METADATA_TYPE_KEY,
         fields: buildCustomFields(values),
+      },
+    });
+  }
+
+  if (
+    values.latitude.trim() !== originalValues.latitude.trim() ||
+    values.longitude.trim() !== originalValues.longitude.trim()
+  ) {
+    actions.push({ setGeoLocation: { geoLocation: buildGeoLocation(values) } });
+  }
+  if (
+    JSON.stringify(buildAddressInput(values.address)) !==
+    JSON.stringify(buildAddressInput(originalValues.address))
+  ) {
+    actions.push({
+      setAddress: {
+        address: buildAddressInput(values.address, original.address),
       },
     });
   }

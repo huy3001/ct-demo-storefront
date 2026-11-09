@@ -13,12 +13,15 @@ import {
 import { ApplicationPageTitle } from '@commercetools-frontend/application-shell';
 import { useApplicationContext } from '@commercetools-frontend/application-shell-connectors';
 import { DOMAINS } from '@commercetools-frontend/constants';
+import { useCountries } from '@commercetools-frontend/l10n';
 import { useIsAuthorized } from '@commercetools-frontend/permissions';
+import FieldLabel from '@commercetools-uikit/field-label';
 import Grid from '@commercetools-uikit/grid';
 import LoadingSpinner from '@commercetools-uikit/loading-spinner';
 import LocalizedTextField from '@commercetools-uikit/localized-text-field';
 import MultilineTextField from '@commercetools-uikit/multiline-text-field';
 import { ContentNotification } from '@commercetools-uikit/notifications';
+import SelectInput from '@commercetools-uikit/select-input';
 import Spacings from '@commercetools-uikit/spacings';
 import Text from '@commercetools-uikit/text';
 import TextField from '@commercetools-uikit/text-field';
@@ -34,7 +37,7 @@ import {
   useStoreChannelFetcher,
   useStoreChannelUpdater,
 } from '../../hooks/use-store-gql';
-import type { TStoreFormValues } from '../../types';
+import type { TAddressFormField, TStoreFormValues } from '../../types';
 import StoreLocationPicker from './store-location-picker';
 import validate, { renderError, toFieldErrors } from './validate';
 
@@ -56,10 +59,14 @@ const isDuplicateKeyError = (error: unknown) =>
 const StoreForm = (props: TStoreFormProps) => {
   const { id } = useParams<{ id?: string }>();
   const isEditing = Boolean(id);
-  const { dataLocale, projectLanguages } = useApplicationContext((context) => ({
-    dataLocale: context.dataLocale ?? '',
-    projectLanguages: context.project?.languages ?? [],
-  }));
+  const { dataLocale, projectLanguages, userLocale } = useApplicationContext(
+    (context) => ({
+      dataLocale: context.dataLocale ?? '',
+      projectLanguages: context.project?.languages ?? [],
+      userLocale: context.user?.locale ?? 'en',
+    })
+  );
+  const { data: countryNames } = useCountries(userLocale);
   const canManage = useIsAuthorized({
     demandedPermissions: [PERMISSIONS.Manage],
   });
@@ -114,10 +121,37 @@ const StoreForm = (props: TStoreFormProps) => {
     },
   });
 
+  const isReadOnly = !canManage;
+  // l10n country data is keyed by lowercase ISO code; addresses use uppercase codes
+  const countryOptions = useMemo(
+    () =>
+      Object.entries(countryNames as Record<string, string>)
+        .map(([code, name]) => ({
+          value: code.toUpperCase(),
+          label: `${name} (${code.toUpperCase()})`,
+        }))
+        .sort((a, b) => a.label.localeCompare(b.label)),
+    [countryNames]
+  );
+
+  const addressField = (
+    field: Exclude<TAddressFormField, 'country'>,
+    title: string
+  ) => (
+    <TextField
+      name={`address.${field}`}
+      title={title}
+      value={formik.values.address[field]}
+      onChange={formik.handleChange}
+      onBlur={formik.handleBlur}
+      isReadOnly={isReadOnly}
+      horizontalConstraint="scale"
+    />
+  );
+
   const storeName =
     getStoreName(formik.values.name, dataLocale, projectLanguages) ||
     (isEditing ? '' : 'New store');
-  const isReadOnly = !canManage;
   const isDirty = isStoreFormDirty(formik.values, initialValues);
 
   return (
@@ -226,6 +260,12 @@ const StoreForm = (props: TStoreFormProps) => {
                   formik.setFieldValue('latitude', String(latitude));
                   formik.setFieldValue('longitude', String(longitude));
                 }}
+                onAddressSelect={(address) =>
+                  formik.setFieldValue('address', {
+                    ...formik.values.address,
+                    ...address,
+                  })
+                }
               />
               <Spacings.Inline scale="m">
                 <TextField
@@ -253,6 +293,36 @@ const StoreForm = (props: TStoreFormProps) => {
                   horizontalConstraint={6}
                 />
               </Spacings.Inline>
+              <Text.Subheadline as="h4">Address</Text.Subheadline>
+              <Spacings.Stack scale="xs">
+                <FieldLabel title="Country" />
+                <SelectInput
+                  name="address.country"
+                  value={formik.values.address.country}
+                  options={countryOptions}
+                  onChange={(event) =>
+                    formik.setFieldValue(
+                      'address.country',
+                      (event.target.value as string | null) ?? ''
+                    )
+                  }
+                  onBlur={formik.handleBlur}
+                  isReadOnly={isReadOnly}
+                  isClearable
+                  horizontalConstraint="scale"
+                />
+                {formik.errors.address?.country && (
+                  <Text.Detail tone="negative">
+                    {formik.errors.address.country}
+                  </Text.Detail>
+                )}
+              </Spacings.Stack>
+              {addressField('streetName', 'Street name')}
+              {addressField('streetNumber', 'House number')}
+              {addressField('additionalStreetInfo', 'Additional street info')}
+              {addressField('postalCode', 'Postal code')}
+              {addressField('city', 'City')}
+              {addressField('state', 'State')}
             </Spacings.Stack>
           </Grid.Item>
         </Grid>

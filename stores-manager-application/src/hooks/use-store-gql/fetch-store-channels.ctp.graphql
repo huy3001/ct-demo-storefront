@@ -15,6 +15,35 @@ query FetchStoreChannels($limit: Int!, $offset: Int!, $sort: [String!]) {
         locale
         value
       }
+      address {
+        country
+        streetName
+        streetNumber
+        additionalStreetInfo
+        postalCode
+        city
+        state
+        region
+        additionalAddressInfo
+        company
+        apartment
+        building
+        department
+        pOBox
+        phone
+        mobile
+        fax
+        email
+        firstName
+        lastName
+        title
+        salutation
+      }
+      geoLocation {
+        ... on Point {
+          coordinates
+        }
+      }
       custom {
         customFieldsRaw {
           name

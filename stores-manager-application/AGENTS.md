@@ -22,9 +22,7 @@ This application will be integrated directly into the commercetools Merchant Cen
 Before creating channels, the application relies on a Custom Type named `store-metadata-type` assigned to the Resource Type `channel`.
 
 ### Custom Fields Schema (`store-metadata-type`)
-Your code must expect and query these exact custom fields on the Channel object:
-* `latitude` (Number) -> Floating-point latitude.
-* `longitude` (Number) -> Floating-point longitude.
+Your code must expect and query these exact custom fields on the Channel object. Latitude/longitude and the address are NOT custom fields: they use the Channel's native `geoLocation` (GeoJSON Point `[lng, lat]`) and `address`, so they stay identical to the Merchant Center. The type is auto-created on first save when missing (`manage_types` scope).
 * `openingHours` (String) -> JSON string representing weekly hours (e.g., `{"mon": "09:00-21:00", ...}`).
 * `phoneNumber` (String) -> Store contact number.
 * `storeManager` (String) -> Name of the assigned manager.

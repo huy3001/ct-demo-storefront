@@ -1,4 +1,9 @@
-import type { WEEK_DAYS } from './constants';
+import type {
+  ADDRESS_FORM_FIELDS,
+  ADDRESS_PRESERVED_FIELDS,
+  STORE_METADATA_TYPE_DRAFT,
+  WEEK_DAYS,
+} from './constants';
 
 export type TWeekDay = (typeof WEEK_DAYS)[number];
 
@@ -8,6 +13,17 @@ export type TLocalizedField = { locale: string; value: string };
 
 export type TCustomFieldRaw = { name: string; value: unknown };
 
+export type TAddressFormField = (typeof ADDRESS_FORM_FIELDS)[number];
+
+export type TAddressField =
+  | TAddressFormField
+  | (typeof ADDRESS_PRESERVED_FIELDS)[number]
+  | 'region';
+
+export type TAddress = Partial<Record<TAddressField, string | null>>;
+
+export type TAddressFormValues = Record<TAddressFormField, string>;
+
 export type TStoreChannel = {
   id: string;
   version: number;
@@ -15,6 +31,8 @@ export type TStoreChannel = {
   roles: string[];
   nameAllLocales?: TLocalizedField[] | null;
   custom?: { customFieldsRaw?: TCustomFieldRaw[] | null } | null;
+  geoLocation?: { coordinates?: number[] | null } | null;
+  address?: TAddress | null;
 };
 
 export type TFetchStoreChannelsQuery = {
@@ -31,11 +49,22 @@ export type TFetchStoreChannelQueryVariables = { id: string };
 
 export type TCustomFieldInput = { name: string; value: string };
 
+export type TGeometryInput = { type: 'Point'; coordinates: number[] };
+
 export type TChannelDraft = {
   key: string;
   roles: string[];
   name: TLocalizedField[];
   custom: { typeKey: string; fields: TCustomFieldInput[] };
+  geoLocation?: TGeometryInput;
+  address?: TAddress;
+};
+
+export type TCreateStoreMetadataTypeMutation = {
+  createTypeDefinition?: { id: string; key: string } | null;
+};
+export type TCreateStoreMetadataTypeMutationVariables = {
+  draft: typeof STORE_METADATA_TYPE_DRAFT;
 };
 
 export type TCreateStoreChannelMutation = {
@@ -73,6 +102,7 @@ export type TStore = {
   latitude: number | null;
   longitude: number | null;
   openingHours: string;
+  address: TAddress;
 };
 
 export type TStoreFormValues = {
@@ -83,6 +113,7 @@ export type TStoreFormValues = {
   openingHours: string;
   latitude: string;
   longitude: string;
+  address: TAddressFormValues;
 };
 
 export type TStoreMarker = {

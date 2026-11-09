@@ -7,15 +7,19 @@ import {
   useMcQuery,
 } from '@commercetools-frontend/application-shell';
 import { GRAPHQL_TARGETS } from '@commercetools-frontend/constants';
+import { STORE_METADATA_TYPE_DRAFT } from '../../constants';
 import {
   buildCreateDraft,
   buildUpdateActions,
   channelToStore,
   extractErrorFromGraphQlResponse,
+  isMissingMetadataTypeError,
 } from '../../helpers';
 import type {
   TCreateStoreChannelMutation,
   TCreateStoreChannelMutationVariables,
+  TCreateStoreMetadataTypeMutation,
+  TCreateStoreMetadataTypeMutationVariables,
   TDeleteStoreChannelMutation,
   TDeleteStoreChannelMutationVariables,
   TFetchStoreChannelQuery,
@@ -28,6 +32,7 @@ import type {
   TUpdateStoreChannelMutationVariables,
 } from '../../types';
 import CreateStoreChannelMutation from './create-store-channel.ctp.graphql';
+import CreateStoreMetadataTypeMutation from './create-store-metadata-type.ctp.graphql';
 import DeleteStoreChannelMutation from './delete-store-channel.ctp.graphql';
 import FetchStoreChannelQuery from './fetch-store-channel.ctp.graphql';
 import FetchStoreChannelsQuery from './fetch-store-channels.ctp.graphql';
@@ -82,29 +87,58 @@ export const useStoreChannelFetcher = (id?: string) => {
   return { store, error: error as ApolloError | undefined, loading };
 };
 
+// The metadata type is a project-level prerequisite; create it on first use when it is missing
+const useStoreMetadataTypeEnsurer = () => {
+  const [createType] = useMcMutation<
+    TCreateStoreMetadataTypeMutation,
+    TCreateStoreMetadataTypeMutationVariables
+  >(CreateStoreMetadataTypeMutation);
+
+  return async <T>(run: () => Promise<T>): Promise<T> => {
+    try {
+      return await run();
+    } catch (graphQlResponse) {
+      const errors = extractErrorFromGraphQlResponse(graphQlResponse);
+      if (!isMissingMetadataTypeError(errors)) throw errors;
+      try {
+        await createType({
+          context,
+          variables: { draft: STORE_METADATA_TYPE_DRAFT },
+        });
+      } catch (createTypeResponse) {
+        throw extractErrorFromGraphQlResponse(createTypeResponse);
+      }
+      try {
+        return await run();
+      } catch (retryResponse) {
+        throw extractErrorFromGraphQlResponse(retryResponse);
+      }
+    }
+  };
+};
+
 export const useStoreChannelCreator = () => {
+  const ensureMetadataType = useStoreMetadataTypeEnsurer();
   const [createChannel, { loading }] = useMcMutation<
     TCreateStoreChannelMutation,
     TCreateStoreChannelMutationVariables
   >(CreateStoreChannelMutation);
 
-  const execute = async (values: TStoreFormValues) => {
-    try {
-      return await createChannel({
+  const execute = (values: TStoreFormValues) =>
+    ensureMetadataType(() =>
+      createChannel({
         context,
         variables: { draft: buildCreateDraft(values) },
         refetchQueries: REFETCH_QUERIES,
         awaitRefetchQueries: true,
-      });
-    } catch (graphQlResponse) {
-      throw extractErrorFromGraphQlResponse(graphQlResponse);
-    }
-  };
+      })
+    );
 
   return { execute, loading };
 };
 
 export const useStoreChannelUpdater = () => {
+  const ensureMetadataType = useStoreMetadataTypeEnsurer();
   const [updateChannel, { loading }] = useMcMutation<
     TUpdateStoreChannelMutation,
     TUpdateStoreChannelMutationVariables
@@ -121,16 +155,14 @@ export const useStoreChannelUpdater = () => {
   }) => {
     const actions = buildUpdateActions(store, values, originalValues);
     if (actions.length === 0) return undefined;
-    try {
-      return await updateChannel({
+    return ensureMetadataType(() =>
+      updateChannel({
         context,
         variables: { id: store.id, version: store.version, actions },
         refetchQueries: REFETCH_QUERIES,
         awaitRefetchQueries: true,
-      });
-    } catch (graphQlResponse) {
-      throw extractErrorFromGraphQlResponse(graphQlResponse);
-    }
+      })
+    );
   };
 
   return { execute, loading };

@@ -1,0 +1,6 @@
+mutation CreateStoreMetadataType($draft: TypeDefinitionDraft!) {
+  createTypeDefinition(draft: $draft) {
+    id
+    key
+  }
+}

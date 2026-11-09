@@ -1,7 +1,10 @@
 import { validateOpeningHours } from '../../helpers';
-import type { TStoreFormValues } from '../../types';
+import { ADDRESS_FORM_FIELDS } from '../../constants';
+import type { TAddressFormValues, TStoreFormValues } from '../../types';
 
-export type TStoreFormErrors = Partial<Record<keyof TStoreFormValues, string>>;
+export type TStoreFormErrors = Partial<
+  Record<Exclude<keyof TStoreFormValues, 'address'>, string>
+> & { address?: Partial<Record<keyof TAddressFormValues, string>> };
 
 const KEY_PATTERN = /^[A-Za-z0-9_-]{2,256}$/;
 const PHONE_PATTERN = /^[0-9+()\-./\s]{3,30}$/;
@@ -50,6 +53,16 @@ const validate = (values: TStoreFormValues): TStoreFormErrors => {
   if (longitude !== '' && !(Math.abs(Number(longitude)) <= 180)) {
     errors.longitude = 'Longitude must be a number between -180 and 180';
   }
+
+  const address = values.address;
+  const addressErrors: NonNullable<TStoreFormErrors['address']> = {};
+  const hasAddress = ADDRESS_FORM_FIELDS.some(
+    (field) => address[field].trim() !== ''
+  );
+  if (hasAddress && !address.country.trim()) {
+    addressErrors.country = 'Country is required when an address is set';
+  }
+  if (Object.keys(addressErrors).length > 0) errors.address = addressErrors;
 
   return errors;
 };

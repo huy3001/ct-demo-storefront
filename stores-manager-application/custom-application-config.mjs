@@ -29,8 +29,8 @@ const config = {
     },
   },
   oAuthScopes: {
-    view: ['view_products'],
-    manage: ['manage_products'],
+    view: ['view_products', 'view_types'],
+    manage: ['manage_products', 'manage_types'],
   },
   icon: '${path:@commercetools-frontend/assets/application-icons/location.svg}',
   mainMenuLink: {

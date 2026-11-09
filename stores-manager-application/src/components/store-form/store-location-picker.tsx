@@ -12,6 +12,7 @@ import { ContentNotification } from '@commercetools-uikit/notifications';
 import SearchTextInput from '@commercetools-uikit/search-text-input';
 import Spacings from '@commercetools-uikit/spacings';
 import Text from '@commercetools-uikit/text';
+import type { TAddressFormValues } from '../../types';
 // @ts-expect-error CSS is loaded by the application bundler.
 import 'leaflet/dist/leaflet.css';
 
@@ -31,6 +32,29 @@ type TSearchResult = {
   display_name: string;
   lat: string;
   lon: string;
+  address?: Record<string, string>;
+};
+
+// Maps a Nominatim result to the channel address fields used by the Merchant Center
+export const toAddressFormValues = (
+  result: TSearchResult
+): Partial<TAddressFormValues> => {
+  const address = result.address ?? {};
+  const regionCode = address['ISO3166-2-lvl4']?.split('-')[1];
+  return {
+    country: (address.country_code ?? '').toUpperCase(),
+    streetName: address.road ?? address.pedestrian ?? '',
+    streetNumber: address.house_number ?? '',
+    postalCode: address.postcode ?? '',
+    city:
+      address.city ??
+      address.town ??
+      address.village ??
+      address.hamlet ??
+      address.municipality ??
+      '',
+    state: regionCode ?? address.state ?? '',
+  };
 };
 
 type TStoreLocationPickerProps = {
@@ -38,6 +62,7 @@ type TStoreLocationPickerProps = {
   longitude: string;
   isReadOnly?: boolean;
   onChange: (latitude: number, longitude: number) => void;
+  onAddressSelect?: (address: Partial<TAddressFormValues>) => void;
 };
 
 const toPosition = (latitude: string, longitude: string) => {
@@ -103,7 +128,9 @@ const StoreLocationPicker = (props: TStoreLocationPickerProps) => {
     setIsSearching(true);
     try {
       const response = await fetch(
-        `${NOMINATIM_URL}?format=jsonv2&limit=5&q=${encodeURIComponent(query)}`
+        `${NOMINATIM_URL}?format=jsonv2&addressdetails=1&limit=5&q=${encodeURIComponent(
+          query
+        )}`
       );
       if (!response.ok) throw new Error(response.statusText);
       const found = (await response.json()) as TSearchResult[];
@@ -148,6 +175,7 @@ const StoreLocationPicker = (props: TStoreLocationPickerProps) => {
               label={result.display_name}
               onClick={() => {
                 onChange(Number(result.lat), Number(result.lon));
+                props.onAddressSelect?.(toAddressFormValues(result));
                 setSearch(result.display_name);
                 setResults([]);
               }}

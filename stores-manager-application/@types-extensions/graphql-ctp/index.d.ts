@@ -39,3 +39,11 @@ declare module '*/delete-store-channel.ctp.graphql' {
 
   export default defaultDocument;
 }
+
+declare module '*/create-store-metadata-type.ctp.graphql' {
+  import { DocumentNode } from 'graphql';
+  const defaultDocument: DocumentNode;
+  export const CreateStoreMetadataType: DocumentNode;
+
+  export default defaultDocument;
+}
