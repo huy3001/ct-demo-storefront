@@ -29,7 +29,7 @@ export default async function HomePage({
       <section className="bg-cream-dark relative">
         <Banner
           image={{
-            src: 'https://images.us-east-2.aws.commercetools.com/f8057d5f-514c-4c2b-9351-cee0d7b32271/B2B-second-banner-FOMtWU-S.jpg',
+            src: '/main-banner.jpg',
           }}
           title="Heavy equipment for a stronger tomorrow"
           description="Reliable machinery for every challenge"
@@ -63,7 +63,7 @@ export default async function HomePage({
       <section className="mx-auto max-w-7xl py-10">
         <Banner
           image={{
-            src: 'https://images.us-east-2.aws.commercetools.com/f8057d5f-514c-4c2b-9351-cee0d7b32271/B2B-sale-banner-fVPnTZ_Q.jpg',
+            src: '/sale-banner.jpg',
           }}
           title=""
           // heading="Limited-time offers"

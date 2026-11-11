@@ -63,7 +63,7 @@ const MobileMenuFooter: FC<Props> = ({ hideHeaderMenu, insertCategory }) => {
       <div className="mb-4 mt-3 w-full border border-neutral-400" />
 
       {isSignedIn ? (
-        <div className="ml-6 mr-5.5 block pt-4 md:hidden">
+        <div className="mx-6 block pt-4 md:hidden">
           <MobileMenuNavButton
             link={accountButton}
             onClick={() => insertCategory(accountButton)}
@@ -72,7 +72,7 @@ const MobileMenuFooter: FC<Props> = ({ hideHeaderMenu, insertCategory }) => {
           />
         </div>
       ) : (
-        <div className="ml-6 mr-5.5 block py-4 md:hidden">
+        <div className="mx-6 block py-4 md:hidden">
           <Link
             link="/help"
             onClick={hideHeaderMenu}
@@ -84,6 +84,15 @@ const MobileMenuFooter: FC<Props> = ({ hideHeaderMenu, insertCategory }) => {
           </Link>
         </div>
       )}
+
+      <div className="mx-6 flex py-4">
+        <Link
+          link="/find-store"
+          onClick={hideHeaderMenu}
+        >
+          Find Store
+        </Link>
+      </div>
 
       <div className="mx-6 flex py-4">
         {isSignedIn ? (
@@ -109,6 +118,7 @@ const MobileMenuFooter: FC<Props> = ({ hideHeaderMenu, insertCategory }) => {
           </Link>
         )}
       </div>
+
       <div className="p-4">
         <ShippingAndLanguageSectionMobile />
       </div>

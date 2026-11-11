@@ -36,7 +36,16 @@ const AnnouncementBar: React.FC<Props> = ({ text, highlightedSubstring, target }
 
   return (
     <div className="relative w-full bg-charcoal">
-      <div className="w-full h-8 mx-auto max-w-7xl px-4 md:h-10">
+      <div className="flex items-center justify-between relative mx-auto h-8 w-full max-w-7xl px-4 md:h-10">
+        <div className="flex items-center justify-start">
+          <Link
+            link="/find-store"
+            className="hidden lg:block whitespace-nowrap text-sm text-white underline-offset-4 hover:underline"
+          >
+            Find Store
+          </Link>
+        </div>
+
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           <p className="whitespace-nowrap text-center text-xs leading-loose text-white uppercase">
             {previewText.prefix}
@@ -50,7 +59,7 @@ const AnnouncementBar: React.FC<Props> = ({ text, highlightedSubstring, target }
           </p>
         </div>
 
-        <div className="flex size-full items-center justify-end">
+        <div className="flex items-center justify-end">
           <ShippingAndLanguageSection desktopDirection="right" />
         </div>
       </div>
