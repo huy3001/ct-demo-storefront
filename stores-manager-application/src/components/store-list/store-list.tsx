@@ -41,6 +41,8 @@ const columns = [
   { key: 'actions', label: 'Actions' },
 ];
 
+const formatRole = (role: string) => role.replace(/([a-z])([A-Z])/g, '$1 $2');
+
 const StoreList = () => {
   const match = useRouteMatch();
   const { push } = useHistory();
@@ -151,6 +153,7 @@ const StoreList = () => {
                   isCondensed
                   columns={columns}
                   rows={rows}
+                  verticalCellAlignment="center"
                   itemRenderer={(store, column) => {
                     switch (column.key) {
                       case 'name':
@@ -164,7 +167,7 @@ const StoreList = () => {
                       case 'key':
                         return store.key;
                       case 'roles':
-                        return store.roles.join(', ');
+                        return store.roles.map(formatRole).join(', ');
                       case 'phoneNumber':
                         return store.phoneNumber || NO_VALUE_FALLBACK;
                       case 'actions':

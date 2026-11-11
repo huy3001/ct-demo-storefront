@@ -7,6 +7,7 @@ import {
   useMap,
   useMapEvents,
 } from 'react-leaflet';
+import Card from '@commercetools-uikit/card';
 import FlatButton from '@commercetools-uikit/flat-button';
 import { ContentNotification } from '@commercetools-uikit/notifications';
 import SearchTextInput from '@commercetools-uikit/search-text-input';
@@ -164,23 +165,28 @@ const StoreLocationPicker = (props: TStoreLocationPickerProps) => {
               setSearchError(null);
             }}
           />
-          {searchError && (
-            <ContentNotification type="warning">
-              <Text.Body>{searchError}</Text.Body>
-            </ContentNotification>
+          {(searchError || results.length > 0) && (
+            <Card>
+              {isSearching && <Text.Body>Searching addresses...</Text.Body>}
+              {searchError && (
+                <ContentNotification type="warning">
+                  <Text.Body>{searchError}</Text.Body>
+                </ContentNotification>
+              )}
+              {results.map((result) => (
+                <FlatButton
+                  key={result.place_id}
+                  label={result.display_name}
+                  onClick={() => {
+                    onChange(Number(result.lat), Number(result.lon));
+                    props.onAddressSelect?.(toAddressFormValues(result));
+                    setSearch(result.display_name);
+                    setResults([]);
+                  }}
+                />
+              ))}
+            </Card>
           )}
-          {results.map((result) => (
-            <FlatButton
-              key={result.place_id}
-              label={result.display_name}
-              onClick={() => {
-                onChange(Number(result.lat), Number(result.lon));
-                props.onAddressSelect?.(toAddressFormValues(result));
-                setSearch(result.display_name);
-                setResults([]);
-              }}
-            />
-          ))}
         </Spacings.Stack>
       )}
       <div
