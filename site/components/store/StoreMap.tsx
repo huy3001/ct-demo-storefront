@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from 'react';
 import L from 'leaflet';
-import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
+import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
 import type { StoreLocation } from '@/lib/ct/store';
 
 const WORLD_CENTER: [number, number] = [20, 0];
@@ -42,7 +42,10 @@ export default function StoreMap({ stores }: { stores: StoreLocation[] }) {
   const mappableStores = stores.filter((store) => Boolean(store.position));
 
   return (
-    <div className="h-100 overflow-hidden rounded-sm border border-border bg-white lg:h-145" aria-label="Store locations map">
+    <div
+      className="h-100 overflow-hidden rounded-sm border border-border bg-white lg:h-145"
+      aria-label="Store locations map"
+    >
       <MapContainer
         center={WORLD_CENTER}
         zoom={2}
@@ -60,7 +63,14 @@ export default function StoreMap({ stores }: { stores: StoreLocation[] }) {
             key={store.id}
             position={[store.position!.lat, store.position!.lng]}
             icon={storePinIcon}
-          />
+          >
+            <Popup>
+              <div className="flex flex-col items-center text-center">
+                <strong>{store.name}</strong>
+                <span>{store.address}</span>
+              </div>
+            </Popup>
+          </Marker>
         ))}
       </MapContainer>
     </div>

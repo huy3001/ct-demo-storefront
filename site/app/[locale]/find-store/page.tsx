@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import FindStore from '@/components/store/FindStore';
 import Breadcrumb from '@/components/ui/molecules/breadcrumb';
 import { getStores } from '@/lib/ct/store';
@@ -19,7 +19,7 @@ export default async function FindStorePage({
         listClassName="px-0!"
       >
         <Link
-          href={`/${locale}/`}
+          href="/"
           locale={locale}
           className="text-sm text-charcoal-light hover:text-terra"
         >

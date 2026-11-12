@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import BrandList from '@/components/brand/BrandList';
 import Breadcrumb from '@/components/ui/molecules/breadcrumb';
 import { getProductBrands } from '@/lib/ct/product';
@@ -19,7 +19,7 @@ export default async function BrandsPage({
         listClassName="px-0!"
       >
         <Link
-          href={`/${locale}/`}
+          href="/"
           locale={locale}
           className="text-sm text-charcoal-light hover:text-terra"
         >

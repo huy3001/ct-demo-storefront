@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/i18n/routing';
 import Breadcrumb from '@/components/ui/molecules/breadcrumb';
 import CompareProducts from '@/components/compare/CompareProducts';
 import { getProductAttributeLabels } from '@/lib/ct/product-attributes';
@@ -19,7 +19,7 @@ export default async function ComparePage({
         listClassName="px-0!"
       >
         <Link
-          href={`/${locale}/`}
+          href="/"
           locale={locale}
           className="text-sm text-charcoal-light hover:text-terra"
         >
