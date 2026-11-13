@@ -111,7 +111,7 @@ export const footerSocialMediaLinks = [
   {
     logo: {
       media: {
-        file: 'https://images.us-east-2.aws.commercetools.com/1a6aae69-17a8-469c-992e-fb6a71954696/instagram-icon-nl9hcfFZ.png',
+        file: '/instagram-icon.png',
         mediaId: '1a6aae69-17a8-469c-992e-fb6a71954696-in',
         name: 'instagram',
         width: 512,
@@ -123,7 +123,7 @@ export const footerSocialMediaLinks = [
   {
     logo: {
       media: {
-        file: 'https://images.us-east-2.aws.commercetools.com/1a6aae69-17a8-469c-992e-fb6a71954696/facebook-icon-Xninv6fI.png',
+        file: '/facebook-icon.png',
         mediaId: '1a6aae69-17a8-469c-992e-fb6a71954696-fb',
         name: 'facebook',
         width: 512,
@@ -135,7 +135,7 @@ export const footerSocialMediaLinks = [
   {
     logo: {
       media: {
-        file: 'https://images.us-east-2.aws.commercetools.com/1a6aae69-17a8-469c-992e-fb6a71954696/youtube-icon-5I2GtHoc.png',
+        file: '/youtube-icon.png',
         mediaId: '1a6aae69-17a8-469c-992e-fb6a71954696-yt',
         name: 'youtube',
         width: 512,

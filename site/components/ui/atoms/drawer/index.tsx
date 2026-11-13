@@ -71,7 +71,7 @@ const Drawer = ({
     },
   };
 
-  const drawerClassName = useClassNames([className, 'fixed z-[999] shadow-lg', directionStyles[direction]]);
+  const drawerClassName = useClassNames([className, 'fixed z-999 shadow-lg', directionStyles[direction]]);
 
   return (
     <>

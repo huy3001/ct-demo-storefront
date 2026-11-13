@@ -45,7 +45,7 @@ const Header: React.FC<HeaderProps> = ({
       <div className="pt-37 md:pt-45 xl:pt-42" />
       <div
         id="header-container"
-        className="fixed top-0 z-50 w-full"
+        className="fixed top-0 z-1111 w-full"
       >
         <AnnouncementBar
           text={translate('announcement.explore-collection')}

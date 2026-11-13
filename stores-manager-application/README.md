@@ -1,6 +1,6 @@
-# stores-manager-application
+# Stores Manager Application
 
-Merchant Center Custom Application to manage physical stores. Every store is a commercetools **Channel** with the `InventorySupply` role and the `store-metadata-type` custom type, all accessed through GraphQL.
+Merchant Center custom application to manage physical stores. Every store is a commercetools **Channel** with the `InventorySupply` role and the `store-metadata-type` custom type, all accessed through GraphQL.
 
 ## Setup
 
